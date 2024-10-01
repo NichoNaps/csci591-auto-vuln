@@ -21,6 +21,7 @@ class BlockingConsumer:
 
         while True:
             # this is a blocking call
+
             char = self.call()
             # print("Found char! ", char)
 
@@ -63,7 +64,7 @@ class ProcWrap:
 
         # immediately test if the process failed to start and panic about it
         time.sleep(0.3)
-        if self.proc.poll() != None:
+        if not self.isAlive():
             stdout, stderr = self.proc.communicate()
 
             print(f"stdout:{stdout}, stderr:{stderr}")
@@ -75,12 +76,21 @@ class ProcWrap:
         # we are using script command so stdout and stderr get combined into stdout
         # self.stderr = BlockingConsumer(lambda: self.proc.stderr.read(1))
 
+    def isAlive(self):
+        return self.proc.poll() == None
     
-    def send(self, data: str, postfix="\n"): 
-        self.proc.stdin.write(data + postfix)
+    def send(self, data: str, postfix="\n") -> bool: 
+        try:
+            self.proc.stdin.write(data + postfix)
 
-        # make sure to send command
-        self.proc.stdin.flush()  
+            # make sure to send command
+            self.proc.stdin.flush()  
+
+            return True
+
+        except Exception as e:
+            print("unable to send input")
+            return False
     
 
     def read(self):
@@ -107,10 +117,9 @@ def repl():
             for line in output.strip().split('\n'):
                 print(f"[Telnet Process]: {line}")
 
-
         # send user input to telnet
         print()
-        procTelnet.send(input("Enter something to send to telnet > "))
+        procTelnet.send(input("Enter something to send to telnet > ").strip())
 
         time.sleep(0.2)
 
@@ -127,29 +136,81 @@ class Harness:
         procServer = ProcWrap([f"script -c './voidsmtpd {port}' temp.txt && tail -f -n +1 temp.txt"], shell=True)
         procTelnet = ProcWrap([f"script -c 'telnet localhost {port}'"], shell=True)
 
+        log = []
+        crashed = False
 
         for idx, userInput in enumerate(inputs):
+
+            # if something died we crashed
+            if not procServer.isAlive() or not procTelnet.isAlive():
+                crashed = True
+                break
+            
+            # send user input to telnet
+            procTelnet.send(userInput)
+
+            log.append(f"[User Input]: {userInput.strip()}")
+
+            time.sleep(0.2)
 
             # if there was output print it
             if output := procServer.read():
                 for line in output.strip().split('\n'):
-                    print(f"[VoidServer Process]: {line}") 
+                    log.append(f"[VoidServer Process]: {line}") 
 
             # if there was output print it
             if output := procTelnet.read():
                 for line in output.strip().split('\n'):
-                    print(f"[Telnet Process]: {line}")
+                    log.append(f"[Telnet Process]: {line}")
 
-            # send user input to telnet
-            print()
-            procTelnet.send(userInput)
 
-            time.sleep(0.2)
+        # if there was output print it
+        if output := procServer.read():
+            for line in output.strip().split('\n'):
+                log.append(f"[VoidServer Process]: {line}") 
+
+        # if there was output print it
+        if output := procTelnet.read():
+            for line in output.strip().split('\n'):
+                log.append(f"[Telnet Process]: {line}")
+
+        print(log)
+        stdout, stderr = procServer.proc.communicate()
+        print(stdout)
+
+        procServer.terminate()
+        procTelnet.terminate()
+
+    
+        if crashed:
+            return log
+        else:
+            return None
+            
 
 
 if __name__=="__main__":
+    # repl()
     harness = Harness()
 
+    #@TODO this causes a crash but the crash has a non-utf8 character which crashes the consumer
+    log = harness.run(lambda: [
+        "HELO csci591",
+        "MAIL FROM:<c@9aw384htjeaotapw4t09jeac.asdfacom>",
+        "RCPT TO:<e@e.com>",
+        "DATA",
+        """From c\nTo: d, e\nHjklf""",
+        ".",
+        "QUIT"])
 
+    
+    if log is not None:
+        print(f"\n\ncash detected in logs:")
+        for row in log:
+            print(row.strip())
+    else:
+        print("no crash")
+
+#@TODO the mail server sometimes just kicks you for passing the wrong thing, tell this apart from crashes
 #@TODO log inputs and outputs for crashes
 #@TODO parallelize 
