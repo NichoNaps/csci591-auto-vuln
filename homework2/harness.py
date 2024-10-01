@@ -2,11 +2,12 @@ import subprocess
 import time
 import threading 
 import queue
-
+from pathlib import Path
+from multiprocessing import Pool
 
 # consume a blocking call that returns strings into a single concatted string
 # in a non-blocking way
-class Consumer:
+class BlockingConsumer:
     def __init__(self, call):
         self.queue = queue.Queue()
         self.call = call
@@ -60,7 +61,7 @@ class ProcWrap:
         )
 
 
-        # immediately test if the process failed
+        # immediately test if the process failed to start and panic about it
         time.sleep(0.3)
         if self.proc.poll() != None:
             stdout, stderr = self.proc.communicate()
@@ -69,8 +70,10 @@ class ProcWrap:
             exit()
 
         # startup consumers for output
-        self.stdout = Consumer(lambda: self.proc.stdout.read(1))
-        self.stderr = Consumer(lambda: self.proc.stderr.read(1))
+        self.stdout = BlockingConsumer(lambda: self.proc.stdout.read(1))
+
+        # we are using script command so stdout and stderr get combined into stdout
+        # self.stderr = BlockingConsumer(lambda: self.proc.stderr.read(1))
 
     
     def send(self, data: str, postfix="\n"): 
@@ -87,34 +90,66 @@ class ProcWrap:
         self.proc.terminate()
 
 
+def repl():
+    port = 8889
+    procServer = ProcWrap([f"script -c './voidsmtpd {port}' temp.txt && tail -f -n +1 temp.txt"], shell=True)
+    procTelnet = ProcWrap([f"script -c 'telnet localhost {port}'"], shell=True)
+
+    while True:
+
+        # if there was output print it
+        if output := procServer.read():
+            for line in output.strip().split('\n'):
+                print(f"[VoidServer Process]: {line}") 
+
+        # if there was output print it
+        if output := procTelnet.read():
+            for line in output.strip().split('\n'):
+                print(f"[Telnet Process]: {line}")
 
 
-port = 8889
-procServer = ProcWrap([f"script -c './voidsmtpd {port}' temp.txt && tail -f -n +1 temp.txt"], shell=True)
-procTelnet = ProcWrap(["telnet", "localhost", str(port)])
+        # send user input to telnet
+        print()
+        procTelnet.send(input("Enter something to send to telnet > "))
+
+        time.sleep(0.2)
 
 
-while True:
+class Harness:
 
-    # if there was output print it
-    if output := procServer.read():
-        for line in output.strip().split('\n'):
-            print(f"[VoidServer Process]: {line}") 
+    def __init__(self) -> None:
+        self.path = Path('./logs')
+        self.path.mkdir(exist_ok=True)
 
-    # if there was output print it
-    if output := procTelnet.read():
-        for line in output.strip().split('\n'):
-            print(f"[Telnet Process]: {line}")
+    def run(self, inputGenerator, port=2525):
+        inputs = inputGenerator() # returns a list of strings
 
-
-    # send user input to telnet
-    print()
-    procTelnet.send(input("Enter something to send to telnet > "))
+        procServer = ProcWrap([f"script -c './voidsmtpd {port}' temp.txt && tail -f -n +1 temp.txt"], shell=True)
+        procTelnet = ProcWrap([f"script -c 'telnet localhost {port}'"], shell=True)
 
 
-    time.sleep(0.2)
+        for idx, userInput in enumerate(inputs):
+
+            # if there was output print it
+            if output := procServer.read():
+                for line in output.strip().split('\n'):
+                    print(f"[VoidServer Process]: {line}") 
+
+            # if there was output print it
+            if output := procTelnet.read():
+                for line in output.strip().split('\n'):
+                    print(f"[Telnet Process]: {line}")
+
+            # send user input to telnet
+            print()
+            procTelnet.send(userInput)
+
+            time.sleep(0.2)
 
 
-#@TODO do something about combining stdout and stderr instead of only reading stdout? maybe script should be used everywhere?
-#@TODO log inputs and outputs 
+if __name__=="__main__":
+    harness = Harness()
+
+
+#@TODO log inputs and outputs for crashes
 #@TODO parallelize 
