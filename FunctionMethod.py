@@ -2,8 +2,44 @@ import random
 import string
 
 
+class RandEmail:
+    # Constructor for random email object. Access generation line by line via email_array
+    def __init__(self, num_recipients, body_length):
+        self.addresses = []
+        # Generate random list of recipients
+        for _ in range(num_recipients + 1):
+            self.addresses.append(generate_address(10))
+        self.num_recipients = num_recipients
+        self.body_length = body_length
+        self.helo = helo_host(10, False, False)
+        self.mail_from = mail_from(self.addresses[0])
+        self.rcpt_to = rcpt_to(self.addresses[1])
+        self.data = "DATA"
+        self.body_to = "To: " + "\"" + generate_string(10, False, True) + "\"" + " <" + self.addresses[1] + ">"
+        self.body_from = "From: " + "\"" + generate_string(10, False, True) + "\"" + " <" + self.addresses[0] + ">"
+        self.body_subject = "Subject: " + generate_string(10, False, True)
+        self.body_body = generate_string(self.body_length, True, True)
+        self.body_term = "."
+        self.email_array = []
+        self.email_array.append(self.helo)
+        self.email_array.append(self.mail_from)
+        # Append all recipients
+        for x in range(len(self.addresses) - 1):
+            x += 1
+            self.rcpt_to = rcpt_to(self.addresses[x])
+            self.email_array.append(self.rcpt_to)
+        self.email_array.append(self.data)
+        self.email_array.append(self.body_to)
+        self.email_array.append(self.body_from)
+        self.email_array.append(self.body_subject)
+        self.email_array.append(self.body_body)
+        self.email_array.append(self.body_term)
+
+
 # TODO save inputs to list
 # Driver for email generation
+
+
 def cfg_driver():
     # Generate sender and recipients
     add_1 = generate_address(10)
@@ -24,17 +60,17 @@ def cfg_driver():
 # HELO message
 def helo_host(length, ws_flag, punc_flag):
     host_name = generate_string(length, ws_flag, punc_flag)
-    return "HELO " + host_name + "\n"
+    return "HELO " + host_name
 
 
 # MAIL FROM:
 def mail_from(address):
-    return "MAIL FROM:<" + address + ">" + "\n"
+    return "MAIL FROM:<" + address + ">"
 
 
 # RCPT TO:
 def rcpt_to(address):
-    return "RCPT TO:<" + address + ">" + "\n"
+    return "RCPT TO:<" + address + ">"
 
 
 # Generates a random string of defined length.
@@ -49,10 +85,10 @@ def generate_string(length, ws_flag, punc_flag):
         characters = string.digits + string.ascii_letters + string.punctuation
     # Digits letters and whitespace
     elif ws_flag == True and punc_flag == False:
-        characters = string.digits + string.ascii_letters + string.whitespace
+        characters = string.digits + string.ascii_letters + string.whitespace.replace('\r', '')
     # All possible
     else:
-        characters = string.printable
+        characters = string.printable.replace('\r', '')
     # Build string
     random_string = "".join(random.choice(characters) for _ in range(length))
     return random_string
@@ -67,4 +103,12 @@ def generate_address(usr_length):
     return user + "@" + domain + ".com"
 
 
-cfg_driver()
+email = RandEmail(100, 10000)
+
+# email2 = RandEmail(1, 1000)
+
+for line in email.email_array:
+    print(line)
+
+# for line in email2.email_array:
+#     print(line)
