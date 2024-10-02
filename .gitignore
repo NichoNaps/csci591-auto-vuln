@@ -1,4 +1,7 @@
 shell.nix
 env
-temp.txt
 .idea
+temp_server.log
+temp_telnet.log
+temp/
+crashes/

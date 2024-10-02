@@ -1,49 +1,10 @@
 import subprocess
 import time
-import threading 
-import queue
+import hashlib
 from pathlib import Path
-from multiprocessing import Pool
-
-# consume a blocking call that returns strings into a single concatted string
-# in a non-blocking way
-class BlockingConsumer:
-    def __init__(self, call):
-        self.queue = queue.Queue()
-        self.call = call
-
-        self.thread = threading.Thread(target=self._readThreadWorker)
-        self.thread.start()
-
-
-    def _readThreadWorker(self):
-        print("Started consume thread")
-
-        while True:
-            # this is a blocking call
-
-            char = self.call()
-            # print("Found char! ", char)
-
-            # load it into the thread safe queue
-            self.queue.put(char)
-
-    # returns a string of the output if there is any
-    # if there is nothing to return then return None
-    def get(self) -> str | None:
-
-        output = ""
-
-        # consume the queue items
-        while not self.queue.empty():
-            output += self.queue.get()
-            self.queue.task_done()
-
-
-        if output == "":
-            return None
-
-        return output
+import datetime
+import json
+from concurrent.futures import ProcessPoolExecutor, wait
 
 
 # wrapper around pythons process type to add 
@@ -55,12 +16,9 @@ class ProcWrap:
             cmd,
             shell = shell,
             stdin = subprocess.PIPE,
-            stdout = subprocess.PIPE,
-            stderr = subprocess.PIPE,
             universal_newlines = True,
             bufsize = 0,
         )
-
 
         # immediately test if the process failed to start and panic about it
         time.sleep(0.3)
@@ -70,15 +28,12 @@ class ProcWrap:
             print(f"stdout:{stdout}, stderr:{stderr}")
             exit()
 
-        # startup consumers for output
-        self.stdout = BlockingConsumer(lambda: self.proc.stdout.read(1))
-
-        # we are using script command so stdout and stderr get combined into stdout
-        # self.stderr = BlockingConsumer(lambda: self.proc.stderr.read(1))
 
     def isAlive(self):
         return self.proc.poll() == None
+
     
+    # send a string to the process. Returns success bool.
     def send(self, data: str, postfix="\n") -> bool: 
         try:
             self.proc.stdin.write(data + postfix)
@@ -93,50 +48,82 @@ class ProcWrap:
             return False
     
 
-    def read(self):
-        return self.stdout.get()
-    
     def terminate(self):
         self.proc.terminate()
 
 
-def repl():
-    port = 8889
-    procServer = ProcWrap([f"script -c './voidsmtpd {port}' temp.txt && tail -f -n +1 temp.txt"], shell=True)
-    procTelnet = ProcWrap([f"script -c 'telnet localhost {port}'"], shell=True)
+def fileToString(path):
+    # occasionally there will be non-utf8 characters so replace those with '?'
+    with open(path, 'r',  encoding="utf-8", errors='replace') as f:
+        return f.read()
 
-    while True:
-
-        # if there was output print it
-        if output := procServer.read():
-            for line in output.strip().split('\n'):
-                print(f"[VoidServer Process]: {line}") 
-
-        # if there was output print it
-        if output := procTelnet.read():
-            for line in output.strip().split('\n'):
-                print(f"[Telnet Process]: {line}")
-
-        # send user input to telnet
-        print()
-        procTelnet.send(input("Enter something to send to telnet > ").strip())
-
-        time.sleep(0.2)
+# yield list in chunks (https://stackoverflow.com/questions/312443/how-do-i-split-a-list-into-equally-sized-chunks)
+def chunks(items, n):
+    for i in range(0, len(items), n):
+        yield items[i:i + n]
 
 
 class Harness:
 
     def __init__(self) -> None:
-        self.path = Path('./logs')
-        self.path.mkdir(exist_ok=True)
+        self.logPath = Path(__file__).parent / 'logs'
+        self.crashesPath = self.logPath / 'crashes'
+        self.tempPath = self.logPath / 'temp'
 
-    def run(self, inputGenerator, port=2525):
-        inputs = inputGenerator() # returns a list of strings
+        # ensure folders exist
+        self.logPath.mkdir(exist_ok=True)
+        self.crashesPath.mkdir(exist_ok=True)
+        self.tempPath.mkdir(exist_ok=True)
 
-        procServer = ProcWrap([f"script -c './voidsmtpd {port}' temp.txt && tail -f -n +1 temp.txt"], shell=True)
-        procTelnet = ProcWrap([f"script -c 'telnet localhost {port}'"], shell=True)
 
-        log = []
+        self.resultsFilePath = self.logPath / 'results.json'
+
+        # try loading the crash file containing the run hashes
+        if self.resultsFilePath.exists():
+            with open(self.resultsFilePath, 'r') as f:
+                self.results = json.load(f)
+        else:
+            self.results = {}
+    
+    # save the file containing the results of each hash
+    def saveResults(self):
+        with open(self.resultsFilePath, 'w') as f:
+            json.dump(self.results, f)
+    
+    # delete all temp files
+    def nukeTempFolder(self):
+        for item in self.tempPath.iterdir():
+            if item.is_file():
+                item.unlink()
+
+    # gen unique hash of inputs
+    def hashInputs(self, inputs):
+        inputsHash = hashlib.sha256(str(inputs).encode('utf-8')).hexdigest()[:15]
+        return inputsHash
+
+
+    # run a single test
+    def run(self, inputs, port=2525, silent=False):
+        print('port', port)
+
+        # create a unique crash path filename based on the inputs
+        inputsHash = self.hashInputs(inputs)
+        crashPath = self.crashesPath / f'{inputsHash}.log'
+        
+        if inputsHash in self.results.keys():
+            print('inputs already tried')
+            return inputsHash, 'dup'
+
+        # create unique temp files
+        serverLogPath = self.tempPath / f'temp_server_{port}.log'
+        telnetLogPath = self.tempPath / f'temp_telnet_{port}.log'
+
+        silentString = '> /dev/null' if silent else ''
+
+        procServer = ProcWrap([f"script -c './voidsmtpd {port}' {serverLogPath} {silentString}"], shell=True)
+        procTelnet = ProcWrap([f"script -c 'telnet localhost {port}' {telnetLogPath} {silentString}"], shell=True)
+        time.sleep(0.2)
+
         crashed = False
 
         for idx, userInput in enumerate(inputs):
@@ -149,68 +136,125 @@ class Harness:
             # send user input to telnet
             procTelnet.send(userInput)
 
-            log.append(f"[User Input]: {userInput.strip()}")
-
             time.sleep(0.2)
-
-            # if there was output print it
-            if output := procServer.read():
-                for line in output.strip().split('\n'):
-                    log.append(f"[VoidServer Process]: {line}") 
-
-            # if there was output print it
-            if output := procTelnet.read():
-                for line in output.strip().split('\n'):
-                    log.append(f"[Telnet Process]: {line}")
-
-
-        # if there was output print it
-        if output := procServer.read():
-            for line in output.strip().split('\n'):
-                log.append(f"[VoidServer Process]: {line}") 
-
-        # if there was output print it
-        if output := procTelnet.read():
-            for line in output.strip().split('\n'):
-                log.append(f"[Telnet Process]: {line}")
-
-        print(log)
-        stdout, stderr = procServer.proc.communicate()
-        print(stdout)
 
         procServer.terminate()
         procTelnet.terminate()
 
-    
+        serverLogs = fileToString(serverLogPath)
+        telnetLogs = fileToString(telnetLogPath)
+
+        # sometimes the server will just kick the telnet process so 
+        # its not an actual crash so don't count this as a crash
+        # unless it has address sanitizer in it
+        if "AddressSanitizer" not in serverLogs:
+            crashed = False
+
+        # if we've crashed save a crash report
         if crashed:
-            return log
-        else:
-            return None
+
+            report = {
+                        "datetime": str(datetime.datetime.now()),
+                        "inputs": inputs,
+                        "outputs": {
+                            "server": [line for line in serverLogs.split('\n') if line != ''],
+                            "telnet": [line for line in telnetLogs.split('\n') if line != ''],
+                        }
+                      }
+
+            with open(crashPath, 'w') as f:
+                json.dump(report, f, indent=4)
+        
+
+            return inputsHash, 'crash'
+        
+
+        # there should always be a BYE at the end if it rand correctly
+        if "221 Bye" in telnetLogs:
+            return inputsHash, 'ran'
+
+
+        # something about the test seems to have gone wrong, report that the test failed
+        return inputsHash, '?'
+
+
+    def runBatch(self, manyInputs, silent=False):
+
+        with ProcessPoolExecutor() as exe:
             
+            # run up to 3,000 consecutively. This is to avoid port collisions. could up it more if needed
+            for chunk in chunks(manyInputs, 3000):
+
+                # clean out junk
+                self.nukeTempFolder()
 
 
-if __name__=="__main__":
-    # repl()
-    harness = Harness()
+                jobs = [exe.submit(self.run, aInput, 4000 + idx, silent) for idx, aInput in enumerate(chunk)]
 
-    #@TODO this causes a crash but the crash has a non-utf8 character which crashes the consumer
-    log = harness.run(lambda: [
+                # let these finish so the ports are free
+                wait(jobs)
+
+                # update the results to keep track of what input hashes we have run
+                print("Input Verdicts:")
+                for job in jobs:
+                    inputHash, verdict = job.result()
+
+                    print(f"{inputHash} -> {verdict}")
+
+                    if verdict == 'ran':
+                        self.results[inputHash] = True
+
+                    elif verdict == 'crash':
+                        self.results[inputHash] = False
+                
+                self.saveResults()
+
+import random
+def test():
+
+    return [
         "HELO csci591",
-        "MAIL FROM:<c@9aw384htjeaotapw4t09jeac.asdfacom>",
+        "MAIL FROM:<c@f.asdfacom>",
         "RCPT TO:<e@e.com>",
         "DATA",
-        """From c\nTo: d, e\nHjklf""",
+        """From c\nTsafo: d, e\nHjklf""" * random.randint(1, 1000),
         ".",
-        "QUIT"])
+        "QUIT"
+    ]
+
+if __name__=="__main__":
+    harness = Harness()
+
+    log = harness.runBatch([
+            *[test() for _ in range(10000)], # stress test
+            [
+                "HELO csci591",
+                "MAIL FROM:<c@9aw384htjeaotapw4t09jeac.asdfacom>",
+                "RCPT TO:<e@e.com>",
+                "DATA",
+                """From c\nTsafo: d, e\nHjklf""",
+                ".",
+                "QUIT"
+            ],
+            [
+                "HELO csci591",
+                "MAIL FROM:<c@d.com>",
+                "RCPT TO:<e@e.com>",
+                "DATA",
+                """
+                From: "Bob Example" <bob@example.org>
+                To: "Alice Example" <alice@example.com>
+                Cc: theboss@example.com
+                Date: Tue, 15 Jan 2008 16:02:43 -0500
+                Subject: Test message
+
+                hello this is a message!!
+                Your friend,
+                Bob
+                """,
+                ".",
+                "QUIT"
+            ],
+        ], silent=True)
 
     
-    if log is not None:
-        print(f"\n\ncash detected in logs:")
-        for row in log:
-            print(row.strip())
-    else:
-        print("no crash")
-
-#@TODO the mail server sometimes just kicks you for passing the wrong thing, tell this apart from crashes
-#@TODO log inputs and outputs for crashes
-#@TODO parallelize 
