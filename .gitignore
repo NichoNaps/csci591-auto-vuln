@@ -5,3 +5,4 @@ temp_server.log
 temp_telnet.log
 temp/
 crashes/
+results.json

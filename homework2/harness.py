@@ -25,6 +25,7 @@ class ProcWrap:
         if not self.isAlive():
             stdout, stderr = self.proc.communicate()
 
+            print("there was probably a port collision when running ", cmd)
             print(f"stdout:{stdout}, stderr:{stderr}")
             exit()
 
@@ -225,8 +226,8 @@ def test():
 if __name__=="__main__":
     harness = Harness()
 
-    log = harness.runBatch([
-            *[test() for _ in range(10000)], # stress test
+    harness.runBatch([
+            *[test() for _ in range(10)], # stress test
             [
                 "HELO csci591",
                 "MAIL FROM:<c@9aw384htjeaotapw4t09jeac.asdfacom>",
