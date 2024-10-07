@@ -215,7 +215,7 @@ if __name__=="__main__":
     harness.runBatch([
             [
                 "HELO csci591",
-                "MAIL FROM:<AA@aaaaasf23rfa.aaaaaaa>",
+                "MAIL FROM:<AA@aaaaasf23rfa.aaaaaaa>", #@NOTE: if the email is too big it crashes
                 "RCPT TO:<no@yoasdfay.com>",
                 "DATA",
                 """From c\nTsafo: d, e\nHjklf""",

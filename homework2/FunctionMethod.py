@@ -9,7 +9,7 @@ class RandEmail:
         self.addresses = []
         # Generate random list of recipients
         for _ in range(num_recipients + 1):
-            self.addresses.append(generate_address(10))
+            self.addresses.append(generate_address(5))
         self.num_recipients = num_recipients
         self.body_length = body_length
         self.helo = helo_host(10, False, False)
@@ -44,8 +44,8 @@ class RandEmail:
 
 def cfg_driver():
     # Generate sender and recipients
-    add_1 = generate_address(10)
-    add_2 = generate_address(10)
+    add_1 = generate_address(5)
+    add_2 = generate_address(5)
     # Set length of email body
     body_len = 1000
     # Build email string
@@ -100,12 +100,17 @@ def generate_string(length, ws_flag, punc_flag):
 # Lengths are set to the longest possible tld
 def generate_address(usr_length):
     # longest domain is 24 characters long total
-    domain = generate_string(random.randint(1, 21), False, False)
+    domain = generate_string(random.randint(1, 5), False, False)
     user = generate_string(random.randint(1, usr_length), False, False)
     return user + "@" + domain + ".com"
 
 
 harness = Harness()
 
-harness.runBatch([RandEmail(100, 1000).email_array], silent=True)
+
+tests = []
+for x in range():
+    tests.append(RandEmail(random.randint(1, 10000), random.randint(1, 10000)).email_array)
+
+harness.runBatch(tests, silent=True)
 
