@@ -20,15 +20,6 @@ class ProcWrap:
             bufsize = 0,
         )
 
-        # immediately test if the process failed to start and panic about it
-        time.sleep(0.3)
-        if not self.isAlive():
-            stdout, stderr = self.proc.communicate()
-
-            print("there was probably a port collision when running ", cmd)
-            print(f"stdout:{stdout}, stderr:{stderr}")
-            exit()
-
 
     def isAlive(self):
         return self.proc.poll() == None
@@ -122,8 +113,16 @@ class Harness:
         silentString = '> /dev/null' if silent else ''
 
         procServer = ProcWrap([f"script -c './voidsmtpd {port}' {serverLogPath} {silentString}"], shell=True)
+        time.sleep(0.2)
+        if not procServer.isAlive():
+            print("Unexpected Error voidserver:")
+            print(fileToString(serverLogPath))
+
         procTelnet = ProcWrap([f"script -c 'telnet localhost {port}' {telnetLogPath} {silentString}"], shell=True)
         time.sleep(0.2)
+        if not procTelnet.isAlive():
+            print("Unexpected Error in telnet:")
+            print(fileToString(telnetLogPath))
 
 
         for idx, userInput in enumerate(inputs):
@@ -186,6 +185,8 @@ class Harness:
                 # clean out junk
                 self.nukeTempFolder()
 
+                ProcWrap(["pkill voidsmtpd"], shell=True)
+
 
                 jobs = [exe.submit(self.run, aInput, 4000 + idx, silent) for idx, aInput in enumerate(chunk)]
 
@@ -197,7 +198,7 @@ class Harness:
                 for job in jobs:
                     inputHash, verdict = job.result()
 
-                    print(f"{inputHash} -> {verdict}")
+                    print(f"{inputHash} -> {('ran' if self.results[inputHash] else 'crash') if verdict == 'dup' else verdict}")
 
                     if verdict == 'ran':
                         self.results[inputHash] = True
@@ -207,52 +208,18 @@ class Harness:
                 
                 self.saveResults()
 
-import random
-def test():
-
-    return [
-        "HELO csci591",
-        "MAIL FROM:<c@f.asdfacom>",
-        "RCPT TO:<e@e.com>",
-        "DATA",
-        """From c\nTsafo: d, e\nHjklf""" * random.randint(1, 1000),
-        ".",
-        "QUIT"
-    ]
 
 if __name__=="__main__":
     harness = Harness()
 
     harness.runBatch([
-            *[test() for _ in range(10)], # stress test
             [
                 "HELO csci591",
-                "MAIL FROM:<c@9aw384htjeaotapw4t09jeac.asdfacom>",
-                "RCPT TO:<e@e.com>",
+                "MAIL FROM:<AA@aaaaasf23rfa.aaaaaaa>",
+                "RCPT TO:<no@yoasdfay.com>",
                 "DATA",
                 """From c\nTsafo: d, e\nHjklf""",
                 ".",
                 "QUIT"
             ],
-            [
-                "HELO csci591",
-                "MAIL FROM:<c@d.com>",
-                "RCPT TO:<e@e.com>",
-                "DATA",
-                """
-                From: "Bob Example" <bob@example.org>
-                To: "Alice Example" <alice@example.com>
-                Cc: theboss@example.com
-                Date: Tue, 15 Jan 2008 16:02:43 -0500
-                Subject: Test message
-
-                hello this is a message!!
-                Your friend,
-                Bob
-                """,
-                ".",
-                "QUIT"
-            ],
         ], silent=True)
-
-    
