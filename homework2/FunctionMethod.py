@@ -1,5 +1,6 @@
 import random
 import string
+from harness import Harness
 
 
 class RandEmail:
@@ -34,6 +35,7 @@ class RandEmail:
         self.email_array.append(self.body_subject)
         self.email_array.append(self.body_body)
         self.email_array.append(self.body_term)
+        self.email_array.append("QUIT")
 
 
 # TODO save inputs to list
@@ -103,12 +105,7 @@ def generate_address(usr_length):
     return user + "@" + domain + ".com"
 
 
-email = RandEmail(100, 10000)
+harness = Harness()
 
-# email2 = RandEmail(1, 1000)
+harness.runBatch([RandEmail(100, 1000).email_array], silent=True)
 
-for line in email.email_array:
-    print(line)
-
-# for line in email2.email_array:
-#     print(line)

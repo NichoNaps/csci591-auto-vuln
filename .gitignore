@@ -6,3 +6,4 @@ temp_telnet.log
 temp/
 crashes/
 results.json
+__pycache__/

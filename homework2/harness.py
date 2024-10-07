@@ -125,13 +125,11 @@ class Harness:
         procTelnet = ProcWrap([f"script -c 'telnet localhost {port}' {telnetLogPath} {silentString}"], shell=True)
         time.sleep(0.2)
 
-        crashed = False
 
         for idx, userInput in enumerate(inputs):
 
             # if something died we crashed
             if not procServer.isAlive() or not procTelnet.isAlive():
-                crashed = True
                 break
             
             # send user input to telnet
@@ -148,8 +146,7 @@ class Harness:
         # sometimes the server will just kick the telnet process so 
         # its not an actual crash so don't count this as a crash
         # unless it has address sanitizer in it
-        if "AddressSanitizer" not in serverLogs:
-            crashed = False
+        crashed = "AddressSanitizer" in serverLogs
 
         # if we've crashed save a crash report
         if crashed:
