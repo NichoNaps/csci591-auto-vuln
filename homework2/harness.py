@@ -177,7 +177,7 @@ class Harness:
 
     def runBatch(self, manyInputs, silent=False, startPort=4000):
 
-        with ProcessPoolExecutor() as exe:
+        with ProcessPoolExecutor(max_workers=64) as exe:
             
             # run up to 3,000 consecutively. This is to avoid port collisions. could up it more if needed
             for chunk in chunks(manyInputs, 3000):

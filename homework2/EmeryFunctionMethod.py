@@ -136,9 +136,9 @@ for _ in range(10000000):
         allInputs = []
         for y in range(random.randint(1, 200)):
             inputs = RandEmail(random.randint(1, 5), random.randint(1, 250)).email_array
-            # re_order(inputs, random.randint(0, 5))
-            # dupe_items(inputs, random.randint(0, 5)) # This causes a loooooooot of the same crash in print_list
-            # delete_items(inputs, random.randint(0, 1))
+            re_order(inputs, random.randint(0, 2))
+            dupe_items(inputs, random.randint(0, 2)) # This causes a loooooooot of the same crash in print_list
+            delete_items(inputs, random.randint(0, 2))
 
             allInputs.extend(inputs)
 
