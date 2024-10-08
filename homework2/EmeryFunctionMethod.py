@@ -127,22 +127,24 @@ def generate_address(usr_length):
 harness = Harness()
 
 
-tests = []
-for x in range(1000):
 
-    # make multiple emails
-    allInputs = []
-    for y in range(random.randint(1, 200)):
-        inputs = RandEmail(random.randint(1, 5), random.randint(1, 250)).email_array
-        re_order(inputs, random.randint(0, 2))
-        dupe_items(inputs, random.randint(0, 2)) # This causes a loooooooot of the same crash in print_list
-        delete_items(inputs, random.randint(0, 2))
+for _ in range(10000000):
+    tests = []
+    for x in range(1000):
 
-        allInputs.extend(inputs)
+        # make multiple emails
+        allInputs = []
+        for y in range(random.randint(1, 200)):
+            inputs = RandEmail(random.randint(1, 5), random.randint(1, 250)).email_array
+            # re_order(inputs, random.randint(0, 5))
+            # dupe_items(inputs, random.randint(0, 5)) # This causes a loooooooot of the same crash in print_list
+            # delete_items(inputs, random.randint(0, 1))
 
-    allInputs.append("QUIT")
-    
-    tests.append(allInputs)
+            allInputs.extend(inputs)
 
-harness.runBatch(tests, silent=True)
+        allInputs.append("QUIT")
+        
+        tests.append(allInputs)
+
+    harness.runBatch(tests, silent=True)
 

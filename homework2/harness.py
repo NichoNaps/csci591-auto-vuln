@@ -212,33 +212,19 @@ class Harness:
 if __name__=="__main__":
     harness = Harness()
 
-    for report in harness.crashesPath.iterdir():
-        with open(report, 'r') as f:
-            data = json.load(f)
-
-
-        serverLogs = '\n'.join(data['outputs']['server'])
-
-        if "in print_list" not in serverLogs or "SEGV on unknown address" not in serverLogs:
-            print(report)
-
-
-        # print(data)
-
+    
+            
+    #     , silent=False, port=200
     # harness.run(
     #     [
-    #     "HELO 8HDf84QvDM",
-    #     "MAIL FROM:<qdCd@Hv0zS.com>",
-    #     "RCPT TO:<jDLX@hq.com>",
+    #     "HELO 😀",
+    #     "MAIL FROM: <qdCd@Hv0zS.com>",
+    #     "RCPT TO: <jDLX@hq.com>",
     #     "DATA",
-    #     "To: asdfl3asdfa\" <jDLX@hq.com>",
-    #     "From: \"Potato\" <qdCd@Hv0zS.com>",
-    #     "From: \"Potato\" <qdCd@Hv0zS.com>",
-    #     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    #     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    #     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    #     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    #     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    #     "From: Potato\" <jDLX@hq.com>>>😀>>>",
+    #     "To: \"asdfl3asdfa\" <jDLX🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣@hq.com>",
+    #     "Subject: Test message",
+    #     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣",
     #     ".",
     #     "QUIT"
     #     ]
