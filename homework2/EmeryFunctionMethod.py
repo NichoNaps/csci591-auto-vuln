@@ -130,7 +130,7 @@ harness = Harness()
 
 for _ in range(10000000):
     tests = []
-    for x in range(1000):
+    for x in range(3000):
 
         # make multiple emails
         allInputs = []

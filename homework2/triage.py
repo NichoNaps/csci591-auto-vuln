@@ -1,4 +1,4 @@
-from harness import Harness
+from harness import Harness, fileToJson
 import re
 import json
 
@@ -13,10 +13,10 @@ if __name__=="__main__":
     crashTypes = {}
 
     for report in harness.crashesPath.iterdir():
-        with open(report, 'r') as f:
-            data = json.load(f)
+        data = fileToJson(report)
 
         serverLogs = '\n'.join(data['outputs']['server'])
+
 
         serverLogs = serverLogs.rsplit("=================================================================")[1]
 
@@ -36,13 +36,24 @@ if __name__=="__main__":
         crashTypes[id].append(report)
 
 
-    print(f"Found {len(crashTypes.keys())} unique crashes")
+
+    print(f"Probably :) Found {len(crashTypes.keys())} unique crashes")
 
     for typ, reportPaths in crashTypes.items():
 
         print(f"\n{typ}")
-        print(f"Has {len(reportPaths)} total reports. Here are the first 3:")
-        for report in reportPaths[:3]:
-            print(report)
+
+        #@TODO sort it by shortest input size
+        print(f"Has {len(reportPaths)} total reports. Here are the first 3 with the shortest input length:")
+        
+
+        # sort the reports by the input length
+        reportJsons = [(path, fileToJson(path)) for path in reportPaths]
+        reportJsons = sorted(reportJsons, key=lambda data: len("".join(data[1]['inputs'])))
+
+
+        for path, data in reportJsons[:10]:
+            print(path)
+            print("Input Length:", len("".join(data['inputs'])))
     
  

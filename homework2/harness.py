@@ -44,6 +44,10 @@ class ProcWrap:
         self.proc.terminate()
 
 
+def fileToJson(path):
+    with open(path, 'r',  encoding="utf-8", errors='replace') as f:
+        return json.load(f)
+
 def fileToString(path):
     # occasionally there will be non-utf8 characters so replace those with '?'
     with open(path, 'r',  encoding="utf-8", errors='replace') as f:
@@ -67,20 +71,6 @@ class Harness:
         self.crashesPath.mkdir(exist_ok=True)
         self.tempPath.mkdir(exist_ok=True)
 
-
-        self.resultsFilePath = self.logPath / 'results.json'
-
-        # try loading the crash file containing the run hashes
-        if self.resultsFilePath.exists():
-            with open(self.resultsFilePath, 'r') as f:
-                self.results = json.load(f)
-        else:
-            self.results = {}
-    
-    # save the file containing the results of each hash
-    def saveResults(self):
-        with open(self.resultsFilePath, 'w') as f:
-            json.dump(self.results, f)
     
     # delete all temp files
     def nukeTempFolder(self):
@@ -102,10 +92,6 @@ class Harness:
         inputsHash = self.hashInputs(inputs)
         crashPath = self.crashesPath / f'{inputsHash}.json'
         
-        if inputsHash in self.results.keys():
-            print('inputs already tried')
-            return inputsHash, 'dup'
-
         # create unique temp files
         serverLogPath = self.tempPath / f'temp_server_{port}.log'
         telnetLogPath = self.tempPath / f'temp_telnet_{port}.log'
@@ -146,6 +132,7 @@ class Harness:
         # its not an actual crash so don't count this as a crash
         # unless it has address sanitizer in it
         crashed = "AddressSanitizer" in serverLogs
+
 
         # if we've crashed save a crash report
         if crashed:
@@ -193,20 +180,11 @@ class Harness:
                 # let these finish so the ports are free
                 wait(jobs)
 
-                # update the results to keep track of what input hashes we have run
                 print("Input Verdicts:")
                 for job in jobs:
                     inputHash, verdict = job.result()
+                    print(f"{inputHash} -> {verdict}")
 
-                    print(f"{inputHash} -> {('ran' if self.results[inputHash] else 'crash') if verdict == 'dup' else verdict}")
-
-                    if verdict == 'ran':
-                        self.results[inputHash] = True
-
-                    elif verdict == 'crash':
-                        self.results[inputHash] = False
-                
-                self.saveResults()
 
 
 if __name__=="__main__":
@@ -214,19 +192,3 @@ if __name__=="__main__":
 
     
             
-    #     , silent=False, port=200
-    # harness.run(
-    #     [
-    #     "HELO 😀",
-    #     "MAIL FROM: <qdCd@Hv0zS.com>",
-    #     "RCPT TO: <jDLX@hq.com>",
-    #     "DATA",
-    #     "From: Potato\" <jDLX@hq.com>>>😀>>>",
-    #     "To: \"asdfl3asdfa\" <jDLX🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣@hq.com>",
-    #     "Subject: Test message",
-    #     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣",
-    #     ".",
-    #     "QUIT"
-    #     ]
-            
-    #     , silent=False, port=2000)
