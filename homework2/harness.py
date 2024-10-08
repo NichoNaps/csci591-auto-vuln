@@ -100,7 +100,7 @@ class Harness:
 
         # create a unique crash path filename based on the inputs
         inputsHash = self.hashInputs(inputs)
-        crashPath = self.crashesPath / f'{inputsHash}.log'
+        crashPath = self.crashesPath / f'{inputsHash}.json'
         
         if inputsHash in self.results.keys():
             print('inputs already tried')
@@ -175,7 +175,7 @@ class Harness:
         return inputsHash, '?'
 
 
-    def runBatch(self, manyInputs, silent=False):
+    def runBatch(self, manyInputs, silent=False, startPort=4000):
 
         with ProcessPoolExecutor() as exe:
             
@@ -188,7 +188,7 @@ class Harness:
                 ProcWrap(["pkill voidsmtpd"], shell=True)
 
 
-                jobs = [exe.submit(self.run, aInput, 4000 + idx, silent) for idx, aInput in enumerate(chunk)]
+                jobs = [exe.submit(self.run, aInput, startPort + idx, silent) for idx, aInput in enumerate(chunk)]
 
                 # let these finish so the ports are free
                 wait(jobs)
@@ -212,14 +212,35 @@ class Harness:
 if __name__=="__main__":
     harness = Harness()
 
-    harness.runBatch([
-            [
-                "HELO csci591",
-                "MAIL FROM:<AA@aaaaasf23rfa.aaaaaaa>", #@NOTE: if the email is too big it crashes
-                "RCPT TO:<no@yoasdfay.com>",
-                "DATA",
-                """From c\nTsafo: d, e\nHjklf""",
-                ".",
-                "QUIT"
-            ],
-        ], silent=True)
+    for report in harness.crashesPath.iterdir():
+        with open(report, 'r') as f:
+            data = json.load(f)
+
+
+        serverLogs = '\n'.join(data['outputs']['server'])
+
+        if "in print_list" not in serverLogs or "SEGV on unknown address" not in serverLogs:
+            print(report)
+
+
+        # print(data)
+
+    # harness.run(
+    #     [
+    #     "HELO 8HDf84QvDM",
+    #     "MAIL FROM:<qdCd@Hv0zS.com>",
+    #     "RCPT TO:<jDLX@hq.com>",
+    #     "DATA",
+    #     "To: asdfl3asdfa\" <jDLX@hq.com>",
+    #     "From: \"Potato\" <qdCd@Hv0zS.com>",
+    #     "From: \"Potato\" <qdCd@Hv0zS.com>",
+    #     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    #     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    #     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    #     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    #     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    #     ".",
+    #     "QUIT"
+    #     ]
+            
+    #     , silent=False, port=2000)
