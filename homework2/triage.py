@@ -6,6 +6,9 @@ if __name__=="__main__":
     harness = Harness()
 
 
+    positions_regex = re.compile("#[0-9]\s|.*?\/([0-9A-Za-z_\\.-]*\+0x[0-9a-z]*)")
+
+
     # collect same crashes together
     crashTypes = {}
 
@@ -16,9 +19,13 @@ if __name__=="__main__":
         serverLogs = '\n'.join(data['outputs']['server'])
 
         serverLogs = serverLogs.rsplit("=================================================================")[1]
+
+        # grab only the first stack trace because sometimes there are multiple which differ desite the actual error being the same
+        serverLogs = "   #0 0x" + serverLogs.split("   #0 0x")[1] 
         
         # extract the positions in the stacktrace to uniquely identify crashes ex: filename+0xas234g 
-        positions = re.findall("#[0-9]\s|.*?\/([0-9A-Za-z_\\.-]*\+0x[0-9a-z]*)", serverLogs)
+        positions = positions_regex.findall(serverLogs)
+
 
         id = tuple(positions)
 
