@@ -35,7 +35,7 @@ class RandEmail:
         self.email_array.append(self.body_subject)
         self.email_array.append(self.body_body)
         self.email_array.append(self.body_term)
-        self.email_array.append("QUIT")
+        # self.email_array.append("QUIT")
 
 
 # TODO save inputs to list
@@ -75,6 +75,25 @@ def rcpt_to(address):
     return "RCPT TO:<" + address + ">"
 
 
+def delete_items(lst, n):
+    for x in range(n):
+
+        if (len(lst) == 0):
+            return
+        
+        lst.pop(random.randint(0, len(lst)-1))
+
+def dupe_items(lst, n):
+    for x in range(n):
+        idx = random.randint(0, len(lst)-1)
+
+        lst.insert(random.randint(0, len(lst)-1), lst[idx])
+
+def re_order(lst, n):
+    for x in range(n):
+        item = lst.pop(random.randint(0, len(lst)-1))
+        lst.insert(random.randint(0, len(lst)-1), item)
+
 # Generates a random string of defined length.
 # ws_flag sets if whitespace characters are present
 # punc_flag sets if punctuation is present
@@ -87,7 +106,7 @@ def generate_string(length, ws_flag, punc_flag):
         characters = string.digits + string.ascii_letters + string.punctuation
     # Digits letters and whitespace
     elif ws_flag == True and punc_flag == False:
-        characters = string.digits + string.ascii_letters + string.whitespace.replace('\r', '')
+        characters = string.digits + string.ascii_letters + string.whitespace.replace('\r', '').replace('\n', '')
     # All possible
     else:
         characters = string.printable.replace('\r', '')
@@ -108,9 +127,24 @@ def generate_address(usr_length):
 harness = Harness()
 
 
-tests = []
-for x in range():
-    tests.append(RandEmail(random.randint(1, 10000), random.randint(1, 10000)).email_array)
 
-harness.runBatch(tests, silent=True)
+for _ in range(10000000):
+    tests = []
+    for x in range(3000):
+
+        # make multiple emails
+        allInputs = []
+        for y in range(random.randint(1, 200)):
+            inputs = RandEmail(random.randint(1, 5), random.randint(1, 250)).email_array
+            re_order(inputs, random.randint(0, 2))
+            dupe_items(inputs, random.randint(0, 2)) # This causes a loooooooot of the same crash in print_list
+            delete_items(inputs, random.randint(0, 2))
+
+            allInputs.extend(inputs)
+
+        allInputs.append("QUIT")
+        
+        tests.append(allInputs)
+
+    harness.runBatch(tests, silent=True)
 

@@ -29,22 +29,20 @@ if __name__=="__main__":
 
         id = tuple(positions)
 
-
         if id not in crashTypes.keys():
             crashTypes[id] = []
 
         crashTypes[id].append(report)
 
 
-
+    # this script is not perfect at finding unique crashes 
     print(f"Probably :) Found {len(crashTypes.keys())} unique crashes")
 
     for typ, reportPaths in crashTypes.items():
 
         print(f"\n{typ}")
 
-        #@TODO sort it by shortest input size
-        print(f"Has {len(reportPaths)} total reports. Here are the first 3 with the shortest input length:")
+        print(f"Has {len(reportPaths)} total reports. Here are the first few by shortest input length:")
         
 
         # sort the reports by the input length
@@ -54,6 +52,6 @@ if __name__=="__main__":
 
         for path, data in reportJsons[:10]:
             print(path)
-            print("Input Length:", len("".join(data['inputs'])))
+            # print("Input Length:", len("".join(data['inputs'])))
     
  
