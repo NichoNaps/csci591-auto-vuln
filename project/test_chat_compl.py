@@ -19,23 +19,31 @@ llm = Llama.from_pretrained(
     verbose=True, # to view info about ai as it runs and see accel mode
     #   n_gpu_layers=1, # Uncomment to use GPU acceleration
       # seed=1337, # Uncomment to set a specific seed
-      # n_ctx=2048, # Uncomment to increase the context window
+      n_ctx=16300, # Uncomment to increase the context window
 )
 
 
 message_history = [
-    {"role": "system", "content": "You are an AI that identifies vulnerabilities in code."},
-]
+    {"role": "system", "content": "You are an AI that specializes in vulnerability discovery. Your goal is to identify and classify vulnerabilities in C code. When presented with a block of code, you will determine if the code is vulnerable or not vulnerable and state as such. If the code is vulnerable, you will then classify the vulnerability by giving its CWE number."},
+    ]
 
 while True:
+
     inp = input("Input: ")
+    res = "" 
+    while inp != "SEND":
+        res += inp + "\n"
+        inp = input("Input: ")
+
 
     message_history.append(
-        {
-            "role": "user",
-            "content": inp
-        }
+            {
+                "role": "user",
+                "content": res
+            }
     )
+
+    print(res)
 
     res = llm.create_chat_completion(messages=message_history)
 
