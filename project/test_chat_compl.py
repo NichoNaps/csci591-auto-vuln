@@ -15,6 +15,8 @@ llm = Llama.from_pretrained(
     
 	repo_id="TheBloke/CodeLlama-7B-Instruct-GGUF",
     filename="codellama-7b-instruct.Q4_K_M.gguf", # pick the balanced quantized
+    chat_format="llama-2", # codellama is based on llama2 so use that format
+    
 
     verbose=True, # to view info about ai as it runs and see accel mode
     #   n_gpu_layers=1, # Uncomment to use GPU acceleration

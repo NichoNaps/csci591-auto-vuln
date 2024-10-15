@@ -31,6 +31,14 @@ Here is an example of a modern x86 cpu with AVX2 support on linux. Without this 
 CMAKE_ARGS="-DBUILD_SHARED_LIBS=on -DCMAKE_POSITION_INDEPENDENT_CODE=on -DGGML_NATIVE=off -DGGML_OPENMP=off -DGGML_AVX=on -DGGML_AVX2=on -DGGML_AVX512=off -DGGML_FMA=on -DGGML_F16C=on" pip install llama-cpp-python --no-cache-dir --force-reinstall
 ```
 
+### Test running a chatbot
+
+```sh
+python test_chat_compl.py
+```
+
+Send some inputs. Then Run one input that is just SEND all caps and then it will run those inputs. The reason we wait for SEND, is so you can paste multiple lines of code in.
+
 
 
 
