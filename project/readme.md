@@ -1,22 +1,23 @@
 
 
-## Install Dependencies to run AI
+# Install Dependencies to run AI
 
-On windows I recommend running this all through WSL because it makes install `llama-cpp-python` much easier because it requires nmake.
+On windows I recommend running this all through WSL because it makes installing `llama-cpp-python` much easier because WSL comes with the neccesary dependencies.
 
 To fit the LLM in RAM, you may need to manually specify the RAM size of WSL if it defaults too low (it defaults to half of your RAM). On a 16Gig windows computer we had to manually specify 12Gb.
 
 From within WSL you can run the following to see the total amount of ram it has `free -m`.
 
-### To increase WSL RAM
-Create the .wslconfig file if it doesnt exist and create it here: `C:/Users/<username>/.wslconfig` 
+### (Optionally) Increase WSL RAM Limit
+Create the .wslconfig file if it doesnt exist here: `C:/Users/<username>/.wslconfig` 
 
+File contents:
 ```toml
 [wsl2]
 memory=12GB
 ```
 
-Then reset wsl. 
+Then reset wsl from powershell with:
 ```sh
 wsl --shutdown
 ```
