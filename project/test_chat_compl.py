@@ -7,21 +7,20 @@ from llama_cpp import Llama # for usage see https://llama-cpp-python.readthedocs
 
 
 llm = Llama.from_pretrained(
-	# repo_id="ggml-org/Meta-Llama-3.1-8B-Instruct-Q4_0-GGUF",
-	# filename="meta-llama-3.1-8b-instruct-q4_0.gguf",
+	repo_id="ggml-org/Meta-Llama-3.1-8B-Instruct-Q4_0-GGUF",
+	filename="meta-llama-3.1-8b-instruct-q4_0.gguf",
 
 	# repo_id="TheBloke/CodeLlama-7B-GGUF",
     # filename="codellama-7b.Q4_K_M.gguf",
     
-	repo_id="TheBloke/CodeLlama-7B-Instruct-GGUF",
-    filename="codellama-7b-instruct.Q4_K_M.gguf", # pick the balanced quantized
-    chat_format="llama-2", # codellama is based on llama2 so use that format
+	# repo_id="TheBloke/CodeLlama-7B-Instruct-GGUF",
+    # filename="codellama-7b-instruct.Q4_K_M.gguf", # pick the balanced quantized
+    # chat_format="llama-2", # codellama is based on llama2 so use that format
     
-
     verbose=True, # to view info about ai as it runs and see accel mode
     #   n_gpu_layers=1, # Uncomment to use GPU acceleration
-      # seed=1337, # Uncomment to set a specific seed
-      n_ctx=16300, # Uncomment to increase the context window
+     # seed=1337, # Uncomment to set a specific seed
+     n_ctx=16300, # @TODO we can raise this higher
 )
 
 
