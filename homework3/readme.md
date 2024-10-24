@@ -4,7 +4,7 @@
 # Setup
 
 ```sh
-pip install tree-sitter tree-sitter-c z3
+pip install tree-sitter tree-sitter-c z3-solver
 ```
 
 
