@@ -1,42 +1,11 @@
 from z3 import *
 import copy
 from runner import parseSourceCode
-
-# class Edge:
-#     def __init__(self):
-#         self.constraint 
-
-# class SymbolicState:
-
-#     def __init__(self):
-#         self.variableStack = [{}] # stack of variables to support variable shadowing
-
-#         self.edgesOut = [] # the edges leading to this symbolic states children
-    
-#     def newConstraint(self, variableName, constraint):
-#         pass
-
-#     def isFeasible(self):
-#         pass
-
-#     def print(self):
-#         for idx, layer in enumerate(self.variableStack):
-#             print("Layer", idx)
-
-#             for variable, constraints in layer.items():
-
-#                 print()
-
-#     # Just to be sure, use deep copy to make sure all attributes of this obj
-#     # are not 
-#     def clone(self):
-#         return copy.deepcopy(self)
-
     
 
 # When we move passed an if statement it should create 2 branches, these two branches will have new constraints they gained depending on if they are possible or not,
 # we need to eval these appended constraints to see if the state is possible (the constraints can be fullfilled) and give up if it is simply infeasible.
-C_LANGUAGE, tree, func_defs = parseSourceCode("""
+func_def = parseSourceCode("""
 int
 test(int x) {
   int y = 10;
@@ -47,7 +16,7 @@ test(int x) {
 
   return 0;
 }
-""")
+""", 'test')
 
 
 
@@ -72,4 +41,4 @@ def traverse_tree(node):
         traverse_tree(child)
 
 # try parsing the body of the function
-traverse_tree(func_defs[0].child_by_field_name('body'))
+traverse_tree(func_def.child_by_field_name('body'))
