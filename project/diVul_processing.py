@@ -1,3 +1,10 @@
+"""
+This relies on you having the diVul dataset: https://github.com/wagner-group/diversevul
+Alternatively you do not need to process the data, you can rely on the prompts created from the data in prompts.txt
+
+This is soley for removing the top 25 CWE's from the diVul data, giving us a smaller data set to work with
+"""
+
 import json
 
 # Top 25 CWE list from Mitre 2021
