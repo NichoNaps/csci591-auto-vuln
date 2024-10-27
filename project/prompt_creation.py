@@ -1,5 +1,10 @@
-# This is a start to prompt creation from the data set. Things we should consider adding: 
-# More prompt structures, randomization on other prompts and on the vulns used from the data set.
+"""
+This is a start to prompt creation from the top 25 data set (created from diVul_processing). You will need the top 25 data set to use this code.
+This code creates the prompts in a txt file: prompts.txt
+
+Things we should consider adding: 
+More prompt structures, randomization on prompts and on the vulns used from the data set.
+"""
 
 import json
 
