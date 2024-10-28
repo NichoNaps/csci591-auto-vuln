@@ -162,7 +162,7 @@ class Interpreter:
 
 
     def parseArithmeticExpressionToZ3(self, exp: Node):
-        pass
+        print('Parsing expression:', exp)
         #@TODO this should be similar to condition expression
 
 
@@ -200,14 +200,13 @@ class Interpreter:
                     value = dec.child_by_field_name('value')
                     #@TODO turn value into a z3 constraint!
 
-                    z3Value = self.parseArithmeticExpressionToZ3()
+                    z3Value = self.parseArithmeticExpressionToZ3(value)
 
                     print(f"{varName} = {value}")
 
                 else:
                     varName = dec.text.decode()
                     self.defineVariable(varName) # tell interpeter to define var
-
 
 
                 return #@TODO?

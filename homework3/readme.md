@@ -32,3 +32,4 @@ print(node.text.decode())
 for child in node.children:
     print(child)
 
+```
