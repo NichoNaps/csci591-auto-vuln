@@ -2,6 +2,10 @@
 This is a start to prompt creation from the top 25 data set (created from diVul_processing). You will need the top 25 data set to use this code.
 This code creates the prompts in a txt file: prompts.txt
 
+Needs to be done: 
+Figure out a way to pull code that needs to be classified. New data set, or same data set that we split into two: one CWE as an example, one as a test. 
+If we split the data set, consider: having pairs of same CWE's one for example, one as test. Organizing data by CWE? 
+
 Things we should consider adding: 
 More prompt structures, randomization on prompts and on the vulns used from the data set.
 """
@@ -24,8 +28,9 @@ for vuln in diversevul_top_25:
     cwes = vuln.get("cwe", [])
     func = vuln.get("func") 
 
+# Need to add the code that it needs to classify
     for cwe in cwes:
-        prompt = f"Here is an example of {cwe} vulnerability and the code: \n{func} \nClassify the following code: \n{func}"
+        prompt = f"Here is an example of {cwe} vulnerability and the code: \n{func} \nClassify the following code: HOLDER"
         basic_prompts.append(prompt)
 
     if (limit):
