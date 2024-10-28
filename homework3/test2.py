@@ -33,7 +33,6 @@ class SymbolicState:
     
 
 
-
 # z3 want variables to be the same ie Int("x") != Int("x")
 # storing this separately in a global store simplifies everything else so it
 # doesn't have to deal with maintining the references etc when pushing and poping etc copying etc
@@ -114,13 +113,13 @@ class Interpreter:
     
 
     #@TODO: this doesn't implement truthiness yet (integers == 0 are false, all other values are true)
-    def parseExpressionToZ3(self, exp: Node):
+    def parseConditionExpressionToZ3(self, exp: Node):
 
         print('Parsing expression:', exp)
 
         if exp.type == 'parenthesized_expression':
             # @TODO is there something we need to do for parenthesis? and is it only one child always?
-            return self.parseExpressionToZ3(exp.children[1]) 
+            return self.parseConditionExpressionToZ3(exp.children[1]) 
         
         elif exp.type == 'identifier':
 
@@ -132,8 +131,8 @@ class Interpreter:
         
         elif exp.type == 'binary_expression':
 
-            leftHand = self.parseExpressionToZ3(exp.child_by_field_name('left')) 
-            rightHand = self.parseExpressionToZ3(exp.child_by_field_name('right')) 
+            leftHand = self.parseConditionExpressionToZ3(exp.child_by_field_name('left')) 
+            rightHand = self.parseConditionExpressionToZ3(exp.child_by_field_name('right')) 
 
             operator = exp.children[1].text.decode()
 
@@ -162,6 +161,11 @@ class Interpreter:
             raise Exception("bad!!") 
 
 
+    def parseArithmeticExpressionToZ3(self, exp: Node):
+        pass
+        #@TODO this should be similar to condition expression
+
+
     def run(self):
         cursor = self.cursor
 
@@ -177,14 +181,36 @@ class Interpreter:
 
             elif cursor.node.type == 'if_statement':
                 print(cursor.node)
-                constraint = self.parseExpressionToZ3(cursor.node.child_by_field_name('condition'))
+                constraint = self.parseConditionExpressionToZ3(cursor.node.child_by_field_name('condition'))
 
                 print('Got constraint from if statement:', constraint)
 
                 #@TODO now fork for the constraint and Not(restraint) cases!!
-                return 
+                return  
 
-            # elif cursor.node.type == 'declaration': # @TODO handle variable declaration
+            elif cursor.node.type == 'declaration': # @TODO handle variable declaration
+                dec = cursor.node.child_by_field_name('declarator')
+                print(dec)
+
+                # if its be declared and assigned a value
+                if dec.type == 'init_declarator':
+                    varName = dec.child_by_field_name('declarator').text.decode()
+                    self.defineVariable(varName) # tell interpeter to define var
+
+                    value = dec.child_by_field_name('value')
+                    #@TODO turn value into a z3 constraint!
+
+                    z3Value = self.parseArithmeticExpressionToZ3()
+
+                    print(f"{varName} = {value}")
+
+                else:
+                    varName = dec.text.decode()
+                    self.defineVariable(varName) # tell interpeter to define var
+
+
+
+                return #@TODO?
 
             # elif cursor.node.type == '}': @TODO when reaching the end of a code block, we need to check if it is a while loop
             # if so, we need to loop back
@@ -203,7 +229,7 @@ func_def = parseSourceCode(
 int f(int x, int y) {
     int z = 10;
 
-    if (x > y && x != y) {
+    if (x > y) {
         x = x + y;
         y = x - y;
         x = x - y;
@@ -256,9 +282,9 @@ y2 = Int('y2')
 x3 = Int('x3') 
 y3 = Int('y3')  
 
-x_final = Int('x_final')  # after x++
+x_final = Int('x_final') 
 
-# 
+
 solver = Solver()
 
 solver.add(x1 == A)
