@@ -1,5 +1,6 @@
 from z3 import *
 import copy
+from tree_sitter import Language, Parser, Tree, Node, TreeCursor
 from runner import parseSourceCode
 
 class SymbolicState:
@@ -29,6 +30,8 @@ class SymbolicState:
 
     def __str__(self):
         return str(self.constraints)
+    
+
 
 
 # z3 want variables to be the same ie Int("x") != Int("x")
@@ -64,9 +67,10 @@ store = Z3Store()
 
 class Interpreter:
 
-    def __init__(self):
+    def __init__(self, treeCursor: TreeCursor):
+        self.cursor = treeCursor # a curser location in the source code to start from
 
-        # static scoping layers
+        # static scoping/mapping layers
         self.layers = [{}]
 
         self.current = SymbolicState()
@@ -75,6 +79,8 @@ class Interpreter:
     def defineVariable(self, varName):
         self.layers[-1][varName] = store.new(varName)
     
+    # def assignVariable(self, varName, value):
+
     def pushScope(self):
         self.layers.append({})
 
@@ -82,12 +88,14 @@ class Interpreter:
         self.layers.pop()
 
     
-    # get teh current z3 var object ofr this variable
-    def getVariable(self, name):
-
+    # get the current z3 var object of this variable
+    def getVariableZ3Name(self, name):
         for layer in reversed(self.layers):
             if name in layer.keys():
                 return layer[name]
+
+    def getVariableZ3(self, name):
+        return store.get(self.getVariableZ3Name(name))
     
     def print(self):
 
@@ -96,10 +104,94 @@ class Interpreter:
             for varName, symbolicName in layer.items():
                 print(f"{varName} => {symbolicName}")
             
-    def copy(self):
-        #@TODO
-        newInterp = Interpreter()
-        # newInterp.current = self.current # ????????????????
+    # @TODO set teh cursor 
+    def copy(self, treeCursor: TreeCursor):
+        newInterp = Interpreter(treeCursor)
+        newInterp.current = self.current # keep the reference to the current symbolic state
+        newInterp.layers = copy.deepcopy(self.layers) # make sure this is completely dereferenced
+
+        return newInterp
+    
+
+    #@TODO: this doesn't implement truthiness yet (integers == 0 are false, all other values are true)
+    def parseExpressionToZ3(self, exp: Node):
+
+        print('Parsing expression:', exp)
+
+        if exp.type == 'parenthesized_expression':
+            # @TODO is there something we need to do for parenthesis? and is it only one child always?
+            return self.parseExpressionToZ3(exp.children[1]) 
+        
+        elif exp.type == 'identifier':
+
+            # evaluate identifiers to z3 variables
+            z3Var = self.getVariableZ3(exp.text.decode())
+            print(exp.text.decode(), ' -> ', z3Var)
+
+            return z3Var
+        
+        elif exp.type == 'binary_expression':
+
+            leftHand = self.parseExpressionToZ3(exp.child_by_field_name('left')) 
+            rightHand = self.parseExpressionToZ3(exp.child_by_field_name('right')) 
+
+            operator = exp.children[1].text.decode()
+
+            print('OPERATOR', operator)
+
+            # convert all operators to z3 compliant ones
+            if operator == '||':
+                return Or(leftHand, rightHand)
+            elif operator == '&&':
+                return And(leftHand, rightHand)
+            elif operator == '<':
+                return leftHand < rightHand
+            elif operator == '<=':
+                return leftHand <= rightHand
+            elif operator == '>':
+                return leftHand > rightHand
+            elif operator == '>=':
+                return leftHand >= rightHand
+            elif operator == '==':
+                return leftHand == rightHand
+            elif operator == '!=':
+                return leftHand != rightHand
+            else:
+                raise Exception("bad!!") 
+        else:
+            raise Exception("bad!!") 
+
+
+    def run(self):
+        cursor = self.cursor
+
+        keepGoing = True
+
+        while keepGoing:
+            print(f'############ Found type {cursor.node.type}: {cursor.node.text}')
+
+            # enter compound statements automatically
+            if cursor.node.type == 'compound_statement':
+                keepGoing = cursor.goto_first_child()
+
+
+            elif cursor.node.type == 'if_statement':
+                print(cursor.node)
+                constraint = self.parseExpressionToZ3(cursor.node.child_by_field_name('condition'))
+
+                print('Got constraint from if statement:', constraint)
+
+                #@TODO now fork for the constraint and Not(restraint) cases!!
+                return 
+
+            # elif cursor.node.type == 'declaration': # @TODO handle variable declaration
+
+            # elif cursor.node.type == '}': @TODO when reaching the end of a code block, we need to check if it is a while loop
+            # if so, we need to loop back
+
+            # go to the next line
+            else:
+                keepGoing = cursor.goto_next_sibling()
 
 
 #@TODO, when we fork, the currentZ3 will get messed up when we finish going down one branch and go back to the other one.
@@ -109,7 +201,9 @@ class Interpreter:
 func_def = parseSourceCode(
 """
 int f(int x, int y) {
-    if (x > y) {
+    int z = 10;
+
+    if (x > y && x != y) {
         x = x + y;
         y = x - y;
         x = x - y;
@@ -125,7 +219,7 @@ int f(int x, int y) {
 
 print(func_def)
 
-interp = Interpreter()
+interp = Interpreter(func_def.child_by_field_name('body').walk())
 
 # find the parameters of the function
 params = [param for param in 
@@ -139,8 +233,13 @@ for param in params:
     paramName = param.child_by_field_name('declarator').text.decode()
     interp.defineVariable(paramName)
 
-
 interp.print()
+
+interp.run()
+
+
+
+
 
 
 exit()
