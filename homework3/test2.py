@@ -117,6 +117,9 @@ class Interpreter:
         for cons in self.constraints:
             res += f"{cons}\n"
 
+        if not self.isFeasible():
+            res += f"INFEASIBLE\n"
+
         res += "\nMappings:\n"
         for idx, layer in enumerate(self.layers):
             res += f"Layer {idx}\n"
@@ -142,6 +145,7 @@ class Interpreter:
         return newInterp
     
 
+    #@TODO: we have combine arithmetic and condition expression together into the same thing. Ex: x+y > 0. Currently we make a distinction between them.
     #@TODO: this doesn't implement truthiness yet (integers == 0 are false, all other values are true)
     def parseConditionExpressionToZ3(self, exp: Node):
 
@@ -256,13 +260,13 @@ class Interpreter:
             # enter compound statements automatically
             if self.node.type == 'compound_statement':
                 self.node = self.node.children[0]
+                self.pushScope()
 
-
-            #@TODO we need to push the scope here
             elif self.node.type == 'if_statement':
                 constraint = self.parseConditionExpressionToZ3(self.node.child_by_field_name('condition'))
 
                 print('Got constraint from if statement:', constraint)
+
 
                 # The fork if TRUE
                 trueNode = self.node.child_by_field_name('consequence')
@@ -281,20 +285,10 @@ class Interpreter:
                 falseFork = self.fork(falseNode, Not(constraint))
 
                 print(">>>>>>>>>>>> Starting TRUE Fork for", self.node.child_by_field_name('condition').text.decode())
-                #@TODO: in the inclass example he had a separate block just representing the if statement that was separate from the basicblock, 
-                # technically we don't need this but we can add them with this. 
-                if trueFork.isFeasible():
-
-                    # create a another new fork from the true fork to continue with
-                    trueFork = trueFork.fork(trueNode, True)
-                    trueFork.run()
+                trueFork.run()
 
                 print(">>>>>>>>>>>> Starting FALSE Fork for", self.node.child_by_field_name('condition').text.decode())
-                if falseFork.isFeasible():
-
-                    # create a another new fork from the false fork to continue with
-                    falseFork = falseFork.fork(falseNode, True)
-                    falseFork.run()
+                falseFork.run()
                 
                 # Quit running this interpreter, the child interpreters have done everything
                 return self
@@ -358,6 +352,10 @@ class Interpreter:
 
                 
                 while self.node.type == '}' or self.node.type == 'compound_statement' or self.node.type == 'if_statement':
+                    if self.node.type == '}':
+                        self.popScope()
+
+
                     self.node = self.node.parent
 
                     if self.node.next_sibling is not None:

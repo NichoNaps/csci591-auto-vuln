@@ -13,11 +13,14 @@ int f(int x, int y) {
     int z = 5;
 
     if (x > y) {
+        int deepishVar = 5;
+
         x = x + y;
         y = x - y;
         x = x - y;
 
-        if (x > y) {
+        if (y > x) {
+            int deepestVar = 5;
             return 0;
         }
     }
