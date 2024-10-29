@@ -257,6 +257,8 @@ class Interpreter:
             if self.node.type == 'compound_statement':
                 self.node = self.node.children[0]
 
+
+            #@TODO we need to push the scope here
             elif self.node.type == 'if_statement':
                 constraint = self.parseConditionExpressionToZ3(self.node.child_by_field_name('condition'))
 
@@ -350,6 +352,9 @@ class Interpreter:
             #@TODO when reaching the end of a code block, we need to check if it is a while loop
             # if so, we need to loop back, otherwise go up and to the next sibling
             elif self.node.type == '}': 
+
+
+                #@TODO: we need to pop the scope here
 
                 
                 while self.node.type == '}' or self.node.type == 'compound_statement' or self.node.type == 'if_statement':
