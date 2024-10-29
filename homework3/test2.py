@@ -171,10 +171,49 @@ class Interpreter:
         else:
             raise Exception(f"Unknown exp node type {exp}") 
 
-
+    # Same as condition expression other than the operators...
+    # although from my research, all the operators are already Z3 complient. We may not need this step? 
+    # the only thing we may want to consider is how to handle division by 0, which is allowed in Z3
     def parseArithmeticExpressionToZ3(self, exp: Node):
         print('Parsing expression:', exp)
-        #@TODO this should be similar to condition expression
+
+        if exp.type == 'parenthesized_expression':
+            # @TODO is there something we need to do for parenthesis? and is it only one child always?
+            return self.parseConditionExpressionToZ3(exp.children[1]) 
+        
+        elif exp.type == 'identifier':
+
+            # evaluate identifiers to z3 variables
+            z3Var = self.getVariableZ3(exp.text.decode())
+            print(exp.text.decode(), ' -> ', z3Var)
+
+            return z3Var
+
+        elif exp.type == 'number_literal':
+            return int(exp.text.decode())
+        
+        elif exp.type == 'binary_expression':
+
+            leftHand = self.parseConditionExpressionToZ3(exp.child_by_field_name('left')) 
+            rightHand = self.parseConditionExpressionToZ3(exp.child_by_field_name('right')) 
+
+            operator = exp.children[1].text.decode()
+
+            print('OPERATOR', operator)
+
+            # convert all operators to z3 compliant ones
+            if operator == '+':
+                return leftHand + rightHand
+            elif operator == '-':
+                return leftHand - rightHand
+            elif operator == '*':
+                return leftHand * rightHand
+            elif operator == '/':
+                return leftHand / rightHand
+            else:
+                raise Exception("bad!!") 
+        else:
+            raise Exception("bad!!") 
 
 
     def run(self):
@@ -370,6 +409,23 @@ if __name__ == "__main__":
     solver.add(x3 == x2 - y2)
 
     solver.add(x_final == x3 + 1)
+
+    # ++x
+    solver.add(x == x + 1)
+    # --x
+    solver.add(x == x - 1)
+
+    # x++ create two values, to simulate c? 
+
+    x = Int('x')
+    x_og = Int('x_og')
+
+    solver.add(x_og = x) # save the value of x
+    solver.add(x == x + 1) # x++
+
+    # x-- same as x++ but change last line to:
+    solver.add(x == x - 1) # x--
+    
 
     # the if statement isn't satifiable like we want!!
     # solver.add(x_final - y2 > 0)
