@@ -3,34 +3,6 @@ import copy
 from tree_sitter import Language, Parser, Tree, Node, TreeCursor
 from runner import parseSourceCode
 
-class SymbolicState:
-
-    def __init__(self):
-        self.constraints = []
-    
-    # save a constraint to this state
-    def addConstraint(self, constraint):
-        self.constraints.append(constraint)
-    
-    def isFeasible(self):
-        solver = Solver()
-
-        for constr in self.constraints:
-            solver.add(constr)
-        
-        return solver.check() == ast
-
-
-    # shallow copy of the list of constraints so we can add more without
-    # affecting the old list of older states
-    def copy(self):
-        new = SymbolicState()
-        new.constraints = [*self.constraints]
-    
-
-    def __str__(self):
-        return str(self.constraints)
-    
 
 
 # z3 want variables to be the same ie Int("x") != Int("x")
@@ -66,13 +38,27 @@ store = Z3Store()
 
 class Interpreter:
 
-    def __init__(self, treeCursor: TreeCursor):
-        self.cursor = treeCursor # a curser location in the source code to start from
+    def __init__(self, node: Node):
+        self.node = node # a node location in the source code to start executing from
+
+        self.edgeConstraint = None # the edge condition to reach this symbolic state
 
         # static scoping/mapping layers
         self.layers = [{}]
 
-        self.current = SymbolicState()
+        self.constraints = []
+        self.children = []
+    
+
+    # test if the constraints we have accumulated are feasible
+    def isFeasible(self):
+        solver = Solver()
+
+        for constr in self.constraints:
+            solver.add(constr)
+        
+        return solver.check() == ast
+
 
     # define a variable on the current scope
     def defineVariable(self, varName):
@@ -87,27 +73,35 @@ class Interpreter:
         self.layers.pop()
 
     
-    # get the current z3 var object of this variable
+    # get the current z3 var name
     def getVariableZ3Name(self, name):
         for layer in reversed(self.layers):
             if name in layer.keys():
                 return layer[name]
 
+    # get the current z3 var object of this variable
     def getVariableZ3(self, name):
         return store.get(self.getVariableZ3Name(name))
     
     def print(self):
+
+        print("\nConstraints:")
+        for cons in self.constraints:
+            print(cons)
 
         print("\nScope:")
         for layer in self.layers:
             for varName, symbolicName in layer.items():
                 print(f"{varName} => {symbolicName}")
             
-    # @TODO set teh cursor 
-    def copy(self, treeCursor: TreeCursor):
+
+    def fork(self, treeCursor: TreeCursor, edgeConstraint):
         newInterp = Interpreter(treeCursor)
-        newInterp.current = self.current # keep the reference to the current symbolic state
-        newInterp.layers = copy.deepcopy(self.layers) # make sure this is completely dereferenced
+        newInterp.constraints = [*self.constraints, edgeConstraint] # create a new list but with the same restraint objects as before
+        newInterp.edgeConstraint = edgeConstraint # save the edge constraint to this child
+        newInterp.layers = copy.deepcopy(self.layers) # copy the current mapping/scope of variables but make sure it is completely dereferenced 
+
+        self.children.append(newInterp)
 
         return newInterp
     
@@ -115,7 +109,7 @@ class Interpreter:
     #@TODO: this doesn't implement truthiness yet (integers == 0 are false, all other values are true)
     def parseConditionExpressionToZ3(self, exp: Node):
 
-        print('Parsing expression:', exp)
+        print('Parsing Conditional Expression:', exp)
 
         if exp.type == 'parenthesized_expression':
             # @TODO is there something we need to do for parenthesis? and is it only one child always?
@@ -128,6 +122,9 @@ class Interpreter:
             print(exp.text.decode(), ' -> ', z3Var)
 
             return z3Var
+
+        elif exp.type == 'number_literal':
+            return int(exp.text.decode())
         
         elif exp.type == 'binary_expression':
 
@@ -167,29 +164,47 @@ class Interpreter:
 
 
     def run(self):
-        cursor = self.cursor
 
-        keepGoing = True
-
-        while keepGoing:
-            print(f'############ Found type {cursor.node.type}: {cursor.node.text}')
+        while True:
+            print(f'############ Found Node {self.node.type}: {self.node.text}')
 
             # enter compound statements automatically
-            if cursor.node.type == 'compound_statement':
-                keepGoing = cursor.goto_first_child()
+            if self.node.type == 'compound_statement':
+                self.node = self.node.children[0]
 
-
-            elif cursor.node.type == 'if_statement':
-                print(cursor.node)
-                constraint = self.parseConditionExpressionToZ3(cursor.node.child_by_field_name('condition'))
+            elif self.node.type == 'if_statement':
+                constraint = self.parseConditionExpressionToZ3(self.node.child_by_field_name('condition'))
 
                 print('Got constraint from if statement:', constraint)
 
-                #@TODO now fork for the constraint and Not(restraint) cases!!
-                return  
+                # The fork if TRUE
+                trueFork = self.fork(self.node.child_by_field_name('consequence'), constraint)
 
-            elif cursor.node.type == 'declaration': # @TODO handle variable declaration
-                dec = cursor.node.child_by_field_name('declarator')
+                print(self.node)
+
+                # if false, check if there is an else clause to enter or if we should just move to the next statement
+                elseClause = self.node.child_by_field_name('alternative')
+
+                if elseClause is None:
+                    newNode = self.node.next_sibling
+                else:
+                    newNode = elseClause.children[1]
+                    print(elseClause.children)
+                
+                # the fork if FALSE
+                falseFork = self.fork(newNode, Not(constraint))
+
+                print(">>>>>>>>>>>> Starting TRUE Fork for", self.node.child_by_field_name('condition').text.decode())
+                trueFork.run()
+                print(">>>>>>>>>>>> Starting FALSE Fork for", self.node.child_by_field_name('condition').text.decode())
+                falseFork.run()
+                
+                # Quit running this interpreter, the child interpreters have done everything
+                return self
+
+
+            elif self.node.type == 'declaration': # @TODO handle variable declaration
+                dec = self.node.child_by_field_name('declarator')
                 print(dec)
 
                 # if its be declared and assigned a value
@@ -209,14 +224,38 @@ class Interpreter:
                     self.defineVariable(varName) # tell interpeter to define var
 
 
-                return #@TODO?
+            #@TODO when reaching the end of a code block, we need to check if it is a while loop
+            # if so, we need to loop back, otherwise go up and down?
+            elif self.node.type == '}': 
 
-            # elif cursor.node.type == '}': @TODO when reaching the end of a code block, we need to check if it is a while loop
-            # if so, we need to loop back
+                
+                while self.node.type == '}' or self.node.type == 'compound_statement' or self.node.type == 'if_statement':
+                    # what is the point of goto_parent() if it doesn't work randomly and you have to do this instead??
+                    self.node = self.node.parent
+
+                    # what is the point of goto_next_sibling() if it doesn't work randomly and you have to do this??
+                    if self.node.next_sibling is not None:
+                        self.node = self.node.next_sibling
+                    
+                    if self.node.type == 'function_definition':
+                        print('Hit end of the program')
+
+                        # we went up enough that we hit the function definition so we must be done executing
+                        return self
+
+                    print(self.node, self.node.text.decode())
+                    # input()
+
+
+                print("Hit end of code block, going up and then to the next")
+                print(self.node.type)
+                
 
             # go to the next line
             else:
-                keepGoing = cursor.goto_next_sibling()
+                self.node = self.node.next_sibling
+
+            input('Press enter to continue...')
 
 
 #@TODO, when we fork, the currentZ3 will get messed up when we finish going down one branch and go back to the other one.
@@ -226,17 +265,17 @@ class Interpreter:
 func_def = parseSourceCode(
 """
 int f(int x, int y) {
-    int z = 10;
 
     if (x > y) {
         x = x + y;
         y = x - y;
         x = x - y;
 
-        if (x - y > 0) {
+        if (x > 0) {
             return 0;
         }
     }
+  
 
     return 1;
 }
@@ -244,7 +283,7 @@ int f(int x, int y) {
 
 print(func_def)
 
-interp = Interpreter(func_def.child_by_field_name('body').walk())
+interp = Interpreter(func_def.child_by_field_name('body'))
 
 # find the parameters of the function
 params = [param for param in 
