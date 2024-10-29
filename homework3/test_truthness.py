@@ -8,9 +8,18 @@ func_def = parseSourceCode(
 """
 int f(int x, int y) {
 
-    if (x || y > x) {
-        return 0;
+    if (5 && 3) {
+
     }
+
+    if (x + y > 0) {
+
+    }
+
+    if (0) {
+    
+    }
+
 
     return 1;
 }

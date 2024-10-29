@@ -5,6 +5,29 @@ import random
 from runner import parseSourceCode
 
 
+def forceInt(exp):
+
+    # handle int literals
+    if (isinstance(exp, int)):
+        return exp
+
+    if (exp.sort().kind() == Z3_BOOL_SORT):
+        return If(exp, 1, 0)
+    
+    return exp
+
+def forceBool(exp):
+
+    # handle int literals
+    if (isinstance(exp, int)):
+        return not (exp == 0)
+
+    if (exp.sort().kind() == Z3_INT_SORT):
+        return If(exp == 0, False, True)
+    
+    return exp
+
+
 
 # z3 want variables to be the same ie Int("x") != Int("x")
 # storing this separately in a global store simplifies everything else so it
@@ -193,13 +216,13 @@ class Interpreter:
 
     #@TODO: we have combine arithmetic and condition expression together into the same thing. Ex: x+y > 0. Currently we make a distinction between them.
     #@TODO: this doesn't implement truthiness yet (integers == 0 are false, all other values are true)
-    def parseConditionExpressionToZ3(self, exp: Node):
+    def parseExpressionToZ3(self, exp: Node):
 
         print('Parsing Conditional Expression:', exp, ' -> ', exp.text.decode())
 
         if exp.type == 'parenthesized_expression':
             # @TODO is there something we need to do for parenthesis? and is it only one child always?
-            return self.parseConditionExpressionToZ3(exp.children[1]) 
+            return self.parseExpressionToZ3(exp.children[1])
         
         elif exp.type == 'identifier':
 
@@ -214,8 +237,9 @@ class Interpreter:
         
         elif exp.type == 'binary_expression':
 
-            leftHand = self.parseConditionExpressionToZ3(exp.child_by_field_name('left')) 
-            rightHand = self.parseConditionExpressionToZ3(exp.child_by_field_name('right')) 
+            leftHand = self.parseExpressionToZ3(exp.child_by_field_name('left')) 
+            rightHand = self.parseExpressionToZ3(exp.child_by_field_name('right')) 
+
 
             operator = exp.children[1].text.decode()
 
@@ -223,21 +247,29 @@ class Interpreter:
 
             # convert all operators to z3 compliant ones
             if operator == '||':
-                return Or(leftHand, rightHand)
+                return Or(forceBool(leftHand), forceBool(rightHand))
             elif operator == '&&':
-                return And(leftHand, rightHand)
+                return And(forceBool(leftHand), forceBool(rightHand))
             elif operator == '<':
-                return leftHand < rightHand
+                return forceInt(leftHand) < forceInt(rightHand)
             elif operator == '<=':
-                return leftHand <= rightHand
+                return forceInt(leftHand) <= forceInt(rightHand)
             elif operator == '>':
-                return leftHand > rightHand
+                return forceInt(leftHand) > forceInt(rightHand)
             elif operator == '>=':
-                return leftHand >= rightHand
+                return forceInt(leftHand) >= forceInt(rightHand)
             elif operator == '==':
-                return leftHand == rightHand
+                return forceInt(leftHand) == forceInt(rightHand)
             elif operator == '!=':
-                return leftHand != rightHand
+                return forceInt(leftHand) != forceInt(rightHand)
+            elif operator == '+':
+                return forceInt(leftHand) + forceInt(rightHand)
+            elif operator == '-':
+                return forceInt(leftHand) - forceInt(rightHand)
+            elif operator == '*':
+                return forceInt(leftHand) * forceInt(rightHand)
+            elif operator == '/':
+                return forceInt(leftHand) / forceInt(rightHand)
             else:
                 raise Exception(f"Unknown operator {operator}") 
         else:
@@ -246,46 +278,6 @@ class Interpreter:
     # Same as condition expression other than the operators...
     # although from my research, all the operators are already Z3 complient. We may not need this step? 
     # the only thing we may want to consider is how to handle division by 0, which is allowed in Z3
-    def parseArithmeticExpressionToZ3(self, exp: Node):
-        print('Parsing expression:', exp)
-
-        if exp.type == 'parenthesized_expression':
-            # @TODO is there something we need to do for parenthesis? and is it only one child always?
-            return self.parseArithmeticExpressionToZ3(exp.children[1]) 
-        
-        elif exp.type == 'identifier':
-
-            # evaluate identifiers to z3 variables
-            z3Var = self.getVariableZ3(exp.text.decode())
-            print(exp.text.decode(), ' -> ', z3Var)
-
-            return z3Var
-
-        elif exp.type == 'number_literal':
-            return int(exp.text.decode())
-        
-        elif exp.type == 'binary_expression':
-
-            leftHand = self.parseArithmeticExpressionToZ3(exp.child_by_field_name('left')) 
-            rightHand = self.parseArithmeticExpressionToZ3(exp.child_by_field_name('right')) 
-
-            operator = exp.children[1].text.decode()
-
-            print('OPERATOR', operator)
-
-            # convert all operators to z3 compliant ones
-            if operator == '+':
-                return leftHand + rightHand
-            elif operator == '-':
-                return leftHand - rightHand
-            elif operator == '*':
-                return leftHand * rightHand
-            elif operator == '/':
-                return leftHand / rightHand
-            else:
-                raise Exception("bad!!") 
-        else:
-            raise Exception("bad!!") 
 
 
     def run(self):
@@ -309,7 +301,7 @@ class Interpreter:
                 self.pushScope()
 
             elif self.node.type == 'if_statement':
-                constraint = self.parseConditionExpressionToZ3(self.node.child_by_field_name('condition'))
+                constraint = forceBool(self.parseExpressionToZ3(self.node.child_by_field_name('condition')))
 
                 print('Got constraint from if statement:', constraint)
 
@@ -339,15 +331,15 @@ class Interpreter:
                 # Quit running this interpreter, the child interpreters have done everything
                 return self
 
-
-            elif self.node.type == 'declaration': # @TODO handle variable declaration
+            # Variable declaration ex: int a = 5;
+            elif self.node.type == 'declaration':
                 dec = self.node.child_by_field_name('declarator')
                 print(dec)
 
                 # if its be declared and assigned a value
                 if dec.type == 'init_declarator':
                     varName = dec.child_by_field_name('declarator').text.decode()
-                    value =  self.parseArithmeticExpressionToZ3(dec.child_by_field_name('value'))
+                    value =  forceInt(self.parseExpressionToZ3(dec.child_by_field_name('value')))
 
 
                     print(f"Performing Declaration {varName} = {value};")
@@ -364,11 +356,12 @@ class Interpreter:
                 self.node = self.node.next_sibling
 
 
+            # Variable Assignment ex: a = 5;
             elif self.node.type == 'expression_statement':
                 assignment = self.node.children[0]
 
                 varName = assignment.child_by_field_name('left').text.decode()
-                value = self.parseArithmeticExpressionToZ3(assignment.child_by_field_name('right'))
+                value = forceInt(self.parseExpressionToZ3(assignment.child_by_field_name('right')))
 
                 print(f"Performing Assignment: {varName} = {value};")
 
@@ -392,8 +385,6 @@ class Interpreter:
             #@TODO when reaching the end of a code block, we need to check if it is a while loop
             # if so, we need to loop back, otherwise go up and to the next sibling
             elif self.node.type == '}': 
-
-
 
                 
                 while self.node.type == '}' or self.node.type == 'compound_statement' or self.node.type == 'if_statement':
