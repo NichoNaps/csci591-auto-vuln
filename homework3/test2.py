@@ -57,7 +57,7 @@ class Interpreter:
         for constr in self.constraints:
             solver.add(constr)
         
-        return solver.check() == ast
+        return solver.check() == sat
 
 
     # define a variable on the current scope
@@ -78,6 +78,9 @@ class Interpreter:
         for layer in reversed(self.layers):
             if name in layer.keys():
                 return layer[name]
+            
+        raise Exception(f"Variable {name} doesn't exist!")
+
 
     # get the current z3 var object of this variable
     def getVariableZ3(self, name):
@@ -89,10 +92,12 @@ class Interpreter:
         for cons in self.constraints:
             print(cons)
 
-        print("\nScope:")
-        for layer in self.layers:
+        print("\nMappings:")
+        for idx, layer in enumerate(self.layers):
+            print("Layer", idx)
+
             for varName, symbolicName in layer.items():
-                print(f"{varName} => {symbolicName}")
+                print(f"   {varName} => {symbolicName}")
             
 
     def fork(self, treeCursor: TreeCursor, edgeConstraint):
@@ -109,7 +114,7 @@ class Interpreter:
     #@TODO: this doesn't implement truthiness yet (integers == 0 are false, all other values are true)
     def parseConditionExpressionToZ3(self, exp: Node):
 
-        print('Parsing Conditional Expression:', exp)
+        print('Parsing Conditional Expression:', exp, ' -> ', exp.text.decode())
 
         if exp.type == 'parenthesized_expression':
             # @TODO is there something we need to do for parenthesis? and is it only one child always?
@@ -164,6 +169,15 @@ class Interpreter:
 
 
     def run(self):
+
+        self.print()
+        print()
+
+        # immediately stop if the constraints are infeasible
+        if not self.isFeasible():
+            print("INFEASIBLE!")
+            return self
+
 
         while True:
             print(f'############ Found Node {self.node.type}: {self.node.text}')
@@ -230,10 +244,8 @@ class Interpreter:
 
                 
                 while self.node.type == '}' or self.node.type == 'compound_statement' or self.node.type == 'if_statement':
-                    # what is the point of goto_parent() if it doesn't work randomly and you have to do this instead??
                     self.node = self.node.parent
 
-                    # what is the point of goto_next_sibling() if it doesn't work randomly and you have to do this??
                     if self.node.next_sibling is not None:
                         self.node = self.node.next_sibling
                     
@@ -243,13 +255,10 @@ class Interpreter:
                         # we went up enough that we hit the function definition so we must be done executing
                         return self
 
-                    print(self.node, self.node.text.decode())
+                    print("Hit end of code block, going up and then to the next node")
+                    print(self.node, self.node.text)
                     # input()
 
-
-                print("Hit end of code block, going up and then to the next")
-                print(self.node.type)
-                
 
             # go to the next line
             else:
@@ -271,7 +280,7 @@ int f(int x, int y) {
         y = x - y;
         x = x - y;
 
-        if (x > 0) {
+        if (x > y) {
             return 0;
         }
     }
