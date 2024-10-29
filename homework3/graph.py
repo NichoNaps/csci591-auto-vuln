@@ -6,6 +6,10 @@ from runner import parseSourceCode
 # my tkinter install is messed up but this seems to make it work
 import tkinter 
 
+# pip install pygraphviz networkx matplotlib 
+# apt install pyhton3-tk ??
+# apt install graphviz ???
+
 
 func_def = parseSourceCode(
 """
@@ -13,16 +17,24 @@ int f(int x, int y) {
     int z = 5;
 
     if (x > y) {
-        int deepishVar = 5;
+        int x = x;
 
         x = x + y;
         y = x - y;
         x = x - y;
 
-        if (y > x) {
-            int deepestVar = 5;
+        if (x > y) {
+            int x = 5;
             return 0;
         }
+    }
+
+    int f = 3333;
+    if (1 == x) {
+
+    }
+    if (1 == y) {
+
     }
 
     return 1;
@@ -50,7 +62,9 @@ G.add_node(res.id, label=str(res))
 parseRes(res)
 
 
-pos = nx.spring_layout(G, k=0.5, seed=1)
+# pos = nx.spring_layout(G, k=0.5, seed=1)
+# pos = nx.shell_layout(G)
+pos = nx.nx_agraph.graphviz_layout(G, prog="dot") # use graphviz for its tree layout func
 
 nx.draw(G, pos, with_labels=False, node_size=5000, node_shape="s", node_color="lightblue")
 
@@ -64,3 +78,4 @@ plt.title("Symbolic Execution Diagram")
 plt.show()
 # plt.savefig("test.png", format="PNG")
 # plt.close()
+

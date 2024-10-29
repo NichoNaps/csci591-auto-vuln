@@ -348,25 +348,32 @@ class Interpreter:
             elif self.node.type == '}': 
 
 
-                #@TODO: we need to pop the scope here
 
                 
                 while self.node.type == '}' or self.node.type == 'compound_statement' or self.node.type == 'if_statement':
                     if self.node.type == '}':
                         self.popScope()
 
+                    print("Hit end of code block, going up node tree and then to the next sibling:")
+
 
                     self.node = self.node.parent
 
                     if self.node.next_sibling is not None:
                         self.node = self.node.next_sibling
+
+                        # if we encountered a if statement by going to the next,
+                        # this is a valid next thing to run on so escape this loop
+                        if self.node.type == 'if_statement':
+                            print(self.node, self.node.text)
+
+                            break
                     
                     # sanity check
                     if self.node.type == 'function_definition':
                         raise Exception('Hit end of the program before a return statement. This c function is probably missing a return statement.')
 
 
-                    print("Hit end of code block, going up node tree and then to the next sibling:")
                     print(self.node, self.node.text)
                     # input()
 
