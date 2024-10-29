@@ -10,6 +10,7 @@ import tkinter
 func_def = parseSourceCode(
 """
 int f(int x, int y) {
+    int z = 5;
 
     if (x > y) {
         x = x + y;
@@ -48,7 +49,7 @@ parseRes(res)
 
 pos = nx.spring_layout(G, k=0.5, seed=1)
 
-nx.draw(G, pos, with_labels=False, node_size=5000, node_color="lightblue")
+nx.draw(G, pos, with_labels=False, node_size=5000, node_shape="s", node_color="lightblue")
 
 # Draw edge labels
 nx.draw_networkx_edge_labels(G, pos, edge_labels=nx.get_edge_attributes(G, "label"), font_color="red")

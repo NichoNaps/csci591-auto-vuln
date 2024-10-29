@@ -64,10 +64,30 @@ class Interpreter:
 
 
     # define a variable on the current scope
-    def defineVariable(self, varName):
+    def defineVariable(self, varName, value = None):
+
         self.layers[-1][varName] = store.new(varName)
+
+        # optionaly set an initial value to this variable
+        if value is not None:
+            self.constraints.append(store.get(self.layers[-1][varName]) == value)
+
     
-    # def assignVariable(self, varName, value):
+
+    # incriments the name of the z3 variable that represents this variable
+    # and adds a constraint for that variable representing an assignment
+    def assignVariable(self, varName, value):
+        for layer in reversed(self.layers):
+            if varName in layer.keys():
+                layer[varName] = store.new(varName) # create a new z3 variable
+
+                # save the constraint of this assignment
+                self.constraints.append(store.get(layer[varName]) == value)
+
+                return 
+
+        raise Exception(f"Variable {varName} doesn't exist!")
+
 
     def pushScope(self):
         self.layers.append({})
@@ -77,17 +97,17 @@ class Interpreter:
 
     
     # get the current z3 var name
-    def getVariableZ3Name(self, name):
+    def getVariableZ3Name(self, varName):
         for layer in reversed(self.layers):
-            if name in layer.keys():
-                return layer[name]
+            if varName in layer.keys():
+                return layer[varName]
             
-        raise Exception(f"Variable {name} doesn't exist!")
+        raise Exception(f"Variable {varName} doesn't exist!")
 
 
     # get the current z3 var object of this variable
-    def getVariableZ3(self, name):
-        return store.get(self.getVariableZ3Name(name))
+    def getVariableZ3(self, varName):
+        return store.get(self.getVariableZ3Name(varName))
 
 
     def __str__(self):
@@ -111,7 +131,7 @@ class Interpreter:
         print(str(self))
 
 
-    def fork(self, treeCursor: TreeCursor, edgeConstraint):
+    def fork(self, treeCursor: TreeCursor, edgeConstraint) -> 'Interpreter':
         newInterp = Interpreter(treeCursor)
         newInterp.constraints = [*self.constraints, edgeConstraint] # create a new list but with the same restraint objects as before
         newInterp.edgeConstraint = edgeConstraint # save the edge constraint to this child
@@ -181,7 +201,7 @@ class Interpreter:
 
         if exp.type == 'parenthesized_expression':
             # @TODO is there something we need to do for parenthesis? and is it only one child always?
-            return self.parseConditionExpressionToZ3(exp.children[1]) 
+            return self.parseArithmeticExpressionToZ3(exp.children[1]) 
         
         elif exp.type == 'identifier':
 
@@ -196,8 +216,8 @@ class Interpreter:
         
         elif exp.type == 'binary_expression':
 
-            leftHand = self.parseConditionExpressionToZ3(exp.child_by_field_name('left')) 
-            rightHand = self.parseConditionExpressionToZ3(exp.child_by_field_name('right')) 
+            leftHand = self.parseArithmeticExpressionToZ3(exp.child_by_field_name('left')) 
+            rightHand = self.parseArithmeticExpressionToZ3(exp.child_by_field_name('right')) 
 
             operator = exp.children[1].text.decode()
 
@@ -243,24 +263,36 @@ class Interpreter:
                 print('Got constraint from if statement:', constraint)
 
                 # The fork if TRUE
-                trueFork = self.fork(self.node.child_by_field_name('consequence'), constraint)
+                trueNode = self.node.child_by_field_name('consequence')
+                trueFork = self.fork(trueNode, constraint)
 
                 # if false, check if there is an else clause to enter or if we should just move to the next statement
                 elseClause = self.node.child_by_field_name('alternative')
 
                 if elseClause is None:
-                    newNode = self.node.next_sibling
+                    falseNode = self.node.next_sibling
                 else:
-                    newNode = elseClause.children[1]
+                    falseNode = elseClause.children[1]
                     print(elseClause.children)
                 
                 # the fork if FALSE
-                falseFork = self.fork(newNode, Not(constraint))
+                falseFork = self.fork(falseNode, Not(constraint))
 
                 print(">>>>>>>>>>>> Starting TRUE Fork for", self.node.child_by_field_name('condition').text.decode())
-                trueFork.run()
+                #@TODO: in the inclass example he had a separate block just representing the if statement that was separate from the basicblock, 
+                # technically we don't need this but we can add them with this. 
+                if trueFork.isFeasible():
+
+                    # create a another new fork from the true fork to continue with
+                    trueFork = trueFork.fork(trueNode, True)
+                    trueFork.run()
+
                 print(">>>>>>>>>>>> Starting FALSE Fork for", self.node.child_by_field_name('condition').text.decode())
-                falseFork.run()
+                if falseFork.isFeasible():
+
+                    # create a another new fork from the false fork to continue with
+                    falseFork = falseFork.fork(falseNode, True)
+                    falseFork.run()
                 
                 # Quit running this interpreter, the child interpreters have done everything
                 return self
@@ -273,18 +305,36 @@ class Interpreter:
                 # if its be declared and assigned a value
                 if dec.type == 'init_declarator':
                     varName = dec.child_by_field_name('declarator').text.decode()
-                    self.defineVariable(varName) # tell interpeter to define var
+                    value =  self.parseArithmeticExpressionToZ3(dec.child_by_field_name('value'))
 
-                    value = dec.child_by_field_name('value')
-                    #@TODO turn value into a z3 constraint!
 
-                    z3Value = self.parseArithmeticExpressionToZ3(value)
-
-                    print(f"{varName} = {value}")
+                    print(f"Performing Declaration {varName} = {value};")
+                    self.defineVariable(varName, value)
 
                 else:
                     varName = dec.text.decode()
+
+                    print(f"Performing Declaration {varName};")
                     self.defineVariable(varName) # tell interpeter to define var
+
+
+                # now go to next line!!!
+                self.node = self.node.next_sibling
+
+
+            elif self.node.type == 'expression_statement':
+                assignment = self.node.children[0]
+
+                varName = assignment.child_by_field_name('left').text.decode()
+                value = self.parseArithmeticExpressionToZ3(assignment.child_by_field_name('right'))
+
+                print(f"Performing Assignment: {varName} = {value};")
+
+                self.assignVariable(varName, value)
+
+
+                # now go to next line!!!
+                self.node = self.node.next_sibling
 
 
             # if we hit a return, then quit this interpreters interpretation
@@ -318,7 +368,7 @@ class Interpreter:
                     # input()
 
 
-            # go to the next line
+            # now go to the next line!!
             else:
                 self.node = self.node.next_sibling
 
@@ -353,6 +403,7 @@ if __name__ == "__main__":
     func_def = parseSourceCode(
     """
     int f(int x, int y) {
+        int z = 5;
 
         if (x > y) {
             x = x + y;
