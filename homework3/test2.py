@@ -50,7 +50,7 @@ class Interpreter:
         self.constraints = []
         self.children: list['Interpreter'] = []
 
-        self.id = hex(random.randint(0, 999999999)) # Used for debugging only
+        self.id = hex(random.randint(0, 999999999)) # Used for debugging only to keep track of what is what
     
 
     # test if the constraints we have accumulated are feasible
@@ -167,9 +167,9 @@ class Interpreter:
             elif operator == '!=':
                 return leftHand != rightHand
             else:
-                raise Exception("bad!!") 
+                raise Exception(f"Unknown operator {operator}") 
         else:
-            raise Exception("bad!!") 
+            raise Exception(f"Unknown exp node type {exp}") 
 
 
     def parseArithmeticExpressionToZ3(self, exp: Node):
@@ -247,8 +247,18 @@ class Interpreter:
                     self.defineVariable(varName) # tell interpeter to define var
 
 
+            # if we hit a return, then quit this interpreters interpretation
+            elif self.node.type == 'return_statement':
+                print(f"Function Returned {self.node.children[1].text.decode()}")
+
+                #@TODO for the assignment we have to provide the constraints to reach 'return 1;'
+                # i.e. we just have to show off this current interpreter/symbolic state somehow at the end maybe by marking 
+                # it with a 'success' flag member field or something
+
+                return self
+
             #@TODO when reaching the end of a code block, we need to check if it is a while loop
-            # if so, we need to loop back, otherwise go up and down?
+            # if so, we need to loop back, otherwise go up and to the next sibling
             elif self.node.type == '}': 
 
                 
@@ -258,13 +268,12 @@ class Interpreter:
                     if self.node.next_sibling is not None:
                         self.node = self.node.next_sibling
                     
+                    # sanity check
                     if self.node.type == 'function_definition':
-                        print('Hit end of the program')
+                        raise Exception('Hit end of the program before a return statement. This c function is probably missing a return statement.')
 
-                        # we went up enough that we hit the function definition so we must be done executing
-                        return self
 
-                    print("Hit end of code block, going up and then to the next node")
+                    print("Hit end of code block, going up node tree and then to the next sibling:")
                     print(self.node, self.node.text)
                     # input()
 
