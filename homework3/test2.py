@@ -91,7 +91,9 @@ class Interpreter:
 
 
     def __str__(self):
-        res = f"Id: {self.id}\nConstraints:\n"
+        res = f"Id: {self.id}\n"
+        res = f"On Line: {self.node.start_point[0] + 1}\n"
+        res += "Constraints:\n"
         for cons in self.constraints:
             res += f"{cons}\n"
 
@@ -218,6 +220,7 @@ class Interpreter:
 
     def run(self):
 
+
         self.print()
         print()
 
@@ -241,8 +244,6 @@ class Interpreter:
 
                 # The fork if TRUE
                 trueFork = self.fork(self.node.child_by_field_name('consequence'), constraint)
-
-                print(self.node)
 
                 # if false, check if there is an else clause to enter or if we should just move to the next statement
                 elseClause = self.node.child_by_field_name('alternative')
@@ -340,8 +341,6 @@ class Interpreter:
         for param in params:
             paramName = param.child_by_field_name('declarator').text.decode()
             interp.defineVariable(paramName)
-
-        interp.print()
 
         interp.run()
 
