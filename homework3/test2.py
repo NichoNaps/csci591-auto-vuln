@@ -1,6 +1,7 @@
 from z3 import *
 import copy
 from tree_sitter import Language, Parser, Tree, Node, TreeCursor
+import random
 from runner import parseSourceCode
 
 
@@ -47,7 +48,9 @@ class Interpreter:
         self.layers = [{}]
 
         self.constraints = []
-        self.children = []
+        self.children: list['Interpreter'] = []
+
+        self.id = hex(random.randint(0, 999999999)) # Used for debugging only
     
 
     # test if the constraints we have accumulated are feasible
@@ -85,20 +88,26 @@ class Interpreter:
     # get the current z3 var object of this variable
     def getVariableZ3(self, name):
         return store.get(self.getVariableZ3Name(name))
-    
-    def print(self):
 
-        print("\nConstraints:")
+
+    def __str__(self):
+        res = f"Id: {self.id}\nConstraints:\n"
         for cons in self.constraints:
-            print(cons)
+            res += f"{cons}\n"
 
-        print("\nMappings:")
+        res += "\nMappings:\n"
         for idx, layer in enumerate(self.layers):
-            print("Layer", idx)
+            res += f"Layer {idx}\n"
 
             for varName, symbolicName in layer.items():
-                print(f"   {varName} => {symbolicName}")
-            
+                res += f"   {varName} => {symbolicName}\n"
+        
+        return res
+    
+
+    def print(self):
+        print(str(self))
+
 
     def fork(self, treeCursor: TreeCursor, edgeConstraint):
         newInterp = Interpreter(treeCursor)
@@ -264,93 +273,99 @@ class Interpreter:
             else:
                 self.node = self.node.next_sibling
 
-            input('Press enter to continue...')
+            # input('Press enter to continue...')
 
 
-#@TODO, when we fork, the currentZ3 will get messed up when we finish going down one branch and go back to the other one.
+    # Create a new interpreter and run it on a function
+    @staticmethod
+    def startOnFunction(func_def: Node) -> 'Interpreter':
+        interp = Interpreter(func_def.child_by_field_name('body'))
 
+        # find the parameters of the function
+        params = [param for param in 
+                func_def
+                    .child_by_field_name('declarator')
+                    .child_by_field_name('parameters').children 
+                    if param.type == 'parameter_declaration']
 
-# this uses the following example from in class
-func_def = parseSourceCode(
-"""
-int f(int x, int y) {
+        # define parameters as variables
+        for param in params:
+            paramName = param.child_by_field_name('declarator').text.decode()
+            interp.defineVariable(paramName)
 
-    if (x > y) {
-        x = x + y;
-        y = x - y;
-        x = x - y;
+        interp.print()
+
+        interp.run()
+
+        return interp
+        
+
+if __name__ == "__main__":
+
+    # this uses the following example from in class
+    func_def = parseSourceCode(
+    """
+    int f(int x, int y) {
 
         if (x > y) {
-            return 0;
+            x = x + y;
+            y = x - y;
+            x = x - y;
+
+            if (x > y) {
+                return 0;
+            }
         }
+    
+
+        return 1;
     }
-  
+    """, 'f')
 
-    return 1;
-}
-""", 'f')
 
-print(func_def)
-
-interp = Interpreter(func_def.child_by_field_name('body'))
-
-# find the parameters of the function
-params = [param for param in 
-          func_def
-            .child_by_field_name('declarator')
-            .child_by_field_name('parameters').children 
-            if param.type == 'parameter_declaration']
-
-# define parameters as variables
-for param in params:
-    paramName = param.child_by_field_name('declarator').text.decode()
-    interp.defineVariable(paramName)
-
-interp.print()
-
-interp.run()
+    res = Interpreter.startOnFunction(func_def)
 
 
 
 
 
 
-exit()
+    exit()
 
-A = Int('A') 
-B = Int('B')  
+    A = Int('A') 
+    B = Int('B')  
 
-x1 = Int('x1')  
-y1 = Int('y1')
+    x1 = Int('x1')  
+    y1 = Int('y1')
 
-x2 = Int('x2')
-y2 = Int('y2')
+    x2 = Int('x2')
+    y2 = Int('y2')
 
-x3 = Int('x3') 
-y3 = Int('y3')  
+    x3 = Int('x3') 
+    y3 = Int('y3')  
 
-x_final = Int('x_final') 
+    x_final = Int('x_final') 
 
 
-solver = Solver()
+    solver = Solver()
 
-solver.add(x1 == A)
-solver.add(y1 == B)
+    solver.add(x1 == A)
+    solver.add(y1 == B)
 
-solver.add(x1 > y1) # the if statement
+    solver.add(x1 > y1) # the if statement
 
-solver.add(x2 == x1 + y1)
+    solver.add(x2 == x1 + y1)
 
-solver.add(y2 == x2 - y1)
+    solver.add(y2 == x2 - y1)
 
-solver.add(x3 == x2 - y2)
+    solver.add(x3 == x2 - y2)
 
-solver.add(x_final == x3 + 1)
+    solver.add(x_final == x3 + 1)
 
-# the if statement isn't satifiable like we want!!
-# solver.add(x_final - y2 > 0)
+    # the if statement isn't satifiable like we want!!
+    # solver.add(x_final - y2 > 0)
 
-if solver.check() == sat:
-    print("sat")
-else:
-    print("Constraints are unsatisfiable.")
+    if solver.check() == sat:
+        print("sat")
+    else:
+        print("Constraints are unsatisfiable.")
