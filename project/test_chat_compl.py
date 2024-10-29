@@ -25,8 +25,10 @@ llm = Llama.from_pretrained(
 
 
 message_history = [
-    {"role": "system", "content": "You are an AI that specializes in vulnerability discovery. Your goal is to identify and classify vulnerabilities in C code. When presented with a block of code, you will determine if the code is vulnerable or not vulnerable and state as such. If the code is vulnerable, you will then classify the vulnerability by giving its CWE number."},
+        {"role": "system", "content": "Please determine the intent of the following code:"},
     ]
+
+# Follow up prompt: I want you to act as a vulnerability detection system. Utilizing the intent of the code above, state whether or not the code is vulnerable/buggy. If it is vulnerable/buggy, specify where the vulnerability lies, and attempt to classify the vulnerability using Common Weakness Enumeration (CWE).
 
 while True:
 
