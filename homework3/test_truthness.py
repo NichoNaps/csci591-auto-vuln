@@ -9,7 +9,7 @@ func_def = parseSourceCode(
 int f(int x, int y) {
 
 
-    if (x + y / 2 > 0) {
+    if (x + y / 2 > 0 && 1) {
         x = x + 2 * 7;
     }
 

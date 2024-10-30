@@ -293,7 +293,7 @@ class Interpreter:
                 self.pushScope()
 
             elif self.node.type == 'if_statement':
-                constraint = simplify(forceBool(self.parseExpressionToZ3(self.node.child_by_field_name('condition'))))
+                constraint = forceBool(self.parseExpressionToZ3(self.node.child_by_field_name('condition')))
 
                 print('Got constraint from if statement:', constraint)
 
@@ -331,7 +331,7 @@ class Interpreter:
                 # if its be declared and assigned a value
                 if dec.type == 'init_declarator':
                     varName = dec.child_by_field_name('declarator').text.decode()
-                    value = simplify(forceInt(self.parseExpressionToZ3(dec.child_by_field_name('value'))))
+                    value = forceInt(self.parseExpressionToZ3(dec.child_by_field_name('value')))
 
 
                     print(f"Performing Declaration {varName} = {value};")
@@ -353,7 +353,7 @@ class Interpreter:
                 assignment = self.node.children[0]
 
                 varName = assignment.child_by_field_name('left').text.decode()
-                value = simplify(forceInt(self.parseExpressionToZ3(assignment.child_by_field_name('right'))))
+                value = forceInt(self.parseExpressionToZ3(assignment.child_by_field_name('right')))
 
                 print(f"Performing Assignment: {varName} = {value};")
 
