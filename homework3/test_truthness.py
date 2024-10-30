@@ -8,16 +8,14 @@ func_def = parseSourceCode(
 """
 int f(int x, int y) {
 
-    if (5 && 3) {
-
-    }
 
     if (x + y / 2 > 0) {
-
+        x = x + 2 * 7;
     }
 
-  
+    if (0) {}
 
+  
     return 1;
 }
 """, 'f')
