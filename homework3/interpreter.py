@@ -7,20 +7,12 @@ from runner import parseSourceCode
 
 def forceInt(exp):
 
-    # handle int literals
-    if (isinstance(exp, int)):
-        return exp
-
     if (exp.sort().kind() == Z3_BOOL_SORT):
         return If(exp, 1, 0)
     
     return exp
 
 def forceBool(exp):
-
-    # handle int literals
-    if (isinstance(exp, int)):
-        return not (exp == 0)
 
     if (exp.sort().kind() == Z3_INT_SORT):
         return If(exp == 0, False, True)
@@ -233,7 +225,7 @@ class Interpreter:
             return z3Var
 
         elif exp.type == 'number_literal':
-            return int(exp.text.decode())
+            return IntVal(int(exp.text.decode()))
         
         elif exp.type == 'binary_expression':
 
