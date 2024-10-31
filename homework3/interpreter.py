@@ -212,7 +212,7 @@ class Interpreter:
         print('Parsing Expression:', exp, ' -> ', exp.text.decode())
 
         if exp.type == 'parenthesized_expression':
-            # @TODO is there something we need to do for parenthesis? and is it only one child always?
+            # I've tested and this does capture (1+5) * 100 with the parenthesis correctly
             return self.parseExpressionToZ3(exp.children[1])
         
         elif exp.type == 'identifier':
@@ -225,6 +225,10 @@ class Interpreter:
 
         elif exp.type == 'number_literal':
             return IntVal(int(exp.text.decode()))
+        
+        elif exp.type == 'call_expression':
+            # create a new unique (and constrained) z3 variable that represents the returned value from the call expression
+            return store.get(store.new(f'call_{exp.child_by_field_name("function").text.decode()}'))
         
         elif exp.type == 'binary_expression':
 
