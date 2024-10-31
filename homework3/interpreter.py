@@ -391,14 +391,12 @@ class Interpreter:
 
             # if we hit a while loop:
             elif self.node.type == 'while_statement':
-                self.handleWhileLoop() # function is right above run line 270
+                self.handleWhileLoop() 
                 return self
 
-            #@TODO when reaching the end of a code block, we need to check if it is a while loop
-            # if so, we need to loop back, otherwise go up and to the next sibling
 
-            # I'm not sure if the function call for while loop goes in this body? 
-            # I added an elif for the while loop in comments, which can be removed.
+            # When reaching the end of a code block, we need to check if it is a while loop
+            # if so, we need to loop back, otherwise go up and to the next sibling
             elif self.node.type == '}': 
 
                 
