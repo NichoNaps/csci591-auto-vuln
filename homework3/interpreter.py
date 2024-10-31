@@ -2,7 +2,6 @@ from z3 import *
 import copy
 from tree_sitter import Language, Parser, Tree, Node, TreeCursor
 import random
-from runner import parseSourceCode
 
 
 def forceInt(exp):
@@ -65,6 +64,7 @@ class Interpreter:
         self.constraints = []
         self.children: list['Interpreter'] = []
 
+        self.startNode = self.node # Used to debugging to know when this interpreter started
         self.id = hex(random.randint(0, 999999999)) # Used for debugging only to keep track of what is what
     
 
@@ -127,7 +127,7 @@ class Interpreter:
 
     def __str__(self):
         res = f"Id: {self.id}\n"
-        res = f"On Line: {self.node.start_point[0] + 1}\n"
+        res = f"Covers Lines {self.startNode.start_point[0] + 1} - {self.node.start_point[0] + 1}\n"
         res += "Constraints:\n"
         for cons in self.constraints:
             res += f"{cons}\n"
@@ -160,7 +160,7 @@ class Interpreter:
         return newInterp
     
 
-    def plot(self):
+    def plot(self, source_code = None):
         # pip install pygraphviz networkx matplotlib 
         # apt install pyhton3-tk ??
         # apt install graphviz ???
@@ -178,7 +178,11 @@ class Interpreter:
             for child in parent.children:
 
                 print(child.id)
-                G.add_node(child.id, label=str(child))
+                if source_code is not None:
+                    G.add_node(child.id, label=bytes(source_code, 'utf-8')[child.startNode.start_byte:child.node.end_byte].decode())
+                else:
+                    G.add_node(child.id, label=str(child))
+
                 G.add_edge(parent.id, child.id, label=child.edgeConstraint)
 
                 parseRes(child)
@@ -257,6 +261,10 @@ class Interpreter:
             # finally just return this variable
             return self.getVariableZ3(varName)
 
+        elif exp.type == 'unary_expression':
+            value = self._parseExpressionToZ3(exp.child_by_field_name('argument'), post_assignments) 
+
+            return -1 * forceInt(value)
         
         elif exp.type == 'identifier':
 
@@ -325,6 +333,7 @@ class Interpreter:
         trueFork = self.fork(self.node.child_by_field_name('body'), constraint)
 
         # fork that continues after this while loop
+        #@TODO will this work as the last thing?
         falseFork = self.fork(self.node.next_sibling, Not(constraint))
 
         print(">>>>>>>>>>>> Starting TRUE Fork for", self.node.child_by_field_name('condition').text.decode())
@@ -411,8 +420,11 @@ class Interpreter:
 
 
             # Variable Assignment ex: a = 5;
-            elif self.node.type == 'expression_statement':
+            elif self.node.type == 'expression_statement' and self.node.children[0].type in ['update_expression', 'assignment_expression']:
                 assignment = self.node.children[0]
+
+                # print(assignment)
+                # exit()
 
 
                 # if it is x++; or ++x; statement
@@ -481,6 +493,7 @@ class Interpreter:
 
                         # if we encountered a if statement by going to the next,
                         # this is a valid next thing to run on so escape this loop
+                        #@TODO while too???
                         if self.node.type == 'if_statement':
                             print(self.node, self.node.text)
 
@@ -523,6 +536,7 @@ class Interpreter:
         
 
 if __name__ == "__main__":
+    from runner import parseSourceCode
 
     # this uses the following example from in class
     func_def = parseSourceCode(

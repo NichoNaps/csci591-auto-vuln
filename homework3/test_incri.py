@@ -4,8 +4,7 @@ from runner import parseSourceCode
 
 
 
-func_def = parseSourceCode(
-"""
+source_code = """
 int f() {
     int x = 0;
 
@@ -30,11 +29,13 @@ int f() {
 
     return 1;
 }
-""", 'f')
+"""
+
+func_def = parseSourceCode(source_code, 'f')
 
 res = Interpreter.startOnFunction(func_def)
 
-res.plot()
+res.plot(source_code)
 
 
 

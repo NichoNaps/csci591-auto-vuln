@@ -5,7 +5,15 @@ Assignment: https://www.cs.montana.edu/revelle/csci591/assignments/03/
 
 ```sh
 pip install tree-sitter tree-sitter-c z3-solver
+
+# for plotting:
+#sudo apt install graphviz
+sudo apt install python3-tk
+sudo apt install libgraphviz-dev
+
+pip install pygraphviz networkx matplotlib 
 ```
+
 
 
 See docs:

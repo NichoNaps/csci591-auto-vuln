@@ -10,10 +10,9 @@ int f() {
     int x = 0;
 
     while (x < 3) {
-        x = x + 1;
+        x++;
     }
 
-    int z = 5;
 
     return 1;
 }

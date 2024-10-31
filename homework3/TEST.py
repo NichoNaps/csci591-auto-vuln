@@ -2,23 +2,26 @@ from interpreter import Interpreter
 from runner import parseSourceCode
 
 
-
-
+# this uses the following example from in class
 func_def = parseSourceCode(
 """
 int f(int x, int y) {
+    int z = 1 > 0;
 
-    int z = 100 + myFunc();
-    
-    if (-(x+y) + y / 2 > 0 && 1) {
-        x = x + 2 * 7;
+    if (x > y) {
+        x = x + y/ 5(5453453+54);
+        y = x - y;
+        x = x - y;
+
+       
     }
 
-    if (0) {}
 
     return 1;
 }
 """, 'f')
+
+print(func_def)
 
 res = Interpreter.startOnFunction(func_def)
 

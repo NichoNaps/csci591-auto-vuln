@@ -1,6 +1,8 @@
 from pathlib import Path
 import argparse
 
+from interpreter import Interpreter
+
 import tree_sitter_c
 from tree_sitter import Language, Parser, Tree, Node
 
@@ -60,4 +62,8 @@ if __name__ == "__main__":
 
     func_def = parseSourceCode(source_code, args.function)
 
-    print(func_def)
+
+    res = Interpreter.startOnFunction(func_def)
+
+    res.plot()
+
