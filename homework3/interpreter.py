@@ -56,7 +56,7 @@ class Interpreter:
 
     def __init__(self, node: Node):
         self.node = node # a node location in the source code to start executing from
-
+        
         self.edgeConstraint = None # the edge condition to reach this symbolic state
 
         # static scoping/mapping layers
@@ -205,15 +205,58 @@ class Interpreter:
         # plt.close()
 
 
-
-    # Parse a tree sitter node expression into a z3 constraint expression
+    # Parse a tree sitter node expression into a z3 constraint expression 
+    # and apply post/pre assignments
     def parseExpressionToZ3(self, exp: Node):
+
+        post_assignments = []
+
+        res = self._parseExpressionToZ3(exp, post_assignments)
+
+        # apply any post assignments we accumulated
+        print(f"Applying {len(post_assignments)} post assignments of expression")
+        for varName, operator in post_assignments:
+            if operator == '++':
+                self.assignVariable(varName, self.getVariableZ3(varName) + 1)
+            if operator == '--':
+                self.assignVariable(varName, self.getVariableZ3(varName) - 1)
+        
+        return res
+
+
+    # Internal method used to parse tree siter nodes to z3 constraint that keeps track of 
+    # post assignments
+    def _parseExpressionToZ3(self, exp: Node, post_assignments):
 
         print('Parsing Expression:', exp, ' -> ', exp.text.decode())
 
         if exp.type == 'parenthesized_expression':
             # I've tested and this does capture (1+5) * 100 with the parenthesis correctly
-            return self.parseExpressionToZ3(exp.children[1])
+            return self._parseExpressionToZ3(exp.children[1], post_assignments)
+        
+        # handle post/pre incriment/decrement
+        elif exp.type == 'update_expression':
+
+            varName = exp.child_by_field_name('argument').text.decode()
+            print(f'Found Pre/Post assignment on {varName}')
+
+            firstType = exp.children[0].type
+            secondType = exp.children[1].type
+
+            # if its a pre-assignment do the assignment NOW!
+            if firstType != 'identifier':
+                if firstType == '++':
+                    self.assignVariable(varName, self.getVariableZ3(varName) + 1)
+                if firstType == '--':
+                    self.assignVariable(varName, self.getVariableZ3(varName) - 1)
+                
+            # if it is a post assignment do the assignment LATER!
+            else:
+                post_assignments.append((varName, secondType))
+            
+            # finally just return this variable
+            return self.getVariableZ3(varName)
+
         
         elif exp.type == 'identifier':
 
@@ -232,8 +275,8 @@ class Interpreter:
         
         elif exp.type == 'binary_expression':
 
-            leftHand = self.parseExpressionToZ3(exp.child_by_field_name('left')) 
-            rightHand = self.parseExpressionToZ3(exp.child_by_field_name('right')) 
+            leftHand = self._parseExpressionToZ3(exp.child_by_field_name('left'), post_assignments) 
+            rightHand = self._parseExpressionToZ3(exp.child_by_field_name('right'), post_assignments) 
 
 
             operator = exp.children[1].text.decode()
@@ -371,12 +414,19 @@ class Interpreter:
             elif self.node.type == 'expression_statement':
                 assignment = self.node.children[0]
 
-                varName = assignment.child_by_field_name('left').text.decode()
-                value = forceInt(self.parseExpressionToZ3(assignment.child_by_field_name('right')))
 
-                print(f"Performing Assignment: {varName} = {value};")
+                # if it is x++; or ++x; statement
+                if assignment.type == 'update_expression': 
+                    self.parseExpressionToZ3(assignment)
 
-                self.assignVariable(varName, value)
+                # if it is x = something;
+                else:
+                    varName = assignment.child_by_field_name('left').text.decode()
+                    value = forceInt(self.parseExpressionToZ3(assignment.child_by_field_name('right')))
+
+                    print(f"Performing Assignment: {varName} = {value};")
+
+                    self.assignVariable(varName, value)
 
 
                 # now go to next line!!!

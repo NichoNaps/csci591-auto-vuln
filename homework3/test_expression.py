@@ -10,7 +10,7 @@ int f(int x, int y) {
 
     int z = 100 + myFunc();
     
-    if (x + y / 2 > 0 && 1) {
+    if (-x + y / 2 > 0 && 1) {
         x = x + 2 * 7;
     }
 
