@@ -206,11 +206,10 @@ class Interpreter:
 
 
 
-    #@TODO: we have combine arithmetic and condition expression together into the same thing. Ex: x+y > 0. Currently we make a distinction between them.
-    #@TODO: this doesn't implement truthiness yet (integers == 0 are false, all other values are true)
+    # Parse a tree sitter node expression into a z3 constraint expression
     def parseExpressionToZ3(self, exp: Node):
 
-        print('Parsing Conditional Expression:', exp, ' -> ', exp.text.decode())
+        print('Parsing Expression:', exp, ' -> ', exp.text.decode())
 
         if exp.type == 'parenthesized_expression':
             # @TODO is there something we need to do for parenthesis? and is it only one child always?
@@ -269,34 +268,23 @@ class Interpreter:
 
     # has a constraint for the number of iterations to avoid explosion
     def handleWhileLoop(self):
-        # Do we force bool here? 
-        initial_condition = self.parseExpressionToZ3(self.node.child_by_field_name('condition'))
-        constraint = initial_condition
+        print("######################## Handling While Loop")
+
+        constraint = forceBool(self.parseExpressionToZ3(self.node.child_by_field_name('condition')))
 
         print('while loop constraint:', constraint)
 
-        # adjust this value for the max number of iterations
-        max_iterations = 15
+        # fork that enters the while loop
+        trueFork = self.fork(self.node.child_by_field_name('body'), constraint)
 
-        for i in range(max_iterations):
-            if not self.isFeasible():
-                print("Loop condition INFEASIBLE!")
-                break
+        # fork that continues after this while loop
+        falseFork = self.fork(self.node.next_sibling, Not(constraint))
 
-            body_interperter = self.fork(self.node.child_by_field_name('body'), constraint)
+        print(">>>>>>>>>>>> Starting TRUE Fork for", self.node.child_by_field_name('condition').text.decode())
+        trueFork.run()
 
-            print(">>>>>>>>>>>> Starting WHILE body Fork for", self.node.child_by_field_name('condition').text.decode())
-            body_interperter.run()
-
-            constraint = self.parseExpressionToZ3(self.node.child_by_field_name('condition'))
-
-            if self.isFeasible():
-                self.constraints.append(constraint)
-            else:
-                print("Exiting while loop, condition is not satisfiable.")
-                break
-
-        print("Exiting while loop")
+        print(">>>>>>>>>>>> Starting FALSE Fork for", self.node.child_by_field_name('condition').text.decode())
+        falseFork.run()
 
 
     def run(self):
@@ -402,9 +390,9 @@ class Interpreter:
                 return self
 
             # if we hit a while loop:
-            # elif self.node.type == 'while_statement':
-            #     self.handleWhileLoop() # function is right above run line 270
-            #     return self
+            elif self.node.type == 'while_statement':
+                self.handleWhileLoop() # function is right above run line 270
+                return self
 
             #@TODO when reaching the end of a code block, we need to check if it is a while loop
             # if so, we need to loop back, otherwise go up and to the next sibling
@@ -423,6 +411,19 @@ class Interpreter:
 
                     self.node = self.node.parent
 
+
+                    # Check for a while loop before we try moving to the next line
+                    if self.node.type == 'while_statement':
+                        self.handleWhileLoop()
+                        return self
+
+
+                    # Sanity check
+                    if self.node.type == 'function_definition':
+                        raise Exception('Hit end of the program before a return statement. This c function is probably missing a return statement.')
+
+
+                    # try moving to the next line
                     if self.node.next_sibling is not None:
                         self.node = self.node.next_sibling
 
@@ -433,14 +434,7 @@ class Interpreter:
 
                             break
                     
-                    # sanity check
-                    if self.node.type == 'function_definition':
-                        raise Exception('Hit end of the program before a return statement. This c function is probably missing a return statement.')
                     
-                    # Check for a while loop? 
-                    if self.node.type == 'while_statement':
-                        self.handleWhileLoop()
-                        return self
 
                     print(self.node, self.node.text)
                     # input()
