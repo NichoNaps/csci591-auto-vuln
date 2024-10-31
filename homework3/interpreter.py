@@ -267,9 +267,36 @@ class Interpreter:
         else:
             raise Exception(f"Unknown exp node type {exp}") 
 
-    # Same as condition expression other than the operators...
-    # although from my research, all the operators are already Z3 complient. We may not need this step? 
-    # the only thing we may want to consider is how to handle division by 0, which is allowed in Z3
+    # has a constraint for the number of iterations to avoid explosion
+    def handleWhileLoop(self):
+        # Do we force bool here? 
+        initial_condition = self.parseExpressionToZ3(self.node.child_by_field_name('condition'))
+        constraint = initial_condition
+
+        print('while loop constraint:', constraint)
+
+        # adjust this value for the max number of iterations
+        max_iterations = 15
+
+        for i in range(max_iterations):
+            if not self.isFeasible():
+                print("Loop condition INFEASIBLE!")
+                break
+
+            body_interperter = self.fork(self.node.child_by_field_name('body'), constraint)
+
+            print(">>>>>>>>>>>> Starting WHILE body Fork for", self.node.child_by_field_name('condition').text.decode())
+            body_interperter.run()
+
+            constraint = self.parseExpressionToZ3(self.node.child_by_field_name('condition'))
+
+            if self.isFeasible():
+                self.constraints.append(constraint)
+            else:
+                print("Exiting while loop, condition is not satisfiable.")
+                break
+
+        print("Exiting while loop")
 
 
     def run(self):
@@ -374,8 +401,16 @@ class Interpreter:
 
                 return self
 
+            # if we hit a while loop:
+            # elif self.node.type == 'while_statement':
+            #     self.handleWhileLoop() # function is right above run line 270
+            #     return self
+
             #@TODO when reaching the end of a code block, we need to check if it is a while loop
             # if so, we need to loop back, otherwise go up and to the next sibling
+
+            # I'm not sure if the function call for while loop goes in this body? 
+            # I added an elif for the while loop in comments, which can be removed.
             elif self.node.type == '}': 
 
                 
@@ -401,7 +436,11 @@ class Interpreter:
                     # sanity check
                     if self.node.type == 'function_definition':
                         raise Exception('Hit end of the program before a return statement. This c function is probably missing a return statement.')
-
+                    
+                    # Check for a while loop? 
+                    if self.node.type == 'while_statement':
+                        self.handleWhileLoop()
+                        return self
 
                     print(self.node, self.node.text)
                     # input()
