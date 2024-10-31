@@ -3,29 +3,32 @@ from runner import parseSourceCode
 
 
 # this uses the following example from in class
-func_def = parseSourceCode(
-"""
+source_code = """
 int f(int x, int y) {
-    int z = 1 > 0;
+    int z = 5;
 
     if (x > y) {
-        x = x + y/ 5(5453453+54);
+        x = x + y;
         y = x - y;
         x = x - y;
 
-       
+        if (x > y) {
+            return 0;
+        }
     }
 
 
     return 1;
 }
-""", 'f')
+"""
+
+func_def = parseSourceCode(source_code, 'f')
 
 print(func_def)
 
 res = Interpreter.startOnFunction(func_def)
 
-res.plot()
+res.plot(source_code)
 
 
 

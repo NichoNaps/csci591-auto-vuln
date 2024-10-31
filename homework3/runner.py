@@ -62,7 +62,6 @@ if __name__ == "__main__":
 
     func_def = parseSourceCode(source_code, args.function)
 
-
     res = Interpreter.startOnFunction(func_def)
 
     res.plot()

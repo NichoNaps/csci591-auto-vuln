@@ -64,6 +64,12 @@ class Interpreter:
         self.constraints = []
         self.children: list['Interpreter'] = []
 
+
+        # flag used to store value of hit return statement
+        # is none if no return statement was hit
+        self.hitReturn = None
+
+
         self.startNode = self.node # Used to debugging to know when this interpreter started
         self.id = hex(random.randint(0, 999999999)) # Used for debugging only to keep track of what is what
     
@@ -149,8 +155,8 @@ class Interpreter:
         print(str(self))
 
 
-    def fork(self, treeCursor: TreeCursor, edgeConstraint) -> 'Interpreter':
-        newInterp = Interpreter(treeCursor)
+    def fork(self, node: Node, edgeConstraint) -> 'Interpreter':
+        newInterp = Interpreter(node)
         newInterp.constraints = [*self.constraints, edgeConstraint] # create a new list but with the same restraint objects as before
         newInterp.edgeConstraint = edgeConstraint # save the edge constraint to this child
         newInterp.layers = copy.deepcopy(self.layers) # copy the current mapping/scope of variables but make sure it is completely dereferenced 
@@ -453,6 +459,8 @@ class Interpreter:
                 # i.e. we just have to show off this current interpreter/symbolic state somehow at the end maybe by marking 
                 # it with a 'success' flag member field or something
 
+                self.hitReturn = int(self.node.children[1].text.decode())
+
                 return self
 
             # if we hit a while loop:
@@ -531,6 +539,9 @@ class Interpreter:
             interp.defineVariable(paramName)
 
         interp.run()
+
+        # parse over all interpreters, collecting 'success' interpreters 
+        # print out the info
 
         return interp
         
