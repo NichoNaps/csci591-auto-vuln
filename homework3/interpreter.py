@@ -70,18 +70,31 @@ class Interpreter:
         self.hitReturn = None
 
 
-        self.startNode = self.node # Used to debugging to know when this interpreter started
+        # flag to cache that the interpreter is infeasible. Once it becomes infeasible 
+        # it can never become feasible again. This way we don't have to re-compute this with z3 over and over
+        self.flagInfeasible = False
+
+        self.startNode = self.node # Used to debugging to know where this interpreter started
         self.id = hex(random.randint(0, 999999999)) # Used for debugging only to keep track of what is what
     
 
     # test if the constraints we have accumulated are feasible
     def isFeasible(self):
+
+        if self.flagInfeasible: 
+            return False
+
         solver = Solver()
 
         for constr in self.constraints:
             solver.add(constr)
         
-        return solver.check() == sat
+        feasible = solver.check() == sat
+
+        # set cache flag
+        self.flagInfeasible = not feasible
+        
+        return feasible
 
 
     # define a variable on the current scope
@@ -339,7 +352,6 @@ class Interpreter:
         trueFork = self.fork(self.node.child_by_field_name('body'), constraint)
 
         # fork that continues after this while loop
-        #@TODO will this work as the last thing?
         falseFork = self.fork(self.node.next_sibling, Not(constraint))
 
         print(">>>>>>>>>>>> Starting TRUE Fork for", self.node.child_by_field_name('condition').text.decode())
@@ -386,7 +398,6 @@ class Interpreter:
                     falseNode = self.node.next_sibling
                 else:
                     falseNode = elseClause.children[1]
-                    print(elseClause.children)
                 
                 # the fork if FALSE
                 falseFork = self.fork(falseNode, Not(constraint))
@@ -429,10 +440,6 @@ class Interpreter:
             elif self.node.type == 'expression_statement' and self.node.children[0].type in ['update_expression', 'assignment_expression']:
                 assignment = self.node.children[0]
 
-                # print(assignment)
-                # exit()
-
-
                 # if it is x++; or ++x; statement
                 if assignment.type == 'update_expression': 
                     self.parseExpressionToZ3(assignment)
@@ -474,7 +481,7 @@ class Interpreter:
             elif self.node.type == '}': 
 
                 
-                while self.node.type == '}' or self.node.type == 'compound_statement' or self.node.type == 'if_statement':
+                while self.node.type in ['}', 'compound_statement', 'if_statement', 'else_clause']:
                     if self.node.type == '}':
                         self.popScope()
 
@@ -501,16 +508,13 @@ class Interpreter:
 
                         # if we encountered a if statement by going to the next,
                         # this is a valid next thing to run on so escape this loop
-                        #@TODO while too???
                         if self.node.type == 'if_statement':
                             print(self.node, self.node.text)
-
                             break
                     
                     
 
                     print(self.node, self.node.text)
-                    # input()
 
 
             # now go to the next line!!
