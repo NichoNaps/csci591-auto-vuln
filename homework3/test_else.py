@@ -11,13 +11,12 @@ int f(int x, int y) {
         y = x - y;
         x = x - y;
     } else {
-        int y = 0; // variable shadow
-        x = 2;
+        int y = y++; // variable shadow
+        x = y;
+
+        return 5;
     }
 
-    if (x > y) {
-        return 1;
-    }
 
     return 0;
 }

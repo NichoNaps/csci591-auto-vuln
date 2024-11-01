@@ -100,6 +100,9 @@ class Interpreter:
     # define a variable on the current scope
     def defineVariable(self, varName, value = None):
 
+        if varName in self.layers[-1].keys():
+            raise Exception(f'Cannot re-declare variable {varName} within the same layer.') 
+
         self.layers[-1][varName] = store.new(varName)
 
         # optionaly set an initial value to this variable
@@ -528,7 +531,7 @@ class Interpreter:
     # Create a new interpreter and run it on a function
     @staticmethod
     def startOnFunction(func_def: Node) -> 'Interpreter':
-        interp = Interpreter(func_def.child_by_field_name('body'))
+        interp = Interpreter(func_def.child_by_field_name('body').children[0])
 
         # find the parameters of the function
         params = [param for param in 
