@@ -155,7 +155,11 @@ class Interpreter:
             res += f"{cons}\n"
 
         if not self.isFeasible():
-            res += f"INFEASIBLE\n"
+            res += f"\nINFEASIBLE\n"
+        
+        if self.hitReturn is not None:
+            res += f"\nRETURNED {self.hitReturn}\n"
+
 
         res += "\nMappings:\n"
         for idx, layer in enumerate(self.layers):
@@ -194,22 +198,38 @@ class Interpreter:
 
         G = nx.DiGraph()
 
+
+        def addNode(child: 'Interpreter'):
+            # G.add_node(child.id, label=bytes(source_code, 'utf-8')[child.startNode.start_byte:child.node.end_byte].decode())
+
+            # Node color rules
+            color = 'lightgray'
+
+            if not child.isFeasible():
+                color = 'darkgray'
+            
+            elif child.hitReturn is not None:
+                color = 'aliceblue'
+
+                if child.hitReturn == 1:
+                    color = 'lightblue'
+
+            G.add_node(child.id, label=str(child), color=color)
+
         # Parse over the resulting symbolic states turning them into a directed graph with networkx
         def parseRes(parent):
 
             for child in parent.children:
 
                 print(child.id)
-                if source_code is not None:
-                    G.add_node(child.id, label=bytes(source_code, 'utf-8')[child.startNode.start_byte:child.node.end_byte].decode())
-                else:
-                    G.add_node(child.id, label=str(child))
+                addNode(child)
 
-                G.add_edge(parent.id, child.id, label=child.edgeConstraint)
+                G.add_edge(parent.id, child.id, label=child.edgeConstraint, color='green' if child.isFeasible() else 'red')
 
+                # recurse to interps children
                 parseRes(child)
             
-        G.add_node(self.id, label=str(self))
+        addNode(self)
         parseRes(self)
 
 
@@ -217,10 +237,12 @@ class Interpreter:
         # pos = nx.shell_layout(G)
         pos = nx.nx_agraph.graphviz_layout(G, prog="dot") # use graphviz for its tree layout func
 
-        nx.draw(G, pos, with_labels=False, node_size=5000, node_shape="s", node_color="lightblue")
+        nx.draw(G, pos, with_labels=False, node_size=5000, node_shape="s", 
+                node_color=nx.get_node_attributes(G, "color").values(), 
+                edge_color=nx.get_edge_attributes(G, "color").values())
 
         # Draw edge labels
-        nx.draw_networkx_edge_labels(G, pos, edge_labels=nx.get_edge_attributes(G, "label"), font_color="red")
+        nx.draw_networkx_edge_labels(G, pos, edge_labels=nx.get_edge_attributes(G, "label"), font_color="black")
 
         # Draw node labels
         nx.draw_networkx_labels(G, pos, labels=nx.get_node_attributes(G, "label"), font_color="blue", font_size=8)

@@ -14,7 +14,7 @@ int f(int x, int y) {
         int y = y++; // variable shadow
         x = y;
 
-        return 5;
+        return 1;
     }
 
 
