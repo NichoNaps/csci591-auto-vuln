@@ -186,6 +186,12 @@ class Interpreter:
         return newInterp
     
 
+    def print_stats(self):
+            for x in self.children:
+                constraints = x.constraints
+                for y in constraints:
+                    print(y)
+
     def plot(self, source_code = None):
         # pip install pygraphviz networkx matplotlib 
         # apt install pyhton3-tk ??

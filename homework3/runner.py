@@ -65,4 +65,6 @@ if __name__ == "__main__":
     res = Interpreter.startOnFunction(func_def)
 
     res.plot()
+    
+    res.print_stats()
 
