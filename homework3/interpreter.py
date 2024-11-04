@@ -187,10 +187,14 @@ class Interpreter:
     
 
     def print_stats(self):
-            for x in self.children:
+        def recursive_print(children):
+            for x in children:
                 constraints = x.constraints
                 for y in constraints:
                     print(y)
+                recursive_print(x.children)
+        
+        recursive_print(self.children)
 
     def plot(self, source_code = None):
         # pip install pygraphviz networkx matplotlib 
