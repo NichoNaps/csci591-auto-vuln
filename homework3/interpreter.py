@@ -185,16 +185,44 @@ class Interpreter:
 
         return newInterp
     
-
-    def print_stats(self):
-        def recursive_print(children):
-            for x in children:
-                constraints = x.constraints
-                for y in constraints:
-                    print(y)
-                recursive_print(x.children)
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    class Stats:
+        def __init__(self):
+            self.ifs = 0
+            self.fp = 0
+            self.fpt = 0
+        #def print_stats(self,children):
+         #   def recursive_print(children, ifs, fp, fpt):
+                #for x in children:
+                 #   if x.hitReturn == None:
+                  #      ifs += 1
+                   # else:
+                    #    constraints = x.constraints
+                     #   if x.hitReturn == 1:
+                      #      fp += 1
+                       #     fpt += 1
+                        #else:
+                        #    fp += 1
+                        #for y in constraints:
+        #                    print(y)
+                    #recursive_print(x.children, ifs, fp, fpt)
         
-        recursive_print(self.children)
+        # recursive_print(self.children)
+        
+        def print_stats(self, children):
+            for x in children:
+                if x.hitReturn is None:
+                    self.ifs += 1
+                else:
+                    if x.hitReturn ==1:
+                        self.fpt += 1
+                        self.fp += 1
+                    else:
+                        self.fp +=1
+                    for y in x.constraints:
+                        print(y)
+                self.print_stats(x.children)
+
 
     def plot(self, source_code = None):
         # pip install pygraphviz networkx matplotlib 
