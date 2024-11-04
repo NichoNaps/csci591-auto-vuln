@@ -65,4 +65,13 @@ if __name__ == "__main__":
     res = Interpreter.startOnFunction(func_def)
 
     res.plot()
-
+    
+    stats = res.Stats()
+    stats.print_stats(res.children)
+    print("Infeasible states: " + str(stats.ifs)) 
+    print("Feasible paths: " + str(stats.fp)) 
+    print("Feasible paths to target: " + str(stats.fpt))
+    
+          #      nonlocal ifs, fp, fpt
+    #res.print_stats()
+    

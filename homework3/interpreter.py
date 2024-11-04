@@ -244,6 +244,27 @@ class Interpreter:
 
         return newInterp
     
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    class Stats:
+        def __init__(self):
+            self.ifs = 0
+            self.fp = 0
+            self.fpt = 0
+        
+        def print_stats(self, children):
+            for x in children:
+                if x.flagInfeasible is True:
+                    self.ifs += 1
+                else:
+                    if x.hitReturn ==1:
+                        self.fpt += 1
+                        self.fp += 1
+                    elif x.hitReturn ==0:
+                        self.fp +=1
+                    for y in x.constraints:
+                        print(y)
+                self.print_stats(x.children)
+
 
     def plot(self, source_code = None):
         # pip install pygraphviz networkx matplotlib 
