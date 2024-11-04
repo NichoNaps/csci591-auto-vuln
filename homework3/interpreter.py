@@ -109,6 +109,15 @@ def simplifyAssignments(varName, constraints, keepFirstVersion = False):
     return constraints
 
 
+# simplify asssignments of all variables till we only have constrains on the param variables
+def getConstraintsOnParameters(paramNames, constraints):
+
+    for varName in store.getAllStartNames():
+        print("SIMPLIFYING", varName)
+        constraints = simplifyAssignments(varName, constraints, keepFirstVersion=varName in paramNames)
+    
+    return constraints
+
 
 class Interpreter:
 
@@ -244,33 +253,24 @@ class Interpreter:
 
         return newInterp
     
-# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    class Stats:
-        def __init__(self):
-            self.ifs = 0
-            self.fp = 0
-            self.fpt = 0
-        
-        def print_stats(self, children):
-            for x in children:
-                if x.flagInfeasible is True:
-                    self.ifs += 1
-                else:
-                    if x.hitReturn ==1:
-                        self.fpt += 1
-                        self.fp += 1
-                    elif x.hitReturn ==0:
-                        self.fp +=1
-                    for y in x.constraints:
-                        print(y)
-                self.print_stats(x.children)
+
+    # iterator over all interpreters
+    def getAll(self) -> Iterable['Interpreter']:
+        yield self
+
+        for child in self.children:
+            yield from child.getAll()
 
 
+    # iterate over the (parent, child) pairs of interpreters
+    def getAllEdges(self) -> Iterable[tuple['Interpreter', 'Interpreter']]:
+        for child in self.children:
+            yield (self, child)
+            yield from child.getAllEdges()
+
+
+    # plot the symbolic state tree made up by this interpreter and its children 
     def plot(self, source_code = None):
-        # pip install pygraphviz networkx matplotlib 
-        # apt install pyhton3-tk ??
-        # apt install graphviz ???
-        
         import networkx as nx
         import matplotlib.pyplot as plt
         # my tkinter install is messed up but this seems to make it work
@@ -279,47 +279,27 @@ class Interpreter:
         G = nx.DiGraph()
 
 
-        def addNode(child: 'Interpreter'):
+        # add all nodes with labels
+        for node in self.getAll():
             # G.add_node(child.id, label=bytes(source_code, 'utf-8')[child.startNode.start_byte:child.node.end_byte].decode())
 
             # Node color rules
             color = 'lightgray'
 
-            if not child.isFeasible():
+            if not node.isFeasible():
                 color = 'darkgray'
             
-            elif child.hitReturn is not None:
+            elif node.hitReturn is not None:
                 color = 'aliceblue'
 
-                if child.hitReturn == 1:
+                if node.hitReturn == 1:
                     color = 'lightblue'
 
-                    # simplify asssignments of all variables
-                    constraints = child.constraints
-                    params = ['x', 'y'] #@TODO get what the param names are so this works reliably
-                    for varName in store.getAllStartNames():
-                        print("SIMPLIFYING", varName)
-                        # input()
-                        constraints = simplifyAssignments(varName, constraints, keepFirstVersion=varName in params)
-                        # input()
+            G.add_node(node.id, label=str(node), color=color)
 
-            G.add_node(child.id, label=str(child), color=color)
-
-        # Parse over the resulting symbolic states turning them into a directed graph with networkx
-        def parseRes(parent):
-
-            for child in parent.children:
-
-                print(child.id)
-                addNode(child)
-
-                G.add_edge(parent.id, child.id, label=child.edgeConstraint, color='green' if child.isFeasible() else 'red')
-
-                # recurse to interps children
-                parseRes(child)
-            
-        addNode(self)
-        parseRes(self)
+        # add all edges between nodes
+        for parent, child in self.getAllEdges():
+            G.add_edge(parent.id, child.id, label=child.edgeConstraint, color='green' if child.isFeasible() else 'red')
 
 
         # pos = nx.spring_layout(G, k=0.5, seed=1)
@@ -656,12 +636,39 @@ class Interpreter:
             paramName = param.child_by_field_name('declarator').text.decode()
             interp.defineVariable(paramName)
 
-        interp.run()
+        res = interp.run()
+
+
 
         # parse over all interpreters, collecting 'success' interpreters 
         # print out the info
+        ifs = 0
+        fpt = 0
+        fp = 0
+        targetInterps = []
 
-        return interp
+        for child in res.getAll():
+            if not child.isFeasible():
+                ifs += 1
+            else:
+                if child.hitReturn == 1:
+                    fpt += 1
+                    fp += 1
+                    targetInterps.append(child)
+                elif child.hitReturn == 0:
+                    fp += 1
+
+        #@TODO deal with too much prining to we can actually show when there are multiple
+        # ways to reach the end
+        for interp in targetInterps:
+            finalConstraints = getConstraintsOnParameters(params, interp.constraints)
+
+
+        print("Infeasible states: " + str(ifs)) 
+        print("Feasible paths: " + str(fp)) 
+        print("Feasible paths to target: " + str(fpt))       
+
+        return res
         
 
 if __name__ == "__main__":
