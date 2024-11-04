@@ -46,9 +46,68 @@ class Z3Store:
     
     def get(self, name):
         return self.store[name]
+    
+    def getFreq(self, startName):
+        return self.freq[startName]
+    
+    def getAllStartNames(self):
+        return list(self.freq.keys())
 
 # define global store
 store = Z3Store()
+
+
+# Simplify a list of constraints
+def simplifyConstraints(constraints: list):
+
+    res = simplify(And(*constraints))
+
+    # pull apart the and if it is still there back to a list
+    if is_and(res):
+        return res.children()
+    else:
+        return [res]
+    
+
+# Iterate over constraints finding assignments to variables in the z3 var store and apply those 
+# assigments with substitutions in reverse order to get the simplified constraints of the original version of 
+# the specified variable. 
+def simplifyAssignments(varName, constraints, keepFirstVersion = False):
+    print("ORIGINAL CONSTRAINTS:")
+    [print(con) for con in constraints]
+
+    idx = store.getFreq(varName) # get the largest version of this var
+
+    # perform find and replace on variable assignments until we are left with the first version of the var
+    while idx > 0 if keepFirstVersion else idx >= 0:
+        newerVar = store.get(f"{varName}_{idx}")
+
+        # find a constraint representing a variable assignment. Ex: x_2 == x_1 + 1
+        for x in range(len(constraints)):
+
+            if is_eq(constraints[x]):
+                lhs, rhs = constraints[x].arg(0), constraints[x].arg(1)
+
+                # if we find an assignment, carry out that assignment using substituion across every constraint
+                if lhs == newerVar:
+                    print(f"Replacing all {newerVar} with {rhs}")
+                    constraints = [substitute(constraint, (lhs, rhs)) for constraint in constraints]
+                elif rhs == newerVar:
+                    print(f"Replacing all {newerVar} with {lhs}")
+                    constraints = [substitute(constraint, (rhs, lhs)) for constraint in constraints]
+
+        print("Got:")
+        [print(con) for con in constraints]
+
+        idx -= 1
+
+    constraints = simplifyConstraints(constraints)
+    print("RESULTING CONSTRAINTS")
+    [print(con) for con in constraints]
+
+
+    return constraints
+
 
 
 class Interpreter:
@@ -213,6 +272,15 @@ class Interpreter:
 
                 if child.hitReturn == 1:
                     color = 'lightblue'
+
+                    # simplify asssignments of all variables
+                    constraints = child.constraints
+                    params = ['x', 'y'] #@TODO get what the param names are so this works reliably
+                    for varName in store.getAllStartNames():
+                        print("SIMPLIFYING", varName)
+                        # input()
+                        constraints = simplifyAssignments(varName, constraints, keepFirstVersion=varName in params)
+                        # input()
 
             G.add_node(child.id, label=str(child), color=color)
 
