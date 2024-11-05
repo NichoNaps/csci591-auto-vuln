@@ -14,15 +14,30 @@ sudo apt install libgraphviz-dev
 pip install pygraphviz networkx matplotlib 
 ```
 
+# Usage
 
+```sh
+# to test the function 'test' in a c file:
+python runner.py ./tests/real_test.c test
+
+# to run one of our builtin tests
+python test_while.py
+```
+
+
+# Layout
+- `interpreter.py` The main file with all the interpreter logic.
+- `runner.py` The file that takes command line args to open a C file and run it with the interpreter.
+- `test_*.py` are python files that run a specific test of C code.
+
+
+
+
+# Misc
 
 See docs:
 https://github.com/tree-sitter/py-tree-sitter
 https://ericpony.github.io/z3py-tutorial/guide-examples.htm
-
-
-
-
 
 ## Tree Sitter Node Usage
 ```python
@@ -47,7 +62,4 @@ firstChild = node.children[0]
 theNextNode = node.next_sibling
 theParentNode = node.parent
 
-
-# I tried using TreeCursor() but it only iterates over named children but what is named and what isn't is kind of 
-# arbitrary so we were not iterating over what we needed to so we no longer use it.
 ```
