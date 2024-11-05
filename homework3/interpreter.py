@@ -119,6 +119,16 @@ def getConstraintsOnParameters(paramNames, constraints):
     return constraints
 
 
+# get all z3 variables in a z3 expression
+def getAllVariables(exp):
+    if is_const(exp):
+        if exp.decl().kind() == Z3_OP_UNINTERPRETED:
+            yield exp
+    else:
+        for child in exp.children():
+            yield from getAllVariables(child)
+
+
 class Interpreter:
 
     def __init__(self, node: Node):
@@ -682,10 +692,19 @@ class Interpreter:
             s.check()
             model = s.model()
 
+            # external function calls create affectively a new 'param' 
+            # into the function so to be the most complete, we want to show
+            # concrete values for ALL remaining variables 
+            allInputVarNames = []
+            for exp in finalConstraints:
+                allInputVarNames.extend(getAllVariables(exp))
+            allInputVarNames = set(allInputVarNames)
+
+
             print("Concrete values to reach target statement:")
-            for param in params:
-                value = model.evaluate(store.get(f"{param}_0"))
-                print(f"{param} = {value}")
+            for z3Name in allInputVarNames:
+                value = model.evaluate(z3Name)
+                print(f"{z3Name} = {value}")
 
             print()
 

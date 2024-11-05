@@ -8,6 +8,7 @@ func_def = parseSourceCode(
 """
 int f(int y) {
     int x = 0;
+    y = y + run();
 
     while (x < 3) {
         x++;
