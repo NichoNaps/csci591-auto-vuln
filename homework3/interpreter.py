@@ -73,8 +73,8 @@ def simplifyConstraints(constraints: list):
 # assigments with substitutions in reverse order to get the simplified constraints of the original version of 
 # the specified variable. 
 def simplifyAssignments(varName, constraints, keepFirstVersion = False):
-    print("ORIGINAL CONSTRAINTS:")
-    [print(con) for con in constraints]
+    # print("ORIGINAL CONSTRAINTS:")
+    # [print(con) for con in constraints]
 
     idx = store.getFreq(varName) # get the largest version of this var
 
@@ -90,20 +90,20 @@ def simplifyAssignments(varName, constraints, keepFirstVersion = False):
 
                 # if we find an assignment, carry out that assignment using substituion across every constraint
                 if lhs == newerVar:
-                    print(f"Replacing all {newerVar} with {rhs}")
+                    # print(f"Replacing all {newerVar} with {rhs}")
                     constraints = [substitute(constraint, (lhs, rhs)) for constraint in constraints]
                 elif rhs == newerVar:
-                    print(f"Replacing all {newerVar} with {lhs}")
+                    # print(f"Replacing all {newerVar} with {lhs}")
                     constraints = [substitute(constraint, (rhs, lhs)) for constraint in constraints]
 
-        print("Got:")
-        [print(con) for con in constraints]
+        # print("Got:")
+        # [print(con) for con in constraints]
 
         idx -= 1
 
     constraints = simplifyConstraints(constraints)
-    print("RESULTING CONSTRAINTS")
-    [print(con) for con in constraints]
+    # print("RESULTING CONSTRAINTS")
+    # [print(con) for con in constraints]
 
 
     return constraints
@@ -113,7 +113,7 @@ def simplifyAssignments(varName, constraints, keepFirstVersion = False):
 def getConstraintsOnParameters(paramNames, constraints):
 
     for varName in store.getAllStartNames():
-        print("SIMPLIFYING", varName)
+        # print("SIMPLIFYING", varName)
         constraints = simplifyAssignments(varName, constraints, keepFirstVersion=varName in paramNames)
     
     return constraints
@@ -625,7 +625,7 @@ class Interpreter:
         interp = Interpreter(func_def.child_by_field_name('body').children[0])
 
         # find the parameters of the function
-        params = [param for param in 
+        params = [param.child_by_field_name('declarator').text.decode() for param in 
                 func_def
                     .child_by_field_name('declarator')
                     .child_by_field_name('parameters').children 
@@ -633,15 +633,14 @@ class Interpreter:
 
         # define parameters as variables
         for param in params:
-            paramName = param.child_by_field_name('declarator').text.decode()
-            interp.defineVariable(paramName)
+            interp.defineVariable(param)
 
         res = interp.run()
 
 
+        print("\n\n\n")
 
-        # parse over all interpreters, collecting 'success' interpreters 
-        # print out the info
+        # Collect statistics on the resulting interpreters/symbolic states
         ifs = 0
         fpt = 0
         fp = 0
@@ -658,18 +657,41 @@ class Interpreter:
                 elif child.hitReturn == 0:
                     fp += 1
 
-        #@TODO deal with too much prining to we can actually show when there are multiple
-        # ways to reach the end
-        for interp in targetInterps:
+
+        # print stats
+        print("###### Stats on symbolic state tree:")
+        print(f"Infeasible states: {ifs}\n")
+        print(f"Feasible paths: {fp}\n") 
+        print(f"Feasible paths to target (return 1;): {fpt}\n")       
+
+        # print solutions
+        for idx, interp in enumerate(targetInterps):
+            print(f"#### Feasible path to target {idx+1}/{len(targetInterps)}:")
+
+            print("Constraints on function parameters to reach target statement:")
             finalConstraints = getConstraintsOnParameters(params, interp.constraints)
 
+            for constraint in finalConstraints:
+                print(constraint)
 
-        print("Infeasible states: " + str(ifs)) 
-        print("Feasible paths: " + str(fp)) 
-        print("Feasible paths to target: " + str(fpt))       
+            print()
+
+            # create a model using these simplified constraints
+            s = Solver()
+            s.add(*finalConstraints)
+            s.check()
+            model = s.model()
+
+            print("Concrete values to reach target statement:")
+            for param in params:
+                value = model.evaluate(store.get(f"{param}_0"))
+                print(f"{param} = {value}")
+
+            print()
 
         return res
         
+
 
 if __name__ == "__main__":
     from runner import parseSourceCode
@@ -688,7 +710,7 @@ if __name__ == "__main__":
             if (x > y) {
                 return 0;
             }
-        }
+        }i_3 == 1 + i_2
     
 
         return 1;

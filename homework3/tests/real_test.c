@@ -9,8 +9,8 @@ f() {
 }
 
 int
-test(int x) {
-  int y = f();
+test(int x, int y) {
+  // int y = f();
   if (x > y) {
     int i = 0;
     while (i < 10) {
@@ -30,6 +30,7 @@ test(int x) {
         puts("not here");
         return 0;
       }
+
     }
   }
   puts("wrong way");
