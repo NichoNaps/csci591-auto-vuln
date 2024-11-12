@@ -1,4 +1,6 @@
 import subprocess
+import csv
+import sys
 
 
 class Process:
@@ -41,23 +43,52 @@ class Process:
         print("output")
 
 
-def run_batch(inp_list):
-    for prompt in inp_list:
+def run_batch(inputs_list, vulnerable_list):
+    i = 0
+    for prompt in inputs_list:
         # start process
         proc = Process([f"python3 test_chat_compl.py"], shell=True)
+        # send the code
         proc.send(prompt)
+        # prompt it to analyze
+        proc.send("I want you to act as a vulnerability discovery system. Using your knowledge of the code given, "
+                  "is this code vulnerable?")
         # send command to break llama process loop
         proc.send("EXIT")
         # wait until process is completely finished
         proc.wait()
+        if int(vulnerable_list[i]) == 1:
+            print("THIS CODE IS VULNERABLE!!!!")
         # ensure process is fully closed before starting another one
         proc.terminate()
-        print(proc.isAlive())
+        i += 1
 
 
+def input_list(filepath):
+    # Set the max size for csv cells to max
+    csv.field_size_limit(sys.maxsize)
+    code_list = []
+    vuln_list = []
+    with open(filepath, mode='r') as file:
+        i = -1
+        csv_reader = csv.reader(file)
+        for row in csv_reader:
+            i += 1
+            # This is to skip the header of the file
+            if i == 0:
+                continue
+            # Grab code snippet and vulnerability flag and append them to list
+            code = row[2]
+            is_vuln = row[3]
+            code_list.append(code)
+            vuln_list.append(is_vuln)
+            # This is just for testing purposes
+            if i == 2:
+                return code_list, vuln_list
+    return code_list, vuln_list
 
-inp_list_test = ["Tell me a joke", "What is your purpose?", "repeat after me: FINAL"]
-run_batch(inp_list_test)
 
+# inp_list_test = ["Tell me a joke", "What is your purpose?", "repeat after me: FINAL"]
 
-
+code_list, vuln_list = input_list("Cleaned_validation_for_codexglue_binary.csv")
+run_batch(code_list, vuln_list)
