@@ -51,8 +51,8 @@ def run_batch(inputs_list, vulnerable_list):
         # send the code
         proc.send(prompt)
         # prompt it to analyze
-        proc.send("I want you to act as a vulnerability discovery system. Using your knowledge of the code given, "
-                  "is this code vulnerable?")
+        proc.send("I want you to act as a vulnerability discovery system. Using your knowledge of the code given ONLY in the context of itself: "
+                  "determine if the code has an exploitable vulnerability, and reply 'VULNERABLE' if the code is vulnerable, and 'NOT VULNERABLE' if the code is not vulnerable")
         # send command to break llama process loop
         proc.send("EXIT")
         # wait until process is completely finished
@@ -83,12 +83,10 @@ def input_list(filepath):
             code_list.append(code)
             vuln_list.append(is_vuln)
             # This is just for testing purposes
-            if i == 2:
+            if i == 5:
                 return code_list, vuln_list
     return code_list, vuln_list
 
 
-# inp_list_test = ["Tell me a joke", "What is your purpose?", "repeat after me: FINAL"]
-
-code_list, vuln_list = input_list("Cleaned_validation_for_codexglue_binary.csv")
+code_list, vuln_list = input_list("cleaned_train_data.csv")
 run_batch(code_list, vuln_list)
