@@ -82,7 +82,7 @@ def input_list(filepath):
             is_vuln = row[3]
             code_list.append(code)
             vuln_list.append(is_vuln)
-            # This is just for testing purposes
+            # This is just for testing purposes, change i's value to increase the number of samples run
             if i == 5:
                 return code_list, vuln_list
     return code_list, vuln_list
