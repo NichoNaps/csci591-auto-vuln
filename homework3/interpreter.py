@@ -4,6 +4,7 @@ from tree_sitter import Language, Parser, Tree, Node, TreeCursor
 import random
 
 
+# Coerce a bool to an int if needed
 def forceInt(exp):
 
     if (exp.sort().kind() == Z3_BOOL_SORT):
@@ -11,6 +12,7 @@ def forceInt(exp):
     
     return exp
 
+# Coerce an int to a bool if needed
 def forceBool(exp):
 
     if (exp.sort().kind() == Z3_INT_SORT):
@@ -712,91 +714,3 @@ class Interpreter:
         
 
 
-if __name__ == "__main__":
-    from runner import parseSourceCode
-
-    # this uses the following example from in class
-    func_def = parseSourceCode(
-    """
-    int f(int x, int y) {
-        int z = 5;
-
-        if (x > y) {
-            x = x + y;
-            y = x - y;
-            x = x - y;
-
-            if (x > y) {
-                return 0;
-            }
-        }i_3 == 1 + i_2
-    
-
-        return 1;
-    }
-    """, 'f')
-
-
-    res = Interpreter.startOnFunction(func_def)
-
-
-
-
-
-
-    exit()
-
-    A = Int('A') 
-    B = Int('B')  
-
-    x1 = Int('x1')  
-    y1 = Int('y1')
-
-    x2 = Int('x2')
-    y2 = Int('y2')
-
-    x3 = Int('x3') 
-    y3 = Int('y3')  
-
-    x_final = Int('x_final') 
-
-
-    solver = Solver()
-
-    solver.add(x1 == A)
-    solver.add(y1 == B)
-
-    solver.add(x1 > y1) # the if statement
-
-    solver.add(x2 == x1 + y1)
-
-    solver.add(y2 == x2 - y1)
-
-    solver.add(x3 == x2 - y2)
-
-    solver.add(x_final == x3 + 1)
-
-    # ++x
-    solver.add(x == x + 1)
-    # --x
-    solver.add(x == x - 1)
-
-    # x++ create two values, to simulate c? 
-
-    x = Int('x')
-    x_og = Int('x_og')
-
-    solver.add(x_og = x) # save the value of x
-    solver.add(x == x + 1) # x++
-
-    # x-- same as x++ but change last line to:
-    solver.add(x == x - 1) # x--
-    
-
-    # the if statement isn't satifiable like we want!!
-    # solver.add(x_final - y2 > 0)
-
-    if solver.check() == sat:
-        print("sat")
-    else:
-        print("Constraints are unsatisfiable.")
