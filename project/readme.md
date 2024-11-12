@@ -60,6 +60,15 @@ python test_chat_compl.py
 
 Send some inputs. Then Run one input that is just SEND all caps and then it will run those inputs. The reason we wait for SEND, is so you can paste multiple lines of code in.
 
+### Running a batch of chats
+
+```sh
+python batch.py
+```
+
+Will run each command listed in the file in a new instance of the model. Will automatically add "SEND" after each listed message, so it just requires a list of inputs.
+
+
 
 
 
