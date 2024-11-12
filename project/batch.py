@@ -15,6 +15,7 @@ class Process:
     def isAlive(self):
         return self.proc.poll() == None
 
+    # Wait method to ensure process is completed before starting another one
     def wait(self):
         self.proc.wait()
 
@@ -35,17 +36,21 @@ class Process:
     def terminate(self):
         self.proc.terminate()
 
+    # TODO send outputs to files for analysis, make a method that checks correctness as it runs?
     def print_output(self):
         print("output")
 
 
 def run_batch(inp_list):
-    #TODO Generate a list of inputs
     for prompt in inp_list:
+        # start process
         proc = Process([f"python3 test_chat_compl.py"], shell=True)
         proc.send(prompt)
+        # send command to break llama process loop
         proc.send("EXIT")
+        # wait until process is completely finished
         proc.wait()
+        # ensure process is fully closed before starting another one
         proc.terminate()
         print(proc.isAlive())
 
