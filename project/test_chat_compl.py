@@ -20,7 +20,7 @@ llm = Llama.from_pretrained(
     verbose=True, # to view info about ai as it runs and see accel mode
     #   n_gpu_layers=1, # Uncomment to use GPU acceleration
      # seed=1337, # Uncomment to set a specific seed
-     n_ctx=16300, # @TODO we can raise this higher
+     n_ctx=30000, # @TODO we can raise this higher
 )
 
 
@@ -33,11 +33,15 @@ message_history = [
 while True:
 
     inp = input("Input: ")
+    inpCheck = inp
     res = "" 
     while inp != "SEND":
         res += inp + "\n"
         inp = input("Input: ")
 
+    if inpCheck == "EXIT":
+        print("Exiting....")
+        break
 
     message_history.append(
             {
