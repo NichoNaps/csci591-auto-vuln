@@ -9,6 +9,7 @@ class Process:
         self.proc = subprocess.Popen(
             cmd,
             shell=shell,
+            stdout=subprocess.PIPE,
             stdin=subprocess.PIPE,
             universal_newlines=True,
             bufsize=0,
@@ -38,9 +39,35 @@ class Process:
     def terminate(self):
         self.proc.terminate()
 
+    def get_output(self):
+        stdout, stderr = self.proc.communicate()
+        lines = stdout.splitlines()
+        return lines
+        # for line in lines:
+        #     print(line)
+        #     print("Lines!")
+        # while True:  # Read line by line from stdout
+        #     output = self.proc.stdout.readline()
+        #     if output == '' and self.proc.poll() is not None:
+        #         break
+        #     if output:
+        #         print(output.strip())
+        #         print("Lines!")
+
+
     # TODO send outputs to files for analysis, make a method that checks correctness as it runs?
     def print_output(self):
         print("output")
+
+
+def check_output(output_list):
+    for line in output_list:
+        if "AI: VULNERABLE" in line:
+            return 1
+        elif "AI: NOT VULNERABLE" in line:
+            return 0
+        else:
+            print("***" + line + "***")
 
 
 def run_batch(inputs_list, vulnerable_list):
@@ -48,17 +75,22 @@ def run_batch(inputs_list, vulnerable_list):
     for prompt in inputs_list:
         # start process
         proc = Process([f"python3 test_chat_compl.py"], shell=True)
+        # proc.get_output()
         # send the code
         proc.send(prompt)
         # prompt it to analyze
-        proc.send("I want you to act as a vulnerability discovery system. Using your knowledge of the code given ONLY in the context of itself: "
-                  "determine if the code has an exploitable vulnerability, and reply 'VULNERABLE' if the code is vulnerable, and 'NOT VULNERABLE' if the code is not vulnerable")
+        proc.send("I want you to act as a vulnerability discovery system. Using your knowledge of the code given: "
+                  "determine if the code has an exploitable vulnerability, and reply 'VULNERABLE' if the code is vulnerable, and 'NOT VULNERABLE' if the code is not vulnerable. DO NOT WRITE ANYTHING ELSE, just 'VULNERABLE' or 'NOT VULNERABLE'")
         # send command to break llama process loop
         proc.send("EXIT")
         # wait until process is completely finished
         proc.wait()
-        if int(vulnerable_list[i]) == 1:
-            print("THIS CODE IS VULNERABLE!!!!")
+        if int(vulnerable_list[i]) == 1 and check_output(proc.get_output()) == 1:
+            print("THIS CODE IS VULNERABLE AND MODEL IS CORRECT")
+        elif int(vulnerable_list[i]) == 0 and check_output(proc.get_output()) == 0:
+            print("THIS CODE IS NOT VULNERABLE AND MODEL IS CORRECT")
+        else:
+            print("MODEL IS INCORRECT")
         # ensure process is fully closed before starting another one
         proc.terminate()
         i += 1
@@ -90,3 +122,4 @@ def input_list(filepath):
 
 code_list, vuln_list = input_list("cleaned_train_data.csv")
 run_batch(code_list, vuln_list)
+

@@ -50,7 +50,7 @@ while True:
             }
     )
 
-    print(res)
+    # print(res)
 
     res = llm.create_chat_completion(messages=message_history)
 
