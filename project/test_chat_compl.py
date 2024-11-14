@@ -1,59 +1,83 @@
 
 from llama_cpp import Llama # for usage see https://llama-cpp-python.readthedocs.io/en/latest/, https://github.com/abetlen/llama-cpp-python
+import json
 
 # This example file uses the create_chat_completion api
 # this adds the prompt format that Meta built llama3.1 with (it figures out which prompt format to use using the models metadata) 
 # This is the format for llama3: https://github.com/meta-llama/llama3/blob/main/llama/tokenizer.py#L202-L229
 
+class LLM: 
 
-llm = Llama.from_pretrained(
-	repo_id="ggml-org/Meta-Llama-3.1-8B-Instruct-Q4_0-GGUF",
-	filename="meta-llama-3.1-8b-instruct-q4_0.gguf",
+    def __init__(self, verbose = False):
+        self.llm = Llama.from_pretrained(
+            repo_id="ggml-org/Meta-Llama-3.1-8B-Instruct-Q4_0-GGUF",
+            filename="meta-llama-3.1-8b-instruct-q4_0.gguf",
 
-	# repo_id="TheBloke/CodeLlama-7B-GGUF",
-    # filename="codellama-7b.Q4_K_M.gguf",
-    
-	# repo_id="TheBloke/CodeLlama-7B-Instruct-GGUF",
-    # filename="codellama-7b-instruct.Q4_K_M.gguf", # pick the balanced quantized
-    # chat_format="llama-2", # codellama is based on llama2 so use that format
-    
-    verbose=True, # to view info about ai as it runs and see accel mode
-    #   n_gpu_layers=1, # Uncomment to use GPU acceleration
-     # seed=1337, # Uncomment to set a specific seed
-     n_ctx=30000, # @TODO we can raise this higher
-)
+            # repo_id="TheBloke/CodeLlama-7B-GGUF",
+            # filename="codellama-7b.Q4_K_M.gguf",
+            
+            # repo_id="TheBloke/CodeLlama-7B-Instruct-GGUF",
+            # filename="codellama-7b-instruct.Q4_K_M.gguf", # pick the balanced quantized
+            # chat_format="llama-2", # codellama is based on llama2 so use that format
+            
+            verbose=verbose, # to view info about ai as it runs and see accel mode
+            #   n_gpu_layers=1, # Uncomment to use GPU acceleration
+            # seed=1337, # Uncomment to set a specific seed
+            n_ctx=30000, # @TODO we can raise this higher
+        )
+
+        self.message_history = []
 
 
-message_history = [
-        {"role": "system", "content": "Please determine the intent of the following code:"},
-    ]
+    def send(self, msg: str, role='user'):
+        self.message_history.append({'role': role, 'content': msg.strip()})
 
-# Follow up prompt: I want you to act as a vulnerability detection system. Utilizing the intent of the code above, state whether or not the code is vulnerable/buggy. If it is vulnerable/buggy, specify where the vulnerability lies, and attempt to classify the vulnerability using Common Weakness Enumeration (CWE).
 
-while True:
+    def clearHistory(self):
+        self.message_history = []
 
-    inp = input("Input: ")
-    inpCheck = inp
-    res = "" 
-    while inp != "SEND":
-        res += inp + "\n"
+
+    # pretty print message history for debugging
+    def printHistory(self):
+        print(json.dumps(self.message_history, indent=2))
+
+
+    # get response from llm
+    def getResponse(self):
+
+        res = self.llm.create_chat_completion(messages=self.message_history)
+
+        addedMsg = res['choices'][0]['message']
+
+        # save what the llm said 
+        self.message_history.append(addedMsg)
+
+        return addedMsg['content']
+
+
+
+if __name__ == "__main__":
+    llm = LLM()
+    llm.send('Please determine the intent of the following code:', role='system')
+
+    while True:
+        llm.printHistory()
+
         inp = input("Input: ")
+        inpCheck = inp
+        res = "" 
+        while inp != "SEND":
+            res += inp + "\n"
+            inp = input("Input: ")
 
-    if inpCheck == "EXIT":
-        print("Exiting....")
-        break
+        if inpCheck == "EXIT":
+            print("Exiting....")
+            break
 
-    message_history.append(
-            {
-                "role": "user",
-                "content": res
-            }
-    )
+        llm.send(res)
 
-    # print(res)
+        response = llm.getResponse()
 
-    res = llm.create_chat_completion(messages=message_history)
-
-    print("AI:", res['choices'][0]['message']['content'])
+        print("AI:", response)
 
 

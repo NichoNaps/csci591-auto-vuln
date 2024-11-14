@@ -1,99 +1,58 @@
-import subprocess
 import csv
 import sys
 
-
-class Process:
-
-    def __init__(self, cmd, shell=False):
-        self.proc = subprocess.Popen(
-            cmd,
-            shell=shell,
-            stdout=subprocess.PIPE,
-            stdin=subprocess.PIPE,
-            universal_newlines=True,
-            bufsize=0,
-        )
-
-    def isAlive(self):
-        return self.proc.poll() == None
-
-    # Wait method to ensure process is completed before starting another one
-    def wait(self):
-        self.proc.wait()
-
-    # send a string to the process. Returns success bool.
-    def send(self, data: str, postfix="\nSEND\n") -> bool:
-        try:
-            self.proc.stdin.write(data + postfix)
-
-            # make sure to send command
-            self.proc.stdin.flush()
-
-            return True
-
-        except Exception as e:
-            print("unable to send input")
-            return False
-
-    def terminate(self):
-        self.proc.terminate()
-
-    def get_output(self):
-        stdout, stderr = self.proc.communicate()
-        lines = stdout.splitlines()
-        return lines
-        # for line in lines:
-        #     print(line)
-        #     print("Lines!")
-        # while True:  # Read line by line from stdout
-        #     output = self.proc.stdout.readline()
-        #     if output == '' and self.proc.poll() is not None:
-        #         break
-        #     if output:
-        #         print(output.strip())
-        #         print("Lines!")
+from test_chat_compl import LLM
 
 
-    # TODO send outputs to files for analysis, make a method that checks correctness as it runs?
-    def print_output(self):
-        print("output")
+
+# Remove excess spaces
+def normalize_spaces(text: str) -> str:
+    return ' '.join(text.split())
 
 
-def check_output(output_list):
-    for line in output_list:
-        if "AI: VULNERABLE" in line:
-            return 1
-        elif "AI: NOT VULNERABLE" in line:
-            return 0
-        else:
-            print("***" + line + "***")
+def check_output(output):
+    if "VULNERABLE" in output:
+        return 1
+    elif "NOT VULNERABLE" in output:
+        return 0
+    else:
+        print("***" + output + "***")
 
 
 def run_batch(inputs_list, vulnerable_list):
-    i = 0
-    for prompt in inputs_list:
-        # start process
-        proc = Process([f"python3 test_chat_compl.py"], shell=True)
-        # proc.get_output()
+    llm = LLM(verbose=False)
+
+    for i, prompt in enumerate(inputs_list):
+
+        llm.send('Please determine the intent of the following code:', role='system')
+
         # send the code
-        proc.send(prompt)
+        llm.send(normalize_spaces(prompt))
+
+        # let llm respond to the cod3
+        llm.getResponse() 
+
         # prompt it to analyze
-        proc.send("I want you to act as a vulnerability discovery system. Using your knowledge of the code given: "
+        llm.send("I want you to act as a vulnerability discovery system. Using your knowledge of the code given: "
                   "determine if the code has an exploitable vulnerability, and reply 'VULNERABLE' if the code is vulnerable, and 'NOT VULNERABLE' if the code is not vulnerable. DO NOT WRITE ANYTHING ELSE, just 'VULNERABLE' or 'NOT VULNERABLE'")
-        # send command to break llama process loop
-        proc.send("EXIT")
-        # wait until process is completely finished
-        proc.wait()
-        if int(vulnerable_list[i]) == 1 and check_output(proc.get_output()) == 1:
+
+        resp = llm.getResponse() 
+
+
+        # pretty print model history to make sure it is good
+        llm.printHistory()
+
+
+        if int(vulnerable_list[i]) == 1 and check_output(resp) == 1:
             print("THIS CODE IS VULNERABLE AND MODEL IS CORRECT")
-        elif int(vulnerable_list[i]) == 0 and check_output(proc.get_output()) == 0:
+        elif int(vulnerable_list[i]) == 0 and check_output(resp) == 0:
             print("THIS CODE IS NOT VULNERABLE AND MODEL IS CORRECT")
         else:
             print("MODEL IS INCORRECT")
-        # ensure process is fully closed before starting another one
-        proc.terminate()
-        i += 1
+
+
+        # reset llm history before starting the next one
+        llm.clearHistory()
 
 
 def input_list(filepath):
