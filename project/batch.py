@@ -23,6 +23,11 @@ def check_output(output):
 def run_batch(inputs_list, vulnerable_list):
     llm = LLM(verbose=False)
 
+    true_pos = 0
+    true_neg = 0
+    false_pos = 0
+    false_neg = 0
+
     for i, prompt in enumerate(inputs_list):
 
         llm.send('Please determine the intent of the following code:', role='system')
@@ -46,17 +51,26 @@ def run_batch(inputs_list, vulnerable_list):
 
         if int(vulnerable_list[i]) == 1 and check_output(resp) == 1:
             print("THIS CODE IS VULNERABLE AND MODEL IS CORRECT")
+            true_pos += 1
         elif int(vulnerable_list[i]) == 0 and check_output(resp) == 0:
             print("THIS CODE IS NOT VULNERABLE AND MODEL IS CORRECT")
+            true_neg += 1
         else:
-            if int(vulnerable_list[i]) == 1 and check_output(proc.get_output()) == 0:
+            if int(vulnerable_list[i]) == 1 and check_output(resp) == 0:
                 print("FALSE NEGATIVE")
-            elif int(vulnerable_list[i]) == 0 and check_output(proc.get_output()) == 1:
+                false_neg += 1
+            elif int(vulnerable_list[i]) == 0 and check_output(resp) == 1:
                 print("FALSE POSITIVE")
+                false_pos += 1
 
 
         # reset llm history before starting the next one
         llm.clearHistory()
+    with open("vuln_results.txt", "w") as file:
+        file.write("true_pos = " + str(true_pos) + "\n")
+        file.write("true_neg = " + str(true_neg) + "\n")
+        file.write("false_pos = " + str(false_pos) + "\n")
+        file.write("false_neg = " + str(false_neg) + "\n")
 
 
 def input_list(filepath):
@@ -78,7 +92,7 @@ def input_list(filepath):
             code_list.append(code)
             vuln_list.append(is_vuln)
             # This is just for testing purposes, change i's value to increase the number of samples run
-            if i == 5:
+            if i == 7:
                 return code_list, vuln_list
     return code_list, vuln_list
 
@@ -97,7 +111,7 @@ if __name__ == '__main__':
 
     # Perform vuln detection
     if args.mode == 'vuln':
-        code_list, vuln_list = input_list("cleaned_train_data.csv")
+        code_list, vuln_list = input_list("Cleaned_test_for_codexglue_binary (1).csv")
         run_batch(code_list, vuln_list)
     
     # Perform CWE Classification
