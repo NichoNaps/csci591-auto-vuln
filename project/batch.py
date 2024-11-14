@@ -49,7 +49,10 @@ def run_batch(inputs_list, vulnerable_list):
         elif int(vulnerable_list[i]) == 0 and check_output(resp) == 0:
             print("THIS CODE IS NOT VULNERABLE AND MODEL IS CORRECT")
         else:
-            print("MODEL IS INCORRECT")
+            if int(vulnerable_list[i]) == 1 and check_output(proc.get_output()) == 0:
+                print("FALSE NEGATIVE")
+            elif int(vulnerable_list[i]) == 0 and check_output(proc.get_output()) == 1:
+                print("FALSE POSITIVE")
 
 
         # reset llm history before starting the next one
@@ -70,8 +73,8 @@ def input_list(filepath):
             if i == 0:
                 continue
             # Grab code snippet and vulnerability flag and append them to list
-            code = row[2]
-            is_vuln = row[3]
+            code = row[3]
+            is_vuln = row[2]
             code_list.append(code)
             vuln_list.append(is_vuln)
             # This is just for testing purposes, change i's value to increase the number of samples run
