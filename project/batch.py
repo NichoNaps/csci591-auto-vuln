@@ -1,3 +1,4 @@
+import argparse
 import csv
 import sys
 
@@ -79,6 +80,26 @@ def input_list(filepath):
     return code_list, vuln_list
 
 
-code_list, vuln_list = input_list("cleaned_train_data.csv")
-run_batch(code_list, vuln_list)
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(prog='batch',description='runs llm vuln tests')
+    parser.add_argument('mode', choices=['cwe', 'vuln'], default='vuln', help='Specify whether to test vuln detection or CWE classification. Ex: "python3 batch.py cwe"')
+
+    #@NOTE: we can use there to split up the running of things between different computers maybe
+    # parser.add_argument('--start', type=int, help='where to start in the file')  
+    # parser.add_argument('--end', type=int, help='where to end in the file')  
+    args = parser.parse_args()
+
+
+
+    # Perform vuln detection
+    if args.mode == 'vuln':
+        code_list, vuln_list = input_list("cleaned_train_data.csv")
+        run_batch(code_list, vuln_list)
+    
+    # Perform CWE Classification
+    elif args.mode == 'cwe':
+        raise Exception("unimplemented!!")
+
+
 
