@@ -12,6 +12,7 @@ class LLM:
         self.llm = Llama.from_pretrained(
             repo_id="ggml-org/Meta-Llama-3.1-8B-Instruct-Q4_0-GGUF",
             filename="meta-llama-3.1-8b-instruct-q4_0.gguf",
+            chat_format="llama-3",
 
             # repo_id="TheBloke/CodeLlama-7B-GGUF",
             # filename="codellama-7b.Q4_K_M.gguf",
@@ -57,7 +58,7 @@ class LLM:
 
 
 if __name__ == "__main__":
-    llm = LLM()
+    llm = LLM(verbose=True)
     llm.send('Please determine the intent of the following code:', role='system')
 
     while True:
