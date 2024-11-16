@@ -10,6 +10,17 @@ from test_chat_compl import LLM
 from util import * 
 
 
+def cwe_run_batch(tests, resultsFile):
+    llm = LLM(verbose=False)
+
+    for idx, (cwes, code) in enumerate(tests):
+        print(cwes, code)
+
+        raise Exception("unimplemented!!")
+
+
+
+
 def vuln_check_output(output):
     if "VULNERABLE" in output:
         return 1
@@ -30,7 +41,7 @@ def vuln_run_batch(tests, resultsFile: ResultsFile):
             # print("Skipped, already computed.")
             continue
 
-        print(f"\n############## Starting Test {idx}/{len(tests)}")
+        print(f"\n############## Starting Test {idx + 1}/{len(tests)}")
 
 
         llm.send('Please determine the intent of the following code:', role='system')
@@ -124,7 +135,19 @@ if __name__ == '__main__':
     
     # Perform CWE Classification
     elif args.mode == 'cwe':
-        raise Exception("unimplemented!!")
+
+        with open(datasetsPath / f"diverse-vul/diVul_{args.chunk+1}.json", 'r') as f:
+            tests = json.load(f)
+        
+        # grab just the fields we need
+        tests = [(row['cwe'], normalize_spaces(row['func'])) for row in tests]
+
+        print(f"Total Tests: {len(tests)}")
+        resultsFile = ResultsFile(f'diverse-vul-chunk{args.chunk}') 
+
+
+        cwe_run_batch(tests, resultsFile)
+
 
 
 
