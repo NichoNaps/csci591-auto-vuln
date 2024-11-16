@@ -160,8 +160,8 @@ def vuln_parse_input_list(filepath):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(prog='batch',description='runs llm vuln tests')
-    parser.add_argument('mode', choices=['cwe', 'vuln'], default='vuln', help='Specify whether to test vuln detection or CWE classification. Ex: "python3 batch.py cwe"')
-    parser.add_argument('--part', type=int, choices=[1,2,3,4], required=True, help='which part of the test to run')  
+    parser.add_argument('mode', choices=['cwe', 'vuln'], default='vuln', help='Specify whether to test vuln detection or CWE classification. Ex: "python3 batch.py cwe 2"')
+    parser.add_argument('part', type=int, choices=[1,2,3,4], help='which part of the test to run')  
 
     args = parser.parse_args()
 
