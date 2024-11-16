@@ -1,17 +1,79 @@
 import argparse
 import csv
 import sys
+from pathlib import Path
+import json
+import hashlib
+import math
 
 from test_chat_compl import LLM
 
+# Define folder paths
+rootPath = Path(__file__).parent.resolve()
+resultsPath = rootPath / 'results'
+datasetsPath = rootPath / 'datasets'
+
+# create folders if they don't exist
+resultsPath.mkdir(exist_ok=True)
+datasetsPath.mkdir(exist_ok=True)
 
 
-# Remove excess spaces
+
+# Save and load a results file so you can add new results and skip
+# already computed results.
+class ResultsFile:
+
+    def __init__(self, name):
+        self.path = resultsPath / f"{name}.json"
+
+        # if we have existing data load it
+        if self.path.exists():
+            with open(self.path, 'r') as f:
+                self.results = json.load(f)
+        else:
+            self.results = {} # create a new empty 
+    
+
+    # Check if we have already run this test
+    def alreadyContains(self, text: str):
+        
+        if hashData(text) in self.results.keys():
+            return True
+        
+        return False
+
+    
+    # Add a test to this results file
+    def add(self, text: str, res):
+
+        dataHash = hashData(text)
+
+        self.results[dataHash] = res
+
+        # write to disk
+        self.save()
+
+    
+    def save(self):
+        with open(self.path, 'w') as f:
+            json.dump(self.results, f)
+
+
+# yield list in chunks (https://stackoverflow.com/questions/312443/how-do-i-split-a-list-into-equally-sized-chunks)
+def chunks(items, n):
+    for i in range(0, len(items), n):
+        yield items[i:i + n]
+
+# Remove excess spaces from a string
 def normalize_spaces(text: str) -> str:
     return ' '.join(text.split())
 
+# gen unique hash of string data
+def hashData(data: str):
+    return hashlib.sha256(data.encode('utf-8')).hexdigest()[:15]
 
-def check_output(output):
+
+def vuln_check_output(output):
     if "VULNERABLE" in output:
         return 1
     elif "NOT VULNERABLE" in output:
@@ -20,20 +82,21 @@ def check_output(output):
         print("***" + output + "***")
 
 
-def run_batch(inputs_list, vulnerable_list):
+def vuln_run_batch(tests, resultsFile: ResultsFile):
     llm = LLM(verbose=False)
 
-    true_pos = 0
-    true_neg = 0
-    false_pos = 0
-    false_neg = 0
 
-    for i, prompt in enumerate(inputs_list):
+    for is_vuln, prompt in tests:
+
+        # if we've already tested this code, skip it
+        if resultsFile.alreadyContains(prompt):
+            print("Skipped, already computed.")
+            continue
 
         llm.send('Please determine the intent of the following code:', role='system')
 
         # send the code
-        llm.send(normalize_spaces(prompt))
+        llm.send(prompt)
 
         # let llm respond to the cod3
         llm.getResponse() 
@@ -49,70 +112,75 @@ def run_batch(inputs_list, vulnerable_list):
         llm.printHistory()
 
 
-        if int(vulnerable_list[i]) == 1 and check_output(resp) == 1:
+        if is_vuln == 1 and vuln_check_output(resp) == 1:
             print("THIS CODE IS VULNERABLE AND MODEL IS CORRECT")
-            true_pos += 1
-        elif int(vulnerable_list[i]) == 0 and check_output(resp) == 0:
+            resultsFile.add(prompt, 'true_pos')
+        elif is_vuln == 0 and vuln_check_output(resp) == 0:
             print("THIS CODE IS NOT VULNERABLE AND MODEL IS CORRECT")
-            true_neg += 1
+            resultsFile.add(prompt, 'true_neg')
         else:
-            if int(vulnerable_list[i]) == 1 and check_output(resp) == 0:
+            if is_vuln == 1 and vuln_check_output(resp) == 0:
                 print("FALSE NEGATIVE")
-                false_neg += 1
-            elif int(vulnerable_list[i]) == 0 and check_output(resp) == 1:
+                resultsFile.add(prompt, 'false_neg')
+            elif is_vuln == 0 and vuln_check_output(resp) == 1:
                 print("FALSE POSITIVE")
-                false_pos += 1
+                resultsFile.add(prompt, 'false_pos')
 
+            # If the model gave an invalid response save that it errored out
+            else:
+                resultsFile.add(prompt, 'invalid_response')
 
         # reset llm history before starting the next one
         llm.clearHistory()
-    with open("vuln_results.txt", "w") as file:
-        file.write("true_pos = " + str(true_pos) + "\n")
-        file.write("true_neg = " + str(true_neg) + "\n")
-        file.write("false_pos = " + str(false_pos) + "\n")
-        file.write("false_neg = " + str(false_neg) + "\n")
+    
 
 
-def input_list(filepath):
+def vuln_parse_input_list(filepath):
+
     # Set the max size for csv cells to max
     csv.field_size_limit(sys.maxsize)
-    code_list = []
-    vuln_list = []
+    tests = []
+    
     with open(filepath, mode='r') as file:
-        i = -1
+
         csv_reader = csv.reader(file)
+
+        # skip the header
+        next(csv_reader) 
+
         for row in csv_reader:
-            i += 1
-            # This is to skip the header of the file
-            if i == 0:
-                continue
+
             # Grab code snippet and vulnerability flag and append them to list
-            code = row[3]
-            is_vuln = row[2]
-            code_list.append(code)
-            vuln_list.append(is_vuln)
-            # This is just for testing purposes, change i's value to increase the number of samples run
-            if i == 7:
-                return code_list, vuln_list
-    return code_list, vuln_list
+            tests.append((int(row[2]), normalize_spaces(row[3])))
+
+    # take only your part
+    return tests 
 
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(prog='batch',description='runs llm vuln tests')
     parser.add_argument('mode', choices=['cwe', 'vuln'], default='vuln', help='Specify whether to test vuln detection or CWE classification. Ex: "python3 batch.py cwe"')
+    parser.add_argument('--part', type=int, choices=[1,2,3,4], required=True, help='which part of the test to run')  
 
-    #@NOTE: we can use there to split up the running of things between different computers maybe
-    # parser.add_argument('--start', type=int, help='where to start in the file')  
-    # parser.add_argument('--end', type=int, help='where to end in the file')  
     args = parser.parse_args()
 
 
 
     # Perform vuln detection
     if args.mode == 'vuln':
-        code_list, vuln_list = input_list("Cleaned_test_for_codexglue_binary (1).csv")
-        run_batch(code_list, vuln_list)
+
+        # Pre-process and get tests
+        tests = vuln_parse_input_list(datasetsPath / "gpt-vuln/Cleaned_test_for_codexglue_binary.csv")
+        print(f"Total Tests: {len(tests)}")
+
+        # split tests into 4 chunks (the last chunk might be slightly smaller)
+        tests = list(chunks(tests, math.ceil(len(tests)/4)))[args.part -1]
+        print(f"Using Chunk {args.part} with size {len(tests)}")
+
+        # save this chunk into a dedicated file
+        resultsFile = ResultsFile(f'gpt-vuln-chunk{args.part}') 
+        vuln_run_batch(tests, resultsFile)
     
     # Perform CWE Classification
     elif args.mode == 'cwe':
