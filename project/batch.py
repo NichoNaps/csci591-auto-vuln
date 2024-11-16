@@ -161,7 +161,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(prog='batch',description='runs llm vuln tests')
     parser.add_argument('mode', choices=['cwe', 'vuln'], default='vuln', help='Specify whether to test vuln detection or CWE classification. Ex: "python3 batch.py cwe 2"')
-    parser.add_argument('part', type=int, choices=[1,2,3,4], help='which part of the test to run')  
+    parser.add_argument('chunk', type=int, choices=[1,2,3,4], help='which chunk of the test to run')  
 
     args = parser.parse_args()
 
@@ -175,11 +175,11 @@ if __name__ == '__main__':
         print(f"Total Tests: {len(tests)}")
 
         # split tests into 4 chunks (the last chunk might be slightly smaller)
-        tests = list(chunks(tests, math.ceil(len(tests)/4)))[args.part -1]
-        print(f"Using Chunk {args.part} with size {len(tests)}")
+        tests = list(chunks(tests, math.ceil(len(tests)/4)))[args.chunk -1]
+        print(f"Using Chunk {args.chunk} with size {len(tests)}")
 
         # save this chunk into a dedicated file
-        resultsFile = ResultsFile(f'gpt-vuln-chunk{args.part}') 
+        resultsFile = ResultsFile(f'gpt-vuln-chunk{args.chunk}') 
         vuln_run_batch(tests, resultsFile)
     
     # Perform CWE Classification
