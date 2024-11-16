@@ -142,7 +142,7 @@ if __name__ == '__main__':
         # grab just the fields we need
         tests = [(row['cwe'], normalize_spaces(row['func'])) for row in tests]
 
-        print(f"Total Tests: {len(tests)}")
+        print(f"Using Chunk {args.chunk} with size {len(tests)}")
         resultsFile = ResultsFile(f'diverse-vul-chunk{args.chunk}') 
 
 
