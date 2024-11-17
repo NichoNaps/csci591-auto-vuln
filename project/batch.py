@@ -22,15 +22,15 @@ def cwe_run_batch(tests, resultsFile):
 
 
 def vuln_check_output(output):
-    if "VULNERABLE" in output:
-        return 1
-    elif "NOT VULNERABLE" in output:
+    if "code is non-vulnerable" in output:
         return 0
+    elif "code is vulnerable" in output:
+        return 1
     else:
         print("***" + output + "***")
 
 
-def vuln_run_batch(tests, resultsFile: ResultsFile):
+def vuln_run_batch(tests, resultsFile: ResultsFile, variant='chain-of-thought'):
     llm = LLM(verbose=False)
 
 
@@ -44,17 +44,46 @@ def vuln_run_batch(tests, resultsFile: ResultsFile):
         print(f"\n############## Starting Test {idx + 1}/{len(tests)}")
 
 
-        llm.send('Please determine the intent of the following code:', role='system')
+        if variant == 'chain-of-thought':
+        
+            llm.send('Please determine the intent of the following code:', role='system')
 
-        # send the code
-        llm.send(prompt)
+            # send the code
+            llm.send(prompt)
 
-        # let llm respond to the cod3
-        llm.getResponse() 
+            # let llm respond to the cod3
+            llm.getResponse() 
 
-        # prompt it to analyze
-        llm.send("I want you to act as a vulnerability discovery system. Using your knowledge of the code given: "
-                  "determine if the code has an exploitable vulnerability, and reply 'VULNERABLE' if the code is vulnerable, and 'NOT VULNERABLE' if the code is not vulnerable. DO NOT WRITE ANYTHING ELSE, just 'VULNERABLE' or 'NOT VULNERABLE'")
+            # prompt it to analyze
+            # llm.send("I want you to act as a vulnerability discovery system. Using your knowledge of the code given: "
+            #         "determine if the code has an exploitable vulnerability, and reply 'VULNERABLE' if the code is vulnerable, and 'NOT VULNERABLE' if the code is not vulnerable. DO NOT WRITE ANYTHING ELSE, just 'VULNERABLE' or 'NOT VULNERABLE'", role='system')
+            llm.send("Now you need to identify whether this code contains a potential vulnerability or not. If it has any potential vulnerability, output: 'this code is vulnerable'. Otherwise, output: 'this code is non-vulnerable'. You only need to give the prior two answers. Let's Start: ")
+
+
+        elif variant == 'in-context-learning':
+            # llm.send("You are a vulnerability discovery system. Using your knowledge of the code given: "
+            #         "determine if the code has an exploitable vulnerability, and reply 'this code is vulnerable' if the code is vulnerable, and 'NOT VULNERABLE' if the code is not vulnerable. DO NOT WRITE ANYTHING ELSE, just 'VULNERABLE' or 'NOT VULNERABLE'", role='system')
+            llm.send("Now you need to identify whether this code contains a potential vulnerability or not. If it has any potential vulnerability, output: 'this code is vulnerable'. Otherwise, output: 'this code is non-vulnerable'. You only need to give the prior two answers.")
+
+            with open(datasetsPath / 'gpt-vuln/cleaned_train_data.csv') as f:
+                csv_reader = csv.reader(f)
+
+                # skip the header
+                next(csv_reader) 
+
+                for idx, row in enumerate(csv_reader):
+                    llm.send("The Code is: " +  normalize_spaces(row[2]) + " Let's start:", role='user')
+                    llm.send('this code is vulnerable.' if int(row[3]) == 1 else 'this code is non-vulnerable.', role='assistant')
+
+                    # it crashes my desktop if we set this to 10
+                    if idx > 7:
+                        break
+
+            llm.send("The Code is: " + prompt + "\n Let's Start: ", role='system')
+        
+        else:
+            raise Exception(f"Unknown variant {variant}")
+            
 
         resp = llm.getResponse() 
 
@@ -114,7 +143,7 @@ if __name__ == '__main__':
     parser.add_argument('mode', choices=['cwe', 'vuln'], default='vuln', help='Specify whether to test vuln detection or CWE classification. Ex: "python3 batch.py cwe 2"')
     parser.add_argument('chunk', type=int, choices=[1,2,3,4], help='which chunk of the tests to run')  
 
-    # parser.add_argument('--variant', type=str, help='optionally specify an extra flag')  
+    parser.add_argument('--variant', type=str, default=None, help='optionally specify an extra flag')  
 
     args = parser.parse_args()
 
@@ -122,6 +151,10 @@ if __name__ == '__main__':
 
     # Perform vuln detection
     if args.mode == 'vuln':
+
+        # set a default variant mode
+        if args.variant is None:
+            args.variant = 'chain-of-thought'
 
         # Pre-process and get tests
         tests = vuln_parse_input_list(datasetsPath / "gpt-vuln/Cleaned_test_for_codexglue_binary.csv")
@@ -132,8 +165,8 @@ if __name__ == '__main__':
         print(f"Using Chunk {args.chunk} with size {len(tests)}")
 
         # save this chunk into a dedicated file
-        resultsFile = ResultsFile(f'gpt-vuln-chunk{args.chunk}') 
-        vuln_run_batch(tests, resultsFile)
+        resultsFile = ResultsFile(f'gpt-vuln_{args.variant}_chunk{args.chunk}') 
+        vuln_run_batch(tests, resultsFile, variant=args.variant)
     
     # Perform CWE Classification
     elif args.mode == 'cwe':
@@ -145,7 +178,7 @@ if __name__ == '__main__':
         tests = [(row['cwe'], normalize_spaces(row['func'])) for row in tests]
 
         print(f"Using Chunk {args.chunk} with size {len(tests)}")
-        resultsFile = ResultsFile(f'diverse-vul-chunk{args.chunk}') 
+        resultsFile = ResultsFile(f'diverse-vul_{args.variant}_chunk{args.chunk}') 
 
 
         cwe_run_batch(tests, resultsFile)
