@@ -66,3 +66,12 @@ def normalize_spaces(text: str) -> str:
 def hashData(data: str):
     return hashlib.sha256(data.encode('utf-8')).hexdigest()[:15]
 
+
+
+# Top 25 CWE list from Mitre 2021
+top_25_cwes = {
+    "CWE-787", "CWE-79", "CWE-125", "CWE-20", "CWE-78", "CWE-89", "CWE-416",
+    "CWE-22", "CWE-352", "CWE-434", "CWE-306", "CWE-190", "CWE-502", "CWE-287",
+    "CWE-476", "CWE-798", "CWE-119", "CWE-862", "CWE-276", "CWE-200", "CWE-522",
+    "CWE-732", "CWE-611", "CWE-918", "CWE-77"
+}

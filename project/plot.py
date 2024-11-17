@@ -12,10 +12,7 @@ default_frequencies = {
     'invalid_response': 0,
 }
 
-variantResults = {
-    'chain-of-thought': copy.deepcopy(default_frequencies),
-    'in-context-learning': copy.deepcopy(default_frequencies),
-}
+variantResults = {}
 
 for file in resultsPath.iterdir():
     if file.is_file() and file.stem.startswith('gpt-vuln'):
@@ -24,8 +21,13 @@ for file in resultsPath.iterdir():
         
         dataset, variant, chunk = file.stem.split('_')
 
-        # count the occurence of things in the json
+        # count the occurrence of things in the json
         for res in data.values():
+
+            # if new variant then initialize it 
+            if variant not in variantResults:
+                variantResults[variant] = copy.deepcopy(default_frequencies)
+
             variantResults[variant][res] += 1
 
 
@@ -36,11 +38,12 @@ labels = default_frequencies.keys()
 
 x = np.arange(len(labels))  # the label locations
 fig, ax = plt.subplots(figsize=(10, 6))
+# exit()
 
 # Plot bars for each variant
-width = 0.3  
-bars1 = ax.bar(x - width / 2, variantResults['chain-of-thought'].values(), width, label='Chain of Thought', color='blue')
-bars2 = ax.bar(x + width / 2, variantResults['in-context-learning'].values(), width, label='In Context Learning', color='orange')
+width = 0.7 / len(variantResults)
+for idx, (variant, freqs) in enumerate(variantResults.items()):
+    bars1 = ax.bar(x - (width * len(variantResults))/2 + width/2 + width * idx, freqs.values(), width, label=variant)
 
 # Add labels, title, and legend
 ax.set_xlabel("Response Type")

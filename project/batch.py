@@ -5,6 +5,7 @@ from pathlib import Path
 import json
 import hashlib
 import math
+import random
 
 from test_chat_compl import LLM
 from util import * 
@@ -14,9 +15,56 @@ def cwe_run_batch(tests, resultsFile):
     llm = LLM(verbose=False)
 
     for idx, (cwes, code) in enumerate(tests):
+
+        # if we've already tested this code, skip it
+        if resultsFile.alreadyContains(code):
+            continue
+
+        print(f"\n############## Starting Test {idx + 1}/{len(tests)}")
         print(cwes, code)
 
-        raise Exception("unimplemented!!")
+        llm.send('Please determine the intent of the following code:', role='system')
+
+        # send the code
+        llm.send(code)
+
+        # let llm respond to the cod3
+        llm.getResponse() 
+
+        llm.send(f"You are a vulnerability CWE classification system. You classify vulnerable code that is in the top 25 CWEs ({', '.join(top_25_cwes)}). Using your knowledge about CWEs: "
+                "determine the CWE present in the following vulnerable code from the top 25 list and reply 'CWE-#' where # is replaced by the number. DO NOT WRITE ANYTHING ELSE, just the cwe in that format.", role='system')
+
+
+
+        # Start of the code for ICL if we want to do that:
+        # with open(datasetsPath / 'diverse-vul/diVul_1.json') as f:
+        #     data = json.load(f)
+            
+
+        #     for idx, row in enumerate(data):
+        #         llm.send("The Code is: " +  normalize_spaces(row['func']) + " Let's start:", role='user')
+        #         llm.send(row['cwe'][0], role='assistant') # @TODO this might not be a top 25 if multiple
+
+        #         if idx > 5:
+        #             break
+
+        # llm.send("The Code is: " + code + " Let's start:")
+        
+
+        resp = llm.getResponse() 
+
+        # pretty print model history to make sure it is good
+        llm.printHistory()
+
+
+        #@TODO how to interpret the response of the LLM???????
+        # for cwe in top_25_cwes:
+            #@TODO I think we use an all vs one thingy
+            # raise Exception("Unimplemented")
+            
+
+        # reset llm history before starting the next one
+        llm.clearHistory()
 
 
 
@@ -55,15 +103,12 @@ def vuln_run_batch(tests, resultsFile: ResultsFile, variant='chain-of-thought'):
             llm.getResponse() 
 
             # prompt it to analyze
-            # llm.send("I want you to act as a vulnerability discovery system. Using your knowledge of the code given: "
-            #         "determine if the code has an exploitable vulnerability, and reply 'VULNERABLE' if the code is vulnerable, and 'NOT VULNERABLE' if the code is not vulnerable. DO NOT WRITE ANYTHING ELSE, just 'VULNERABLE' or 'NOT VULNERABLE'", role='system')
             llm.send("Now you need to identify whether this code contains a potential vulnerability or not. If it has any potential vulnerability, output: 'this code is vulnerable'. Otherwise, output: 'this code is non-vulnerable'. You only need to give the prior two answers. Let's Start: ")
 
 
         elif variant == 'in-context-learning':
-            # llm.send("You are a vulnerability discovery system. Using your knowledge of the code given: "
-            #         "determine if the code has an exploitable vulnerability, and reply 'this code is vulnerable' if the code is vulnerable, and 'NOT VULNERABLE' if the code is not vulnerable. DO NOT WRITE ANYTHING ELSE, just 'VULNERABLE' or 'NOT VULNERABLE'", role='system')
-            llm.send("Now you need to identify whether this code contains a potential vulnerability or not. If it has any potential vulnerability, output: 'this code is vulnerable'. Otherwise, output: 'this code is non-vulnerable'. You only need to give the prior two answers.")
+            llm.send("You are a vulnerability discovery system. Using your knowledge of the code given: "
+                    "determine if the code has an exploitable vulnerability, and reply 'this code is vulnerable' if the code is vulnerable, and 'this code is non-vulnerable' if the code is not vulnerable. DO NOT WRITE ANYTHING ELSE, just 'this code is vulnerable' or 'this code is non-vulnerable'", role='system')
 
             with open(datasetsPath / 'gpt-vuln/cleaned_train_data.csv') as f:
                 csv_reader = csv.reader(f)
