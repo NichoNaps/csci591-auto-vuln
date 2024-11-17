@@ -112,7 +112,9 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(prog='batch',description='runs llm vuln tests')
     parser.add_argument('mode', choices=['cwe', 'vuln'], default='vuln', help='Specify whether to test vuln detection or CWE classification. Ex: "python3 batch.py cwe 2"')
-    parser.add_argument('chunk', type=int, choices=[1,2,3,4], help='which chunk of the test to run')  
+    parser.add_argument('chunk', type=int, choices=[1,2,3,4], help='which chunk of the tests to run')  
+
+    # parser.add_argument('--variant', type=str, help='optionally specify an extra flag')  
 
     args = parser.parse_args()
 
