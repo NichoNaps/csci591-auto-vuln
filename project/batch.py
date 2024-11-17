@@ -23,16 +23,23 @@ def cwe_run_batch(tests, resultsFile):
         print(f"\n############## Starting Test {idx + 1}/{len(tests)}")
         print(cwes, code)
 
-        llm.send('Please determine the intent of the following code:', role='system')
+
+        # adding cwe descriptions seems to help but we should still try full ICL stuff
+        llm.send(f"You are a Vulnerability CWE classification system. You classify vulnerable code that is in the top 25 CWEs. Now list the top 25 CWEs and their descriptions:", role='system')
+        llm.send(
+            "The top 25 CWEs are:\n" + '\n'.join([f'{key} {value}' for key, value in top_25_cwes_desc.items()]),
+            role='assistant')
+        
+        llm.send('As a Vulnerability CWE classification system you are also capable of understanding the semantics of code. Please determine the intent of the following code:', role='system')
 
         # send the code
         llm.send(code)
 
-        # let llm respond to the cod3
+        # let llm respond to the code
         llm.getResponse() 
 
-        llm.send(f"You are a vulnerability CWE classification system. You classify vulnerable code that is in the top 25 CWEs ({', '.join(top_25_cwes)}). Using your knowledge about CWEs: "
-                "determine the CWE present in the following vulnerable code from the top 25 list and reply 'CWE-#' where # is replaced by the number. DO NOT WRITE ANYTHING ELSE, just the cwe in that format.", role='system')
+        llm.send(f"Using your knowledge about CWEs: "
+                "determine the most likely CWE present in the code from the top 25 list and reply 'CWE-#' where # is replaced by the CWE number. DO NOT WRITE ANYTHING ELSE, just the cwe in that format.", role='system')
 
 
 
@@ -216,7 +223,7 @@ if __name__ == '__main__':
     # Perform CWE Classification
     elif args.mode == 'cwe':
 
-        with open(datasetsPath / f"diverse-vul/diVul_{args.chunk+1}.json", 'r') as f:
+        with open(datasetsPath / f"diverse-vul/diVul_{args.chunk}.json", 'r') as f:
             tests = json.load(f)
         
         # grab just the fields we need
