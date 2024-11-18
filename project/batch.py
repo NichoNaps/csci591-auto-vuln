@@ -21,42 +21,57 @@ def cwe_run_batch(tests, resultsFile, variant):
             continue
 
         print(f"\n############## Starting Test {idx + 1}/{len(tests)}")
-        print(cwes, code)
+        # print(cwes, code)
 
+        if variant == 'chain-of-thought':
 
-        # adding cwe descriptions seems to help but we should still try full ICL stuff
-        llm.send(f"You are a Vulnerability CWE classification system. You classify vulnerable code that is in the top 25 CWEs. Now list the top 25 CWEs and their descriptions:", role='system')
-        llm.send(
-            "The top 25 CWEs are:\n" + '\n'.join([f'{key} {value}' for key, value in top_25_cwes_desc.items()]),
-            role='assistant')
-        
-        llm.send('As a Vulnerability CWE classification system you are also capable of understanding the semantics of code. Please determine the intent of the following code:', role='system')
-
-        # send the code
-        llm.send(code)
-
-        # let llm respond to the code
-        llm.getResponse() 
-
-        llm.send(f"Using your knowledge about CWEs: "
-                "determine the most likely CWE present in the code from the top 25 list and reply 'CWE-#' where # is replaced by the CWE number. DO NOT WRITE ANYTHING ELSE, just the cwe in that format.", role='system')
-
-
-
-        # Start of the code for ICL if we want to do that:
-        # with open(datasetsPath / 'diverse-vul/diVul_1.json') as f:
-        #     data = json.load(f)
+            # adding cwe descriptions seems to help but we should still try full ICL stuff
+            llm.send(f"You are a Vulnerability CWE classification system. You classify vulnerable code that is in the top 25 CWEs. Now list the top 25 CWEs and their descriptions:", role='system')
+            llm.send(
+                "The top 25 CWEs are:\n" + '\n'.join([f'{key} {value}' for key, value in top_25_cwes_desc.items()]),
+                role='assistant')
             
+            llm.send('As a Vulnerability CWE classification system you are also capable of understanding the semantics of code. Please determine the intent of the following code:', role='system')
 
-        #     for idx, row in enumerate(data):
-        #         llm.send("The Code is: " +  normalize_spaces(row['func']) + " Let's start:", role='user')
-        #         llm.send(row['cwe'][0], role='assistant') # @TODO this might not be a top 25 if multiple
+            # send the code
+            llm.send(code)
 
-        #         if idx > 5:
-        #             break
+            # let llm respond to the code
+            llm.getResponse() 
 
-        # llm.send("The Code is: " + code + " Let's start:")
+            llm.send(f"Using your knowledge about CWEs: "
+                    "determine the most likely CWE present in the code from the top 25 list and reply 'CWE-#' where # is replaced by the CWE number. DO NOT WRITE ANYTHING ELSE, just the cwe in that format.", role='system')
+
+
         
+        elif variant == 'in-context-learning':
+
+            # adding cwe descriptions seems to help
+            llm.send(f"You are a Vulnerability CWE classification system. You classify vulnerable code that is in the top 25 CWEs. Now list the top 25 CWEs and their descriptions:", role='system')
+            llm.send(
+                "The top 25 CWEs are:\n" + '\n'.join([f'{key} {value}' for key, value in top_25_cwes_desc.items()]),
+                role='assistant')
+
+            llm.send(f"Using your knowledge about CWEs: "
+                    "determine the most likely CWE present in following code from the top 25 list and reply 'CWE-#' where # is replaced by the CWE number. DO NOT WRITE ANYTHING ELSE, just the cwe in that format.", role='system')
+
+            with open(datasetsPath / 'diverse-vul/divul_random_20.json') as f:
+                data = json.load(f)
+                
+
+                for idx, row in enumerate(data):
+                    llm.send("The Code is: " +  normalize_spaces(row['func']) + " Let's start:", role='user')
+                    llm.send(row['cwe'][0], role='assistant') # @TODO this might not be a top 25 if multiple??
+
+                    if idx > 5:
+                        break
+
+            llm.send("The Code is: " + code + " Let's start:")
+
+        
+        else:
+            raise Exception(f"Unknown variant {variant}")
+
 
         resp = llm.getResponse() 
 
@@ -91,7 +106,7 @@ def cwe_run_batch(tests, resultsFile, variant):
 
                 # If the model gave an invalid response save that it errored out
                 else:
-                    frequencies['invalid_response'] += 1
+                    frequencies[cwe]['invalid_response'] += 1
 
 
         resultsFile.add(code, {cwe:list(freqs.values()) for cwe, freqs in frequencies.items()}) # only save massively on file size

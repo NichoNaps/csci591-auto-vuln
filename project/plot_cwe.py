@@ -2,6 +2,7 @@ from util import *
 import matplotlib.pyplot as plt
 import copy
 import numpy as np
+import json
 import tkinter # fix plt
 
 # This file computes stats and plots vulnerability detection
@@ -42,10 +43,11 @@ for file in resultsPath.iterdir():
                 freq = {key:value for key, value in zip(getDefaultFrequencies().keys(), freq)} 
 
                 # sum individual class results
-                variantResults[variant]['individual'][cwe] = mergeFrequencies(variantResults[variant]['individual'][cwe], freq)
+                mergeFrequencies(variantResults[variant]['individual'][cwe], freq)
 
                 # sum aggregate results
-                variantResults[variant]['aggregate'] = mergeFrequencies(variantResults[variant]['aggregate'], freq)
+                mergeFrequencies(variantResults[variant]['aggregate'], freq)
+
 
 
 
@@ -58,8 +60,10 @@ for idx, (variant, results) in enumerate(variantResults.items()):
     # Print out stats on individual
     for cwe, freqs in results['individual'].items():
 
+
         print()
         print(variant, cwe)
+        print(json.dumps(freqs, indent=2))
         try:
 
             # higher is better for all of these
@@ -74,4 +78,5 @@ for idx, (variant, results) in enumerate(variantResults.items()):
         except:
             print("ERROR")
 
+    #@TODO print out the aggregate stats
 

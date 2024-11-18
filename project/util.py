@@ -114,11 +114,8 @@ def getDefaultFrequencies():
         'invalid_response': 0,
     }
 
-def mergeFrequencies(*freqs):
-    res = freqs[0]
-    for freq in freqs[1:]:
-        for key in res.keys():
-            res[key] += freq[key]
-    
-    return res
+def mergeFrequencies(a, b):
+    for key in b.keys():
+        a[key] += b[key]
+    return a
 
