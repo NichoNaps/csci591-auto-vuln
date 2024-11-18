@@ -6,13 +6,6 @@ import tkinter # fix plt
 
 # This file computes stats and plots vulnerability detection
 
-default_frequencies = {
-    'true_pos': 0,
-    'true_neg': 0,
-    'false_pos': 0,
-    'false_neg': 0,
-    'invalid_response': 0,
-}
 
 variantResults = {}
 
@@ -28,7 +21,7 @@ for file in resultsPath.iterdir():
 
             # if new variant then initialize it 
             if variant not in variantResults:
-                variantResults[variant] = copy.deepcopy(default_frequencies)
+                variantResults[variant] = getDefaultFrequencies()
 
             variantResults[variant][res] += 1
 
@@ -55,11 +48,10 @@ for idx, (variant, freqs) in enumerate(variantResults.items()):
 
 
 
-labels = default_frequencies.keys()
+labels = getDefaultFrequencies().keys()
 
 x = np.arange(len(labels))  # the label locations
 fig, ax = plt.subplots(figsize=(10, 6))
-# exit()
 
 # Plot bars for each variant
 width = 0.7 / len(variantResults)

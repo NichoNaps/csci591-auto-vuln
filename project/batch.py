@@ -64,10 +64,37 @@ def cwe_run_batch(tests, resultsFile, variant):
         llm.printHistory()
 
 
-        #@TODO how to interpret the response of the LLM???????
-        # for cwe in top_25_cwes:
-            #@TODO I think we use an all vs one thingy
-            # raise Exception("Unimplemented")
+
+        frequencies = {}
+
+        # one vs all. Treat one class as the one case and all others as the other case. 
+        for cwe in top_25_cwes:
+            frequencies[cwe] = getDefaultFrequencies()
+
+            # if this cwe is one of the cwes that is valid for this test
+            correct = cwe in cwes 
+
+
+            if correct and cwe in resp:
+                print(f"{cwe} is CORRECT AND THE MODEL IS CORRECT")
+                frequencies[cwe]['true_pos'] += 1
+            elif not correct and cwe not in resp:
+                print(f"{cwe} is INCORRECT AND THE MODEL IS CORRECT")
+                frequencies[cwe]['true_neg'] += 1
+            else:
+                if correct and cwe not in resp:
+                    print("FALSE NEGATIVE")
+                    frequencies[cwe]['false_neg'] += 1
+                elif not correct and cwe in resp:
+                    print("FALSE POSITIVE")
+                    frequencies[cwe]['false_pos'] += 1
+
+                # If the model gave an invalid response save that it errored out
+                else:
+                    frequencies['invalid_response'] += 1
+
+
+        resultsFile.add(code, {cwe:list(freqs.values()) for cwe, freqs in frequencies.items()}) # only save massively on file size
             
 
         # reset llm history before starting the next one

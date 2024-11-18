@@ -50,7 +50,7 @@ class ResultsFile:
     
     def save(self):
         with open(self.path, 'w') as f:
-            json.dump(self.results, f)
+            json.dump(self.results, f)# indent=2)
 
 
 # yield list in chunks (https://stackoverflow.com/questions/312443/how-do-i-split-a-list-into-equally-sized-chunks)
@@ -102,3 +102,23 @@ top_25_cwes_desc = {
     "CWE-918":  "Server-Side Request Forgery (SSRF)",
     "CWE-77": "Improper Neutralization of Special Elements used in a Command ('Command Injection')",
 }
+
+
+
+def getDefaultFrequencies(): 
+    return {
+        'true_pos': 0,
+        'true_neg': 0,
+        'false_pos': 0,
+        'false_neg': 0,
+        'invalid_response': 0,
+    }
+
+def mergeFrequencies(*freqs):
+    res = freqs[0]
+    for freq in freqs[1:]:
+        for key in res.keys():
+            res[key] += freq[key]
+    
+    return res
+
