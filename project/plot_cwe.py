@@ -41,9 +41,11 @@ for file in resultsPath.iterdir():
                 # turn freqs back into a dictionary
                 freq = {key:value for key, value in zip(getDefaultFrequencies().keys(), freq)} 
 
+                # sum individual class results
                 variantResults[variant]['individual'][cwe] = mergeFrequencies(variantResults[variant]['individual'][cwe], freq)
 
-                #@TODO add aggregate stuff here
+                # sum aggregate results
+                variantResults[variant]['aggregate'] = mergeFrequencies(variantResults[variant]['aggregate'], freq)
 
 
 
@@ -71,4 +73,5 @@ for idx, (variant, results) in enumerate(variantResults.items()):
             print(f"F1: {F1}")
         except:
             print("ERROR")
+
 
