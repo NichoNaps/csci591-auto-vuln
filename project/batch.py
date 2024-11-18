@@ -128,16 +128,16 @@ def vuln_run_batch(tests, resultsFile: ResultsFile, variant='chain-of-thought'):
 
         if variant == 'chain-of-thought':
         
-            llm.send('Please determine the intent of the following code:', role='system')
+            llm.send('Please determine the intent of the following code snippet. Please analyze it through the lense of it being a code snippet. Do not make any assumptions about the rest of the program it belongs to.', role='system')
 
             # send the code
             llm.send(prompt)
 
             # let llm respond to the cod3
-            llm.getResponse() 
+            resp = llm.getResponse()
 
             # prompt it to analyze
-            llm.send("Now you need to identify whether this code contains a potential vulnerability or not. If it has any potential vulnerability, output: 'this code is vulnerable'. Otherwise, output: 'this code is non-vulnerable'. You only need to give the prior two answers. Let's Start: ")
+            llm.send("I want you to act as a vulnerability discovery system. If the code snippet has a vulnerability, output: 'this code is vulnerable'. Otherwise, output: 'this code is non-vulnerable'. You only need to give the prior two answers. Let's Start: ")
 
 
         elif variant == 'in-context-learning':
