@@ -11,7 +11,7 @@ from test_chat_compl import LLM
 from util import * 
 
 
-def cwe_run_batch(tests, resultsFile):
+def cwe_run_batch(tests, resultsFile, variant):
     llm = LLM(verbose=False)
 
     for idx, (cwes, code) in enumerate(tests):
@@ -223,8 +223,18 @@ if __name__ == '__main__':
     # Perform CWE Classification
     elif args.mode == 'cwe':
 
-        with open(datasetsPath / f"diverse-vul/diVul_{args.chunk}.json", 'r') as f:
+        # set a default variant mode
+        if args.variant is None:
+            args.variant = 'TODO-Something'
+
+
+        with open(datasetsPath / f"diverse-vul/reduced_cwe_dataset.json", 'r') as f:
             tests = json.load(f)
+
+        print(f"Total Tests: {len(tests)}")
+
+        # split tests into 4 chunks (the last chunk might be slightly smaller)
+        tests = list(chunks(tests, math.ceil(len(tests)/4)))[args.chunk -1]
         
         # grab just the fields we need
         tests = [(row['cwe'], normalize_spaces(row['func'])) for row in tests]
@@ -233,7 +243,7 @@ if __name__ == '__main__':
         resultsFile = ResultsFile(f'diverse-vul_{args.variant}_chunk{args.chunk}') 
 
 
-        cwe_run_batch(tests, resultsFile)
+        cwe_run_batch(tests, resultsFile, args.variant)
 
 
 
