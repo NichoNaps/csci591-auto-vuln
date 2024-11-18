@@ -1,0 +1,254 @@
+[
+    {
+        "func": "struct razer_report razer_chroma_extended_matrix_effect_starlight_dual(unsigned char variable_storage, unsigned char led_id, unsigned char speed, struct razer_rgb *rgb1, struct razer_rgb *rgb2)\n{\n    struct razer_report report = razer_chroma_extended_matrix_effect_base(0x0C, variable_storage, led_id, 0x07);\n\n    speed = clamp_u8(speed, 0x01, 0x03);\n\n    report.arguments[4] = speed;\n    report.arguments[5] = 0x02;\n    report.arguments[6] = rgb1->r;\n    report.arguments[7] = rgb1->g;\n    report.arguments[8] = rgb1->b;\n    report.arguments[9] = rgb2->r;\n    report.arguments[10] = rgb2->g;\n    report.arguments[11] = rgb2->b;\n\n    return report;\n}",
+        "target": 0,
+        "cwe": [
+            "CWE-787"
+        ],
+        "project": "openrazer",
+        "commit_id": "7e8a04feb378a679f1bcdcae079a5100cc45663b",
+        "hash": 319401171323569955356395771750887905325,
+        "size": 17,
+        "message": "Fix oob memcpy in matrix_custom_frame methods\n\nAdjust row_length if it exeeds the arguments array"
+    },
+    {
+        "func": "void js_getglobal(js_State *J, const char *name)\n{\n\tjsR_getproperty(J, J->G, name);\n}",
+        "target": 0,
+        "cwe": [
+            "CWE-476"
+        ],
+        "project": "mujs",
+        "commit_id": "77ab465f1c394bb77f00966cd950650f3f53cb24",
+        "hash": 278781111743188080481846799338432311323,
+        "size": 4,
+        "message": "Fix 697401: Error when dropping extra arguments to lightweight functions."
+    },
+    {
+        "func": "nfsd4_decode_putpubfh(struct nfsd4_compoundargs *argp, void *p)\n{\n\tif (argp->minorversion == 0)\n\t\treturn nfs_ok;\n\treturn nfserr_notsupp;\n}",
+        "target": 0,
+        "cwe": [
+            "CWE-20",
+            "CWE-129"
+        ],
+        "project": "linux",
+        "commit_id": "f961e3f2acae94b727380c0b74e2d3954d0edf79",
+        "hash": 324425623488855503374999801974781168660,
+        "size": 6,
+        "message": "nfsd: encoders mustn't use unitialized values in error cases\n\nIn error cases, lgp->lg_layout_type may be out of bounds; so we\nshouldn't be using it until after the check of nfserr.\n\nThis was seen to crash nfsd threads when the server receives a LAYOUTGET\nrequest with a large layout type.\n\nGETDEVICEINFO has the same problem.\n\nReported-by: Ari Kauppi <Ari.Kauppi@synopsys.com>\nReviewed-by: Christoph Hellwig <hch@lst.de>\nCc: stable@vger.kernel.org\nSigned-off-by: J. Bruce Fields <bfields@redhat.com>"
+    },
+    {
+        "func": "TEST_F(NextProtocolTest, AlpnTestOverlap) {\n  clientCtx->setAdvertisedNextProtocols({\"blub\", \"baz\"});\n  serverCtx->setAdvertisedNextProtocols({\"foo\", \"bar\", \"baz\"});\n\n  connect();\n\n  expectProtocol(\"baz\");\n}",
+        "target": 0,
+        "cwe": [
+            "CWE-125"
+        ],
+        "project": "folly",
+        "commit_id": "c321eb588909646c15aefde035fd3133ba32cdee",
+        "hash": 56774577118119042677015059178092072524,
+        "size": 8,
+        "message": "Handle close_notify as standard writeErr in AsyncSSLSocket.\n\nSummary: Fixes CVE-2019-11934\n\nReviewed By: mingtaoy\n\nDifferential Revision: D18020613\n\nfbshipit-source-id: db82bb250e53f0d225f1280bd67bc74abd417836"
+    },
+    {
+        "func": "brcmf_wowl_nd_results(struct brcmf_if *ifp, const struct brcmf_event_msg *e,\n\t\t      void *data)\n{\n\tstruct brcmf_cfg80211_info *cfg = ifp->drvr->config;\n\tstruct wiphy *wiphy = cfg_to_wiphy(cfg);\n\tstruct brcmf_pno_scanresults_le *pfn_result;\n\tstruct brcmf_pno_net_info_le *netinfo;\n\n\tbrcmf_dbg(SCAN, \"Enter\\n\");\n\n\tif (e->datalen < (sizeof(*pfn_result) + sizeof(*netinfo))) {\n\t\tbrcmf_dbg(SCAN, \"Event data to small. Ignore\\n\");\n\t\treturn 0;\n\t}\n\n\tpfn_result = (struct brcmf_pno_scanresults_le *)data;\n\n\tif (e->event_code == BRCMF_E_PFN_NET_LOST) {\n\t\tbrcmf_dbg(SCAN, \"PFN NET LOST event. Ignore\\n\");\n\t\treturn 0;\n\t}\n\n\tif (le32_to_cpu(pfn_result->count) < 1) {\n\t\tbphy_err(wiphy, \"Invalid result count, expected 1 (%d)\\n\",\n\t\t\t le32_to_cpu(pfn_result->count));\n\t\treturn -EINVAL;\n\t}\n\n\tnetinfo = brcmf_get_netinfo_array(pfn_result);\n\tmemcpy(cfg->wowl.nd->ssid.ssid, netinfo->SSID, netinfo->SSID_len);\n\tcfg->wowl.nd->ssid.ssid_len = netinfo->SSID_len;\n\tcfg->wowl.nd->n_channels = 1;\n\tcfg->wowl.nd->channels[0] =\n\t\tieee80211_channel_to_frequency(netinfo->channel,\n\t\t\tnetinfo->channel <= CH_MAX_2G_CHANNEL ?\n\t\t\t\t\tNL80211_BAND_2GHZ : NL80211_BAND_5GHZ);\n\tcfg->wowl.nd_info->n_matches = 1;\n\tcfg->wowl.nd_info->matches[0] = cfg->wowl.nd;\n\n\t/* Inform (the resume task) that the net detect information was recvd */\n\tcfg->wowl.nd_data_completed = true;\n\twake_up(&cfg->wowl.nd_data_wait);\n\n\treturn 0;\n}",
+        "target": 1,
+        "cwe": [
+            "CWE-787"
+        ],
+        "project": "linux",
+        "commit_id": "1b5e2423164b3670e8bc9174e4762d297990deff",
+        "hash": 15191570896957004687107928484416514568,
+        "size": 45,
+        "message": "brcmfmac: assure SSID length from firmware is limited\n\nThe SSID length as received from firmware should not exceed\nIEEE80211_MAX_SSID_LEN as that would result in heap overflow.\n\nReviewed-by: Hante Meuleman <hante.meuleman@broadcom.com>\nReviewed-by: Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>\nReviewed-by: Franky Lin <franky.lin@broadcom.com>\nSigned-off-by: Arend van Spriel <arend.vanspriel@broadcom.com>\nSigned-off-by: Kalle Valo <kvalo@codeaurora.org>"
+    },
+    {
+        "func": "bool CModules::OnPrivNotice(CNick& Nick, CString& sMessage) {\n    MODHALTCHK(OnPrivNotice(Nick, sMessage));\n}",
+        "target": 0,
+        "cwe": [
+            "CWE-20",
+            "CWE-264"
+        ],
+        "project": "znc",
+        "commit_id": "8de9e376ce531fe7f3c8b0aa4876d15b479b7311",
+        "hash": 32636210983074732950948660490592030996,
+        "size": 3,
+        "message": "Fix remote code execution and privilege escalation vulnerability.\n\nTo trigger this, need to have a user already.\n\nThanks for Jeriko One <jeriko.one@gmx.us> for finding and reporting this.\n\nCVE-2019-12816"
+    },
+    {
+        "func": "PackLinuxElf32::elf_find_dynamic(unsigned int key) const\n{\n    Elf32_Dyn const *dynp= dynseg;\n    if (dynp)\n    for (; (unsigned)((char const *)dynp - (char const *)dynseg) < sz_dynseg\n            && Elf32_Dyn::DT_NULL!=dynp->d_tag; ++dynp) if (get_te32(&dynp->d_tag)==key) {\n        unsigned const t= elf_get_offset_from_address(get_te32(&dynp->d_val));\n        if (t && t < (unsigned)file_size) {\n            return t + file_image;\n        }\n        break;\n    }\n    return nullptr;\n}",
+        "target": 0,
+        "cwe": [
+            "CWE-476",
+            "CWE-415"
+        ],
+        "project": "upx",
+        "commit_id": "90279abdfcd235172eab99651043051188938dcc",
+        "hash": 280933961156266617049448231369328335637,
+        "size": 14,
+        "message": "PackLinuxElf::canUnpack must checkEhdr() for ELF input\n\nhttps://github.com/upx/upx/issues/485\n\tmodified:   p_lx_elf.cpp"
+    },
+    {
+        "func": "sync_result_msg(Slapi_PBlock *pb, Sync_Cookie *cookie)\n{\n    int rc = 0;\n    char *cookiestr = sync_cookie2str(cookie);\n\n    LDAPControl **ctrl = (LDAPControl **)slapi_ch_calloc(2, sizeof(LDAPControl *));\n\n    if (cookie->openldap_compat) {\n        sync_create_sync_done_control(&ctrl[0], 1, cookiestr);\n    } else {\n        sync_create_sync_done_control(&ctrl[0], 0, cookiestr);\n    }\n    slapi_pblock_set(pb, SLAPI_RESCONTROLS, ctrl);\n    slapi_send_ldap_result(pb, 0, NULL, NULL, 0, NULL);\n\n    slapi_ch_free((void **)&cookiestr);\n    return (rc);\n}",
+        "target": 0,
+        "cwe": [
+            "CWE-476"
+        ],
+        "project": "389-ds-base",
+        "commit_id": "d7eef2fcfbab2ef8aa6ee0bf60f0a9b16ede66e0",
+        "hash": 104391628590619552958870824494306376595,
+        "size": 18,
+        "message": "Issue 4711 - SIGSEV with sync_repl (#4738)\n\nBug description:\r\n\tsync_repl sends back entries identified with a unique\r\n\tidentifier that is 'nsuniqueid'. If 'nsuniqueid' is\r\n\tmissing, then it may crash\r\n\r\nFix description:\r\n\tCheck a nsuniqueid is available else returns OP_ERR\r\n\r\nrelates: https://github.com/389ds/389-ds-base/issues/4711\r\n\r\nReviewed by: Pierre Rogier, James Chapman, William Brown (Thanks!)\r\n\r\nPlatforms tested:  F33"
+    },
+    {
+        "func": "void __init rtnetlink_init(void)\n{\n\tint i;\n\n\tfor (i = 0; i < ARRAY_SIZE(rtnl_msg_handlers_ref); i++)\n\t\trefcount_set(&rtnl_msg_handlers_ref[i], 1);\n\n\tif (register_pernet_subsys(&rtnetlink_net_ops))\n\t\tpanic(\"rtnetlink_init: cannot initialize rtnetlink\\n\");\n\n\tregister_netdevice_notifier(&rtnetlink_dev_notifier);\n\n\trtnl_register(PF_UNSPEC, RTM_GETLINK, rtnl_getlink,\n\t\t      rtnl_dump_ifinfo, 0);\n\trtnl_register(PF_UNSPEC, RTM_SETLINK, rtnl_setlink, NULL, 0);\n\trtnl_register(PF_UNSPEC, RTM_NEWLINK, rtnl_newlink, NULL, 0);\n\trtnl_register(PF_UNSPEC, RTM_DELLINK, rtnl_dellink, NULL, 0);\n\n\trtnl_register(PF_UNSPEC, RTM_GETADDR, NULL, rtnl_dump_all, 0);\n\trtnl_register(PF_UNSPEC, RTM_GETROUTE, NULL, rtnl_dump_all, 0);\n\trtnl_register(PF_UNSPEC, RTM_GETNETCONF, NULL, rtnl_dump_all, 0);\n\n\trtnl_register(PF_BRIDGE, RTM_NEWNEIGH, rtnl_fdb_add, NULL, 0);\n\trtnl_register(PF_BRIDGE, RTM_DELNEIGH, rtnl_fdb_del, NULL, 0);\n\trtnl_register(PF_BRIDGE, RTM_GETNEIGH, NULL, rtnl_fdb_dump, 0);\n\n\trtnl_register(PF_BRIDGE, RTM_GETLINK, NULL, rtnl_bridge_getlink, 0);\n\trtnl_register(PF_BRIDGE, RTM_DELLINK, rtnl_bridge_dellink, NULL, 0);\n\trtnl_register(PF_BRIDGE, RTM_SETLINK, rtnl_bridge_setlink, NULL, 0);\n\n\trtnl_register(PF_UNSPEC, RTM_GETSTATS, rtnl_stats_get, rtnl_stats_dump,\n\t\t      0);\n}",
+        "target": 0,
+        "cwe": [
+            "CWE-476"
+        ],
+        "project": "linux",
+        "commit_id": "f428fe4a04cc339166c8bbd489789760de3a0cee",
+        "hash": 259259507658906255299603329930068941806,
+        "size": 33,
+        "message": "rtnetlink: give a user socket to get_target_net()\n\nThis function is used from two places: rtnl_dump_ifinfo and\nrtnl_getlink. In rtnl_getlink(), we give a request skb into\nget_target_net(), but in rtnl_dump_ifinfo, we give a response skb\ninto get_target_net().\nThe problem here is that NETLINK_CB() isn't initialized for the response\nskb. In both cases we can get a user socket and give it instead of skb\ninto get_target_net().\n\nThis bug was found by syzkaller with this call-trace:\n\nkasan: GPF could be caused by NULL-ptr deref or user memory access\ngeneral protection fault: 0000 [#1] SMP KASAN\nModules linked in:\nCPU: 1 PID: 3149 Comm: syzkaller140561 Not tainted 4.15.0-rc4-mm1+ #47\nHardware name: Google Google Compute Engine/Google Compute Engine, BIOS\nGoogle 01/01/2011\nRIP: 0010:__netlink_ns_capable+0x8b/0x120 net/netlink/af_netlink.c:868\nRSP: 0018:ffff8801c880f348 EFLAGS: 00010206\nRAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffffff8443f900\nRDX: 000000000000007b RSI: ffffffff86510f40 RDI: 00000000000003d8\nRBP: ffff8801c880f360 R08: 0000000000000000 R09: 1ffff10039101e4f\nR10: 0000000000000000 R11: 0000000000000001 R12: ffffffff86510f40\nR13: 000000000000000c R14: 0000000000000004 R15: 0000000000000011\nFS:  0000000001a1a880(0000) GS:ffff8801db300000(0000) knlGS:0000000000000000\nCS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033\nCR2: 0000000020151000 CR3: 00000001c9511005 CR4: 00000000001606e0\nDR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000\nDR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400\nCall Trace:\n  netlink_ns_capable+0x26/0x30 net/netlink/af_netlink.c:886\n  get_target_net+0x9d/0x120 net/core/rtnetlink.c:1765\n  rtnl_dump_ifinfo+0x2e5/0xee0 net/core/rtnetlink.c:1806\n  netlink_dump+0x48c/0xce0 net/netlink/af_netlink.c:2222\n  __netlink_dump_start+0x4f0/0x6d0 net/netlink/af_netlink.c:2319\n  netlink_dump_start include/linux/netlink.h:214 [inline]\n  rtnetlink_rcv_msg+0x7f0/0xb10 net/core/rtnetlink.c:4485\n  netlink_rcv_skb+0x21e/0x460 net/netlink/af_netlink.c:2441\n  rtnetlink_rcv+0x1c/0x20 net/core/rtnetlink.c:4540\n  netlink_unicast_kernel net/netlink/af_netlink.c:1308 [inline]\n  netlink_unicast+0x4be/0x6a0 net/netlink/af_netlink.c:1334\n  netlink_sendmsg+0xa4a/0xe60 net/netlink/af_netlink.c:1897\n\nCc: Jiri Benc <jbenc@redhat.com>\nFixes: 79e1ad148c84 (\"rtnetlink: use netnsid to query interface\")\nSigned-off-by: Andrei Vagin <avagin@openvz.org>\nSigned-off-by: David S. Miller <davem@davemloft.net>"
+    },
+    {
+        "func": "static int set_cn(X509 *crt, ...)\n{\n    int ret = 0;\n    X509_NAME *n = NULL;\n    va_list ap;\n\n    va_start(ap, crt);\n    n = X509_NAME_new();\n    if (n == NULL)\n        goto out;\n\n    while (1) {\n        int nid;\n        const char *name;\n\n        nid = va_arg(ap, int);\n        if (nid == 0)\n            break;\n        name = va_arg(ap, const char *);\n        if (!X509_NAME_add_entry_by_NID(n, nid, MBSTRING_ASC,\n                                        (unsigned char *)name, -1, -1, 1))\n            goto out;\n    }\n    if (!X509_set_subject_name(crt, n))\n        goto out;\n    ret = 1;\n out:\n    X509_NAME_free(n);\n    va_end(ap);\n    return ret;\n}",
+        "target": 0,
+        "cwe": [
+            "CWE-476"
+        ],
+        "project": "openssl",
+        "commit_id": "97ab3c4b538840037812c8d9164d09a1f4bf11a1",
+        "hash": 59443373894751538450192438631552034010,
+        "size": 31,
+        "message": "Add a test for GENERAL_NAME_cmp\n\nBased on a boringssl test contributed by David Benjamin\n\nReviewed-by: Tomas Mraz <tmraz@fedoraproject.org>"
+    },
+    {
+        "func": "cJSON *cJSON_CreateTrue(void)\t\t\t\t\t{cJSON *item=cJSON_New_Item();if(item)item->type=cJSON_True;return item;}",
+        "target": 0,
+        "cwe": [
+            "CWE-120",
+            "CWE-119",
+            "CWE-787"
+        ],
+        "project": "iperf",
+        "commit_id": "91f2fa59e8ed80dfbf400add0164ee0e508e412a",
+        "hash": 60383289968191630869505744076407344955,
+        "size": 1,
+        "message": "Fix a buffer overflow / heap corruption issue that could occur if a\nmalformed JSON string was passed on the control channel.  This issue,\npresent in the cJSON library, was already fixed upstream, so was\naddressed here in iperf3 by importing a newer version of cJSON (plus\nlocal ESnet modifications).\n\nDiscovered and reported by Dave McDaniel, Cisco Talos.\n\nBased on a patch by @dopheide-esnet, with input from @DaveGamble.\n\nCross-references:  TALOS-CAN-0164, ESNET-SECADV-2016-0001,\nCVE-2016-4303\n\n(cherry picked from commit ed94082be27d971a5e1b08b666e2c217cf470a40)\nSigned-off-by: Bruce A. Mah <bmah@es.net>"
+    },
+    {
+        "func": "static ssize_t dbg_lvl_store(struct device_driver *dd, const char *buf,\n\t\t\t     size_t count)\n{\n\tint retval = count;\n\n\tif (sscanf(buf, \"%u\", &megasas_dbg_lvl) < 1) {\n\t\tprintk(KERN_ERR \"megasas: could not set dbg_lvl\\n\");\n\t\tretval = -EINVAL;\n\t}\n\treturn retval;\n}",
+        "target": 0,
+        "cwe": [
+            "CWE-476"
+        ],
+        "project": "linux",
+        "commit_id": "bcf3b67d16a4c8ffae0aa79de5853435e683945c",
+        "hash": 20537820233303190265563393519084058697,
+        "size": 11,
+        "message": "scsi: megaraid_sas: return error when create DMA pool failed\n\nwhen create DMA pool for cmd frames failed, we should return -ENOMEM,\ninstead of 0.\nIn some case in:\n\n    megasas_init_adapter_fusion()\n\n    -->megasas_alloc_cmds()\n       -->megasas_create_frame_pool\n          create DMA pool failed,\n        --> megasas_free_cmds() [1]\n\n    -->megasas_alloc_cmds_fusion()\n       failed, then goto fail_alloc_cmds.\n    -->megasas_free_cmds() [2]\n\nwe will call megasas_free_cmds twice, [1] will kfree cmd_list,\n[2] will use cmd_list.it will cause a problem:\n\nUnable to handle kernel NULL pointer dereference at virtual address\n00000000\npgd = ffffffc000f70000\n[00000000] *pgd=0000001fbf893003, *pud=0000001fbf893003,\n*pmd=0000001fbf894003, *pte=006000006d000707\nInternal error: Oops: 96000005 [#1] SMP\n Modules linked in:\n CPU: 18 PID: 1 Comm: swapper/0 Not tainted\n task: ffffffdfb9290000 ti: ffffffdfb923c000 task.ti: ffffffdfb923c000\n PC is at megasas_free_cmds+0x30/0x70\n LR is at megasas_free_cmds+0x24/0x70\n ...\n Call trace:\n [<ffffffc0005b779c>] megasas_free_cmds+0x30/0x70\n [<ffffffc0005bca74>] megasas_init_adapter_fusion+0x2f4/0x4d8\n [<ffffffc0005b926c>] megasas_init_fw+0x2dc/0x760\n [<ffffffc0005b9ab0>] megasas_probe_one+0x3c0/0xcd8\n [<ffffffc0004a5abc>] local_pci_probe+0x4c/0xb4\n [<ffffffc0004a5c40>] pci_device_probe+0x11c/0x14c\n [<ffffffc00053a5e4>] driver_probe_device+0x1ec/0x430\n [<ffffffc00053a92c>] __driver_attach+0xa8/0xb0\n [<ffffffc000538178>] bus_for_each_dev+0x74/0xc8\n  [<ffffffc000539e88>] driver_attach+0x28/0x34\n [<ffffffc000539a18>] bus_add_driver+0x16c/0x248\n [<ffffffc00053b234>] driver_register+0x6c/0x138\n [<ffffffc0004a5350>] __pci_register_driver+0x5c/0x6c\n [<ffffffc000ce3868>] megasas_init+0xc0/0x1a8\n [<ffffffc000082a58>] do_one_initcall+0xe8/0x1ec\n [<ffffffc000ca7be8>] kernel_init_freeable+0x1c8/0x284\n [<ffffffc0008d90b8>] kernel_init+0x1c/0xe4\n\nSigned-off-by: Jason Yan <yanaijie@huawei.com>\nAcked-by: Sumit Saxena <sumit.saxena@broadcom.com>\nSigned-off-by: Martin K. Petersen <martin.petersen@oracle.com>"
+    },
+    {
+        "func": "freeBindings(XML_Parser parser, BINDING *bindings) {\n  while (bindings) {\n    BINDING *b = bindings;\n\n    /* m_startNamespaceDeclHandler will have been called for this\n     * binding in addBindings(), so call the end handler now.\n     */\n    if (parser->m_endNamespaceDeclHandler)\n      parser->m_endNamespaceDeclHandler(parser->m_handlerArg, b->prefix->name);\n\n    bindings = bindings->nextTagBinding;\n    b->nextTagBinding = parser->m_freeBindingList;\n    parser->m_freeBindingList = b;\n    b->prefix->binding = b->prevPrefixBinding;\n  }\n}",
+        "target": 0,
+        "cwe": [
+            "CWE-611",
+            "CWE-776",
+            "CWE-415",
+            "CWE-125"
+        ],
+        "project": "libexpat",
+        "commit_id": "c20b758c332d9a13afbbb276d30db1d183a85d43",
+        "hash": 70433365134994484797027964780651787816,
+        "size": 16,
+        "message": "xmlparse.c: Deny internal entities closing the doctype"
+    },
+    {
+        "func": "nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,\n\t\t\t   struct nf_queue_entry *entry,\n\t\t\t   __be32 **packet_id_ptr)\n{\n\tsize_t size;\n\tsize_t data_len = 0, cap_len = 0;\n\tunsigned int hlen = 0;\n\tstruct sk_buff *skb;\n\tstruct nlattr *nla;\n\tstruct nfqnl_msg_packet_hdr *pmsg;\n\tstruct nlmsghdr *nlh;\n\tstruct nfgenmsg *nfmsg;\n\tstruct sk_buff *entskb = entry->skb;\n\tstruct net_device *indev;\n\tstruct net_device *outdev;\n\tstruct nf_conn *ct = NULL;\n\tenum ip_conntrack_info uninitialized_var(ctinfo);\n\tbool csum_verify;\n\n\tsize =    nlmsg_total_size(sizeof(struct nfgenmsg))\n\t\t+ nla_total_size(sizeof(struct nfqnl_msg_packet_hdr))\n\t\t+ nla_total_size(sizeof(u_int32_t))\t/* ifindex */\n\t\t+ nla_total_size(sizeof(u_int32_t))\t/* ifindex */\n#ifdef CONFIG_BRIDGE_NETFILTER\n\t\t+ nla_total_size(sizeof(u_int32_t))\t/* ifindex */\n\t\t+ nla_total_size(sizeof(u_int32_t))\t/* ifindex */\n#endif\n\t\t+ nla_total_size(sizeof(u_int32_t))\t/* mark */\n\t\t+ nla_total_size(sizeof(struct nfqnl_msg_packet_hw))\n\t\t+ nla_total_size(sizeof(u_int32_t))\t/* skbinfo */\n\t\t+ nla_total_size(sizeof(u_int32_t));\t/* cap_len */\n\n\tif (entskb->tstamp.tv64)\n\t\tsize += nla_total_size(sizeof(struct nfqnl_msg_packet_timestamp));\n\n\tif (entry->hook <= NF_INET_FORWARD ||\n\t   (entry->hook == NF_INET_POST_ROUTING && entskb->sk == NULL))\n\t\tcsum_verify = !skb_csum_unnecessary(entskb);\n\telse\n\t\tcsum_verify = false;\n\n\toutdev = entry->outdev;\n\n\tswitch ((enum nfqnl_config_mode)ACCESS_ONCE(queue->copy_mode)) {\n\tcase NFQNL_COPY_META:\n\tcase NFQNL_COPY_NONE:\n\t\tbreak;\n\n\tcase NFQNL_COPY_PACKET:\n\t\tif (!(queue->flags & NFQA_CFG_F_GSO) &&\n\t\t    entskb->ip_summed == CHECKSUM_PARTIAL &&\n\t\t    skb_checksum_help(entskb))\n\t\t\treturn NULL;\n\n\t\tdata_len = ACCESS_ONCE(queue->copy_range);\n\t\tif (data_len > entskb->len)\n\t\t\tdata_len = entskb->len;\n\n\t\thlen = skb_zerocopy_headlen(entskb);\n\t\thlen = min_t(unsigned int, hlen, data_len);\n\t\tsize += sizeof(struct nlattr) + hlen;\n\t\tcap_len = entskb->len;\n\t\tbreak;\n\t}\n\n\tif (queue->flags & NFQA_CFG_F_CONNTRACK)\n\t\tct = nfqnl_ct_get(entskb, &size, &ctinfo);\n\n\tif (queue->flags & NFQA_CFG_F_UID_GID) {\n\t\tsize +=  (nla_total_size(sizeof(u_int32_t))\t/* uid */\n\t\t\t+ nla_total_size(sizeof(u_int32_t)));\t/* gid */\n\t}\n\n\tskb = nfnetlink_alloc_skb(net, size, queue->peer_portid,\n\t\t\t\t  GFP_ATOMIC);\n\tif (!skb)\n\t\treturn NULL;\n\n\tnlh = nlmsg_put(skb, 0, 0,\n\t\t\tNFNL_SUBSYS_QUEUE << 8 | NFQNL_MSG_PACKET,\n\t\t\tsizeof(struct nfgenmsg), 0);\n\tif (!nlh) {\n\t\tkfree_skb(skb);\n\t\treturn NULL;\n\t}\n\tnfmsg = nlmsg_data(nlh);\n\tnfmsg->nfgen_family = entry->pf;\n\tnfmsg->version = NFNETLINK_V0;\n\tnfmsg->res_id = htons(queue->queue_num);\n\n\tnla = __nla_reserve(skb, NFQA_PACKET_HDR, sizeof(*pmsg));\n\tpmsg = nla_data(nla);\n\tpmsg->hw_protocol\t= entskb->protocol;\n\tpmsg->hook\t\t= entry->hook;\n\t*packet_id_ptr\t\t= &pmsg->packet_id;\n\n\tindev = entry->indev;\n\tif (indev) {\n#ifndef CONFIG_BRIDGE_NETFILTER\n\t\tif (nla_put_be32(skb, NFQA_IFINDEX_INDEV, htonl(indev->ifindex)))\n\t\t\tgoto nla_put_failure;\n#else\n\t\tif (entry->pf == PF_BRIDGE) {\n\t\t\t/* Case 1: indev is physical input device, we need to\n\t\t\t * look for bridge group (when called from\n\t\t\t * netfilter_bridge) */\n\t\t\tif (nla_put_be32(skb, NFQA_IFINDEX_PHYSINDEV,\n\t\t\t\t\t htonl(indev->ifindex)) ||\n\t\t\t/* this is the bridge group \"brX\" */\n\t\t\t/* rcu_read_lock()ed by __nf_queue */\n\t\t\t    nla_put_be32(skb, NFQA_IFINDEX_INDEV,\n\t\t\t\t\t htonl(br_port_get_rcu(indev)->br->dev->ifindex)))\n\t\t\t\tgoto nla_put_failure;\n\t\t} else {\n\t\t\t/* Case 2: indev is bridge group, we need to look for\n\t\t\t * physical device (when called from ipv4) */\n\t\t\tif (nla_put_be32(skb, NFQA_IFINDEX_INDEV,\n\t\t\t\t\t htonl(indev->ifindex)))\n\t\t\t\tgoto nla_put_failure;\n\t\t\tif (entskb->nf_bridge && entskb->nf_bridge->physindev &&\n\t\t\t    nla_put_be32(skb, NFQA_IFINDEX_PHYSINDEV,\n\t\t\t\t\t htonl(entskb->nf_bridge->physindev->ifindex)))\n\t\t\t\tgoto nla_put_failure;\n\t\t}\n#endif\n\t}\n\n\tif (outdev) {\n#ifndef CONFIG_BRIDGE_NETFILTER\n\t\tif (nla_put_be32(skb, NFQA_IFINDEX_OUTDEV, htonl(outdev->ifindex)))\n\t\t\tgoto nla_put_failure;\n#else\n\t\tif (entry->pf == PF_BRIDGE) {\n\t\t\t/* Case 1: outdev is physical output device, we need to\n\t\t\t * look for bridge group (when called from\n\t\t\t * netfilter_bridge) */\n\t\t\tif (nla_put_be32(skb, NFQA_IFINDEX_PHYSOUTDEV,\n\t\t\t\t\t htonl(outdev->ifindex)) ||\n\t\t\t/* this is the bridge group \"brX\" */\n\t\t\t/* rcu_read_lock()ed by __nf_queue */\n\t\t\t    nla_put_be32(skb, NFQA_IFINDEX_OUTDEV,\n\t\t\t\t\t htonl(br_port_get_rcu(outdev)->br->dev->ifindex)))\n\t\t\t\tgoto nla_put_failure;\n\t\t} else {\n\t\t\t/* Case 2: outdev is bridge group, we need to look for\n\t\t\t * physical output device (when called from ipv4) */\n\t\t\tif (nla_put_be32(skb, NFQA_IFINDEX_OUTDEV,\n\t\t\t\t\t htonl(outdev->ifindex)))\n\t\t\t\tgoto nla_put_failure;\n\t\t\tif (entskb->nf_bridge && entskb->nf_bridge->physoutdev &&\n\t\t\t    nla_put_be32(skb, NFQA_IFINDEX_PHYSOUTDEV,\n\t\t\t\t\t htonl(entskb->nf_bridge->physoutdev->ifindex)))\n\t\t\t\tgoto nla_put_failure;\n\t\t}\n#endif\n\t}\n\n\tif (entskb->mark &&\n\t    nla_put_be32(skb, NFQA_MARK, htonl(entskb->mark)))\n\t\tgoto nla_put_failure;\n\n\tif (indev && entskb->dev &&\n\t    entskb->mac_header != entskb->network_header) {\n\t\tstruct nfqnl_msg_packet_hw phw;\n\t\tint len;\n\n\t\tmemset(&phw, 0, sizeof(phw));\n\t\tlen = dev_parse_header(entskb, phw.hw_addr);\n\t\tif (len) {\n\t\t\tphw.hw_addrlen = htons(len);\n\t\t\tif (nla_put(skb, NFQA_HWADDR, sizeof(phw), &phw))\n\t\t\t\tgoto nla_put_failure;\n\t\t}\n\t}\n\n\tif (entskb->tstamp.tv64) {\n\t\tstruct nfqnl_msg_packet_timestamp ts;\n\t\tstruct timeval tv = ktime_to_timeval(entskb->tstamp);\n\t\tts.sec = cpu_to_be64(tv.tv_sec);\n\t\tts.usec = cpu_to_be64(tv.tv_usec);\n\n\t\tif (nla_put(skb, NFQA_TIMESTAMP, sizeof(ts), &ts))\n\t\t\tgoto nla_put_failure;\n\t}\n\n\tif ((queue->flags & NFQA_CFG_F_UID_GID) && entskb->sk &&\n\t    nfqnl_put_sk_uidgid(skb, entskb->sk) < 0)\n\t\tgoto nla_put_failure;\n\n\tif (ct && nfqnl_ct_put(skb, ct, ctinfo) < 0)\n\t\tgoto nla_put_failure;\n\n\tif (cap_len > data_len &&\n\t    nla_put_be32(skb, NFQA_CAP_LEN, htonl(cap_len)))\n\t\tgoto nla_put_failure;\n\n\tif (nfqnl_put_packet_info(skb, entskb, csum_verify))\n\t\tgoto nla_put_failure;\n\n\tif (data_len) {\n\t\tstruct nlattr *nla;\n\n\t\tif (skb_tailroom(skb) < sizeof(*nla) + hlen)\n\t\t\tgoto nla_put_failure;\n\n\t\tnla = (struct nlattr *)skb_put(skb, sizeof(*nla));\n\t\tnla->nla_type = NFQA_PAYLOAD;\n\t\tnla->nla_len = nla_attr_size(data_len);\n\n\t\tskb_zerocopy(skb, entskb, data_len, hlen);\n\t}\n\n\tnlh->nlmsg_len = skb->len;\n\treturn skb;\n\nnla_put_failure:\n\tkfree_skb(skb);\n\tnet_err_ratelimited(\"nf_queue: error creating packet message\\n\");\n\treturn NULL;\n}",
+        "target": 1,
+        "cwe": [
+            "CWE-416"
+        ],
+        "project": "net",
+        "commit_id": "36d5fe6a000790f56039afe26834265db0a3ad4c",
+        "hash": 317943166861995623271320624382963904349,
+        "size": 220,
+        "message": "core, nfqueue, openvswitch: Orphan frags in skb_zerocopy and handle errors\n\nskb_zerocopy can copy elements of the frags array between skbs, but it doesn't\norphan them. Also, it doesn't handle errors, so this patch takes care of that\nas well, and modify the callers accordingly. skb_tx_error() is also added to\nthe callers so they will signal the failed delivery towards the creator of the\nskb.\n\nSigned-off-by: Zoltan Kiss <zoltan.kiss@citrix.com>\nSigned-off-by: David S. Miller <davem@davemloft.net>"
+    },
+    {
+        "func": "void ipt_unregister_table_pre_exit(struct net *net, struct xt_table *table,\n\t\t\t\t   const struct nf_hook_ops *ops)\n{\n\tnf_unregister_net_hooks(net, ops, hweight32(table->valid_hooks));\n}",
+        "target": 0,
+        "cwe": [
+            "CWE-787"
+        ],
+        "project": "linux",
+        "commit_id": "b29c457a6511435960115c0f548c4360d5f4801d",
+        "hash": 64477631769247703429555741345652399779,
+        "size": 5,
+        "message": "netfilter: x_tables: fix compat match/target pad out-of-bound write\n\nxt_compat_match/target_from_user doesn't check that zeroing the area\nto start of next rule won't write past end of allocated ruleset blob.\n\nRemove this code and zero the entire blob beforehand.\n\nReported-by: syzbot+cfc0247ac173f597aaaa@syzkaller.appspotmail.com\nReported-by: Andy Nguyen <theflow@google.com>\nFixes: 9fa492cdc160c (\"[NETFILTER]: x_tables: simplify compat API\")\nSigned-off-by: Florian Westphal <fw@strlen.de>\nSigned-off-by: Pablo Neira Ayuso <pablo@netfilter.org>"
+    },
+    {
+        "func": "PJ_DEF(pjmedia_sdp_attr*) pjmedia_sdp_attr_find2(unsigned count, \n\t\t\t\t       pjmedia_sdp_attr *const attr_array[],\n\t\t\t\t       const char *c_name,\n\t\t\t\t       const pj_str_t *c_fmt)\n{\n    pj_str_t name;\n\n    name.ptr = (char*)c_name;\n    name.slen = pj_ansi_strlen(c_name);\n\n    return pjmedia_sdp_attr_find(count, attr_array, &name, c_fmt);\n}",
+        "target": 0,
+        "cwe": [
+            "CWE-121",
+            "CWE-120",
+            "CWE-787"
+        ],
+        "project": "pjproject",
+        "commit_id": "560a1346f87aabe126509bb24930106dea292b00",
+        "hash": 187748058895882877886736076737433701204,
+        "size": 12,
+        "message": "Merge pull request from GHSA-f5qg-pqcg-765m"
+    },
+    {
+        "func": "is_html_type(char *type)\n{\n    return (type && (strcasecmp(type, \"text/html\") == 0 ||\n\t\t     strcasecmp(type, \"application/xhtml+xml\") == 0));\n}",
+        "target": 0,
+        "cwe": [
+            "CWE-476"
+        ],
+        "project": "w3m",
+        "commit_id": "59b91cd8e30c86f23476fa81ae005cabff49ebb6",
+        "hash": 24038574768411250762938474502976586812,
+        "size": 5,
+        "message": "Prevent segfault with malformed input type\n\nBug-Debian: https://github.com/tats/w3m/issues/7"
+    },
+    {
+        "func": "static int f2fs_freeze(struct super_block *sb)\n{\n\tint err;\n\n\tif (f2fs_readonly(sb))\n\t\treturn 0;\n\n\terr = f2fs_sync_fs(sb, 1);\n\treturn err;\n}",
+        "target": 0,
+        "cwe": [
+            "CWE-787"
+        ],
+        "project": "linux",
+        "commit_id": "9a59b62fd88196844cee5fff851bee2cfd7afb6e",
+        "hash": 13521404626765606419135265761510589283,
+        "size": 10,
+        "message": "f2fs: do more integrity verification for superblock\n\nDo more sanity check for superblock during ->mount.\n\nSigned-off-by: Chao Yu <chao2.yu@samsung.com>\nSigned-off-by: Jaegeuk Kim <jaegeuk@kernel.org>"
+    },
+    {
+        "func": "int trio_get_size TRIO_ARGS1((ref), trio_pointer_t ref)\n{\n\treturn (((trio_reference_t*)ref)->parameter->flags & FLAGS_SIZE_T) ? TRUE : FALSE;\n}",
+        "target": 0,
+        "cwe": [
+            "CWE-190",
+            "CWE-125"
+        ],
+        "project": "FreeRDP",
+        "commit_id": "05cd9ea2290d23931f615c1b004d4b2e69074e27",
+        "hash": 330943516182049053407171043586087992290,
+        "size": 4,
+        "message": "Fixed TrioParse and trio_length limts.\n\nCVE-2020-4030 thanks to @antonio-morales for finding this."
+    },
+    {
+        "func": "static void* transport_client_thread(void* arg)\n{\n\tDWORD status;\n\tDWORD nCount;\n\tHANDLE events[32];\n\tfreerdp* instance;\n\trdpContext* context;\n\trdpTransport* transport;\n\tTerminateEventArgs e;\n\n\ttransport = (rdpTransport*) arg;\n\tinstance = (freerdp*) transport->settings->instance;\n\tcontext = instance->context;\n\n\twhile (1)\n\t{\n\t\tnCount = 0;\n\t\tevents[nCount++] = transport->stopEvent;\n\t\tevents[nCount] = transport->connectedEvent;\n\n\t\tstatus = WaitForMultipleObjects(nCount + 1, events, FALSE, INFINITE);\n\n\t\tif (WaitForSingleObject(transport->stopEvent, 0) == WAIT_OBJECT_0)\n\t\t{\n\t\t\tbreak;\n\t\t}\n\n\t\ttransport_get_read_handles(transport, (HANDLE*) &events, &nCount);\n\n\t\tstatus = WaitForMultipleObjects(nCount, events, FALSE, INFINITE);\n\n\t\tif (WaitForSingleObject(transport->stopEvent, 0) == WAIT_OBJECT_0)\n\t\t{\n\t\t\tbreak;\n\t\t}\n\n\t\tif (!freerdp_check_fds(instance))\n\t\t\tbreak;\n\t}\n\n\treturn NULL;\n}",
+        "target": 0,
+        "cwe": [
+            "CWE-476",
+            "CWE-125"
+        ],
+        "project": "FreeRDP",
+        "commit_id": "0773bb9303d24473fe1185d85a424dfe159aff53",
+        "hash": 332931675801783210793444944542455271610,
+        "size": 42,
+        "message": "nla: invalidate sec handle after creation\n\nIf sec pointer isn't invalidated after creation it is not possible\nto check if the upper and lower pointers are valid.\n\nThis fixes a segfault in the server part if the client disconnects before\nthe authentication was finished."
+    }
+]
