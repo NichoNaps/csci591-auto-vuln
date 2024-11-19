@@ -152,7 +152,9 @@ def vuln_run_batch(tests, resultsFile: ResultsFile, variant='chain-of-thought'):
 
         if variant == 'chain-of-thought':
         
-            llm.send('Please determine the intent of the following code snippet. Please analyze it through the lense of it being a code snippet. Do not make any assumptions about the rest of the program it belongs to.', role='system')
+            llm.send('Please determine the intent of the following code snippet. Please analyze it through the lense '
+                     'of it being a code snippet. Do not make any assumptions about the rest of the program it '
+                     'belongs to.', role='system')
 
             # send the code
             llm.send(prompt)
@@ -161,12 +163,17 @@ def vuln_run_batch(tests, resultsFile: ResultsFile, variant='chain-of-thought'):
             resp = llm.getResponse()
 
             # prompt it to analyze
-            llm.send("I want you to act as a vulnerability discovery system. If the code snippet has a vulnerability, output: 'this code is vulnerable'. Otherwise, output: 'this code is non-vulnerable'. You only need to give the prior two answers. Let's Start: ")
+            llm.send("I want you to act as a vulnerability discovery system. If the code snippet has a vulnerability, "
+                     "output: 'this code is vulnerable'. Otherwise, output: 'this code is non-vulnerable'. You only "
+                     "need to give the prior two answers. Let's Start: ")
 
 
         elif variant == 'in-context-learning':
             llm.send("You are a vulnerability discovery system. Using your knowledge of the code given: "
-                    "determine if the code has an exploitable vulnerability, and reply 'this code is vulnerable' if the code is vulnerable, and 'this code is non-vulnerable' if the code is not vulnerable. DO NOT WRITE ANYTHING ELSE, just 'this code is vulnerable' or 'this code is non-vulnerable'", role='system')
+                    "determine if the code has an exploitable vulnerability, and reply 'this code is vulnerable' if "
+                     "the code is vulnerable, and 'this code is non-vulnerable' if the code is not vulnerable. DO NOT "
+                     "WRITE ANYTHING ELSE, just 'this code is vulnerable' or 'this code is non-vulnerable'",
+                     role='system')
 
             with open(datasetsPath / 'gpt-vuln/cleaned_train_data.csv') as f:
                 csv_reader = csv.reader(f)
@@ -244,7 +251,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(prog='batch',description='runs llm vuln tests')
     parser.add_argument('mode', choices=['cwe', 'vuln'], default='vuln', help='Specify whether to test vuln detection or CWE classification. Ex: "python3 batch.py cwe 2"')
-    parser.add_argument('chunk', type=int, choices=[1,2,3,4], help='which chunk of the tests to run')  
+    parser.add_argument('chunk', type=int, choices=[1,2,3,4,0], help='which chunk of the tests to run, 0 runs all')
 
     parser.add_argument('--variant', type=str, default=None, help='optionally specify an extra flag')  
 
@@ -263,13 +270,18 @@ if __name__ == '__main__':
         tests = vuln_parse_input_list(datasetsPath / "gpt-vuln/Cleaned_test_for_codexglue_binary.csv")
         print(f"Total Tests: {len(tests)}")
 
-        # split tests into 4 chunks (the last chunk might be slightly smaller)
-        tests = list(chunks(tests, math.ceil(len(tests)/4)))[args.chunk -1]
-        print(f"Using Chunk {args.chunk} with size {len(tests)}")
+        if args.chunk == 0:
+            resultsFile = ResultsFile(f'gpt-vuln_{args.variant}_chunk{args.chunk}')
+            vuln_run_batch(tests, resultsFile, variant=args.variant)
+        else:
+            # split tests into 4 chunks (the last chunk might be slightly smaller)
+            tests = list(chunks(tests, math.ceil(len(tests)/4)))[args.chunk -1]
+            print(f"Using Chunk {args.chunk} with size {len(tests)}")
+            # save this chunk into a dedicated file
 
-        # save this chunk into a dedicated file
-        resultsFile = ResultsFile(f'gpt-vuln_{args.variant}_chunk{args.chunk}') 
-        vuln_run_batch(tests, resultsFile, variant=args.variant)
+            resultsFile = ResultsFile(f'gpt-vuln_{args.variant}_chunk{args.chunk}')
+            vuln_run_batch(tests, resultsFile, variant=args.variant)
+
     
     # Perform CWE Classification
     elif args.mode == 'cwe':
