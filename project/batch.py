@@ -26,28 +26,37 @@ def cwe_run_batch(tests, resultsFile, variant):
         if variant == 'chain-of-thought':
 
             # adding cwe descriptions seems to help but we should still try full ICL stuff
-            llm.send(f"You are a Vulnerability CWE classification system. You classify vulnerable code that is in the top 25 CWEs. Now list the top 25 CWEs and their descriptions:", role='system')
+            llm.send(
+                f"CWE stands for 'Common Weakness Enumeration'. CWEs are a way of referring to a specific type of "
+                f"code vulnerability. The following is a list of the top 25 CWEs and their descriptions:",
+                role='system')
             llm.send(
                 "The top 25 CWEs are:\n" + '\n'.join([f'{key} {value}' for key, value in top_25_cwes_desc.items()]),
                 role='assistant')
-            
-            llm.send('As a Vulnerability CWE classification system you are also capable of understanding the semantics of code. Please determine the intent of the following code:', role='system')
 
+            llm.send('Please determine the intent of the following code snippet. Analyze it in the context of it '
+                     'being a snippet without making assumptions about the rest of the program.',
+                role='system')
             # send the code
             llm.send(code)
 
             # let llm respond to the code
-            llm.getResponse() 
+            llm.getResponse()
 
-            llm.send(f"Using your knowledge about CWEs: "
-                    "determine the most likely CWE present in the code from the top 25 list and reply 'CWE-#' where # is replaced by the CWE number. DO NOT WRITE ANYTHING ELSE, just the cwe in that format.", role='system')
-
+            llm.send(
+                f"Relying on your knowledge about the top 25 CWEs and your understanding of the previous code snippet:"
+                "You are a classification system for the top 25 CWEs. The previous code given contains a "
+                "vulnerability from the list of the top 25 CWEs. Your goal is to determine the most likely CWE "
+                "present in the code from the list and reply 'CWE-#' where # is replaced by the CWE number. DO NOT "
+                "WRITE ANYTHING ELSE, just the cwe in that format.",
+                role='system')
 
         
         elif variant == 'in-context-learning':
 
             # adding cwe descriptions seems to help
-            llm.send(f"You are a Vulnerability CWE classification system. You classify vulnerable code that is in the top 25 CWEs. Now list the top 25 CWEs and their descriptions:", role='system')
+            llm.send(f"You are a Vulnerability CWE classification system. You classify vulnerable code that is in the "
+                     f"top 25 CWEs. Now list the top 25 CWEs and their descriptions:", role='system')
             llm.send(
                 "The top 25 CWEs are:\n" + '\n'.join([f'{key} {value}' for key, value in top_25_cwes_desc.items()]),
                 role='assistant')
