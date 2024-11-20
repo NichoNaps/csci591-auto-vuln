@@ -49,6 +49,25 @@ for file in resultsPath.iterdir():
                 mergeFrequencies(variantResults[variant]['aggregate'], freq)
 
 
+def computeStats(freq: dict):
+    try:
+
+        # higher is better for all of these
+        recall = freq['true_pos'] / (freq['true_pos'] + freq['false_neg'])
+        precision = freq['true_pos'] / (freq['true_pos'] + freq['false_pos'])
+        f1 = 2 * (precision * recall) / (precision + recall) # f1 represents a combination of both precision and recall
+        accuracy = (freq['true_pos'] + freq['true_neg']) / (sum(freq.values())) # correct / all
+
+        # print stats
+        print(f"Recall: {recall}")
+        print(f"Precision: {precision}")
+        print(f"F1: {f1}")
+        print(f"Accuracy: {accuracy}") # idk this seems very inaccurate
+
+        return recall, precision, f1
+    except:
+        return None
+        # print("ERROR")
 
 
 for idx, (variant, results) in enumerate(variantResults.items()):
@@ -58,25 +77,19 @@ for idx, (variant, results) in enumerate(variantResults.items()):
     #@TODO what do we do with invalid_response?
 
     # Print out stats on individual
-    for cwe, freqs in results['individual'].items():
+    for cwe, freq in sorted(results['individual'].items(), key=lambda item: item[0]):
 
-
-        print()
-        print(variant, cwe)
-        print(json.dumps(freqs, indent=2))
-        try:
-
-            # higher is better for all of these
-            recall = freqs['true_pos'] / (freqs['true_pos'] + freqs['false_neg'])
-            precision = freqs['true_pos'] / (freqs['true_pos'] + freqs['false_pos'])
-            F1 = 2 * (precision * recall) / (precision + recall) # f1 represents a combination of both precision and recall
-
-            # print stats
-            print(f"Recall: {recall}")
-            print(f"Precision: {precision}")
-            print(f"F1: {F1}")
-        except:
-            print("ERROR")
-
+        match computeStats(freq):
+            case [recall, precision, f1]:
+                print(variant, cwe)
+            
+                
+    print("\n\nAggregate:")
+    print(results['aggregate'])
+    computeStats(results['aggregate'])
     #@TODO print out the aggregate stats
+
+
+plotFreq({variant:results['aggregate'] for variant, results in variantResults.items()}, forLabel='CWE Classification')
+
 

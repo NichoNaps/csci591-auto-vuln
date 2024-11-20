@@ -119,3 +119,34 @@ def mergeFrequencies(a, b):
         a[key] += b[key]
     return a
 
+
+
+def plotFreq(variantResults: dict, forLabel="UNTITLED"):
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import tkinter # fix plt
+
+    labels = getDefaultFrequencies().keys()
+
+    x = np.arange(len(labels))  # the label locations
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    # Plot bars for each variant
+    width = 0.7 / len(variantResults)
+    for idx, (variant, freqs) in enumerate(variantResults.items()):
+        bar = ax.bar(x - (width * len(variantResults))/2 + width/2 + width * idx, freqs.values(), width, label=variant)
+
+    # Add labels, title, and legend
+    ax.set_xlabel("Response Type")
+    ax.set_ylabel("Count")
+    ax.set_title(f"Comparison of Response Types by Variant for {forLabel}")
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels)
+    ax.legend()
+
+    # Show the plot
+    plt.tight_layout()
+    plt.show()
+
+
+
