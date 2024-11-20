@@ -98,7 +98,7 @@ def cwe_run_batch(tests, resultsFile, variant):
         if len(possibleAnswers) > 1:
 
             # If the llm got one of them, then make that the 'correct' one
-            if any(correctCWEs := [acwe for acwe in possibleAnswers if acwe == resp]):
+            if len(correctCWEs := [acwe for acwe in possibleAnswers if acwe == resp]) > 0:
                 correctCWE = correctCWEs[0]
 
             # otherwise randomly pick one.
