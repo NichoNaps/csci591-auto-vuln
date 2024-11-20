@@ -70,7 +70,7 @@ def cwe_run_batch(tests, resultsFile, variant):
 
                 for idx, row in enumerate(data):
                     llm.send("The Code is: " +  normalize_spaces(row['func']) + " Let's start:", role='user')
-                    llm.send(row['cwe'][0], role='assistant') # @TODO this might not be a top 25 if multiple??
+                    llm.send([acwe for acwe in row['cwe'] if acwe in top_25_cwes][0], role='assistant') # select the cwe that is in the top 25
 
                     if idx > 5:
                         break
@@ -89,14 +89,39 @@ def cwe_run_batch(tests, resultsFile, variant):
 
 
 
+
+        possibleAnswers = [acwe for acwe in cwes if acwe in top_25_cwes]
+
+        # If multiple possible cwes in the top 25 for this test, then we have pick one to be 'correct' since the llm only returns one cwe. 
+        # This way we don't say it go two wrong or only 1 correct when it can only every respond with 1 anyway.
+        if len(possibleAnswers) > 1:
+
+            # If the llm got one of them, then make that the 'correct' one
+            if any(correctCWEs := [acwe for acwe in possibleAnswers if acwe in resp]):
+                correctCWE = correctCWEs[0]
+
+            # otherwise randomly pick one.
+            else:
+                correctCWE = random.choice(possibleAnswers)
+
+            print(f"Picking {correctCWE} out of {possibleAnswers}")
+
+        elif len(possibleAnswers) == 1:
+            correctCWE = possibleAnswers[0]
+
+        else:
+            raise Exception("Missing top 25??")
+
+
+            
         frequencies = {}
 
         # one vs all. Treat one class as the one case and all others as the other case. 
         for cwe in top_25_cwes:
             frequencies[cwe] = getDefaultFrequencies()
 
-            # if this cwe is one of the cwes that is valid for this test
-            correct = cwe in cwes 
+            # if this cwe is the one that is valid for this test
+            correct = cwe == correctCWE
 
 
             if correct and cwe in resp:
