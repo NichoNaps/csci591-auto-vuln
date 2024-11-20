@@ -70,7 +70,7 @@ def cwe_run_batch(tests, resultsFile, variant):
 
                 for idx, row in enumerate(data):
                     llm.send("The Code is: " +  normalize_spaces(row['func']) + " Let's start:", role='user')
-                    llm.send(row['cwe'][0], role='assistant') # @TODO this might not be a top 25 if multiple??
+                    llm.send([acwe for acwe in row['cwe'] if acwe in top_25_cwes][0], role='assistant') # select the cwe that is in the top 25
 
                     if idx > 5:
                         break
@@ -82,35 +82,61 @@ def cwe_run_batch(tests, resultsFile, variant):
             raise Exception(f"Unknown variant {variant}")
 
 
-        resp = llm.getResponse() 
+        resp = llm.getResponse()
+        print(f"Model Chose: '{resp}'")
 
         # pretty print model history to make sure it is good
         llm.printHistory()
 
 
 
+
+        possibleAnswers = [acwe for acwe in cwes if acwe in top_25_cwes]
+
+        # If multiple possible cwes in the top 25 for this test, then we have pick one to be 'correct' since the llm only returns one cwe. 
+        # This way we don't say it go two wrong or only 1 correct when it can only every respond with 1 anyway.
+        if len(possibleAnswers) > 1:
+
+            # If the llm got one of them, then make that the 'correct' one
+            if len(correctCWEs := [acwe for acwe in possibleAnswers if acwe == resp]) > 0:
+                correctCWE = correctCWEs[0]
+
+            # otherwise randomly pick one.
+            else:
+                correctCWE = random.choice(possibleAnswers)
+
+            print(f"Picking {correctCWE} as correct label out of possible correct labels: {possibleAnswers}")
+
+        elif len(possibleAnswers) == 1:
+            correctCWE = possibleAnswers[0]
+
+        else:
+            raise Exception("Missing top 25??")
+
+
+            
         frequencies = {}
 
         # one vs all. Treat one class as the one case and all others as the other case. 
         for cwe in top_25_cwes:
             frequencies[cwe] = getDefaultFrequencies()
 
-            # if this cwe is one of the cwes that is valid for this test
-            correct = cwe in cwes 
+            # if this cwe is the one that is valid for this test
+            correct = cwe == correctCWE
 
 
-            if correct and cwe in resp:
+            if correct and cwe == resp:
                 print(f"{cwe} is CORRECT AND THE MODEL IS CORRECT")
                 frequencies[cwe]['true_pos'] += 1
-            elif not correct and cwe not in resp:
+            elif not correct and cwe != resp:
                 print(f"{cwe} is INCORRECT AND THE MODEL IS CORRECT")
                 frequencies[cwe]['true_neg'] += 1
             else:
-                if correct and cwe not in resp:
-                    print("FALSE NEGATIVE")
+                if correct and cwe != resp:
+                    print(f"## {cwe} is CORRECT AND THE MODEL IS INCORRECT ##")
                     frequencies[cwe]['false_neg'] += 1
-                elif not correct and cwe in resp:
-                    print("FALSE POSITIVE")
+                elif not correct and cwe == resp:
+                    print(f"## {cwe} is INCORRECT AND THE MODEL IS INCORRECT ##")
                     frequencies[cwe]['false_pos'] += 1
 
                 # If the model gave an invalid response save that it errored out

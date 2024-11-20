@@ -53,7 +53,7 @@ class LLM:
         # save what the llm said 
         self.message_history.append(addedMsg)
 
-        return addedMsg['content']
+        return addedMsg['content'].strip()
 
 
 
