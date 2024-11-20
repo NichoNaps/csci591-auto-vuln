@@ -82,7 +82,8 @@ def cwe_run_batch(tests, resultsFile, variant):
             raise Exception(f"Unknown variant {variant}")
 
 
-        resp = llm.getResponse() 
+        resp = llm.getResponse()
+        print(f"Model Chose: '{resp}'")
 
         # pretty print model history to make sure it is good
         llm.printHistory()
@@ -97,14 +98,14 @@ def cwe_run_batch(tests, resultsFile, variant):
         if len(possibleAnswers) > 1:
 
             # If the llm got one of them, then make that the 'correct' one
-            if any(correctCWEs := [acwe for acwe in possibleAnswers if acwe in resp]):
+            if any(correctCWEs := [acwe for acwe in possibleAnswers if acwe == resp]):
                 correctCWE = correctCWEs[0]
 
             # otherwise randomly pick one.
             else:
                 correctCWE = random.choice(possibleAnswers)
 
-            print(f"Picking {correctCWE} out of {possibleAnswers}")
+            print(f"Picking {correctCWE} as correct label out of possible correct labels: {possibleAnswers}")
 
         elif len(possibleAnswers) == 1:
             correctCWE = possibleAnswers[0]
@@ -124,18 +125,18 @@ def cwe_run_batch(tests, resultsFile, variant):
             correct = cwe == correctCWE
 
 
-            if correct and cwe in resp:
+            if correct and cwe == resp:
                 print(f"{cwe} is CORRECT AND THE MODEL IS CORRECT")
                 frequencies[cwe]['true_pos'] += 1
-            elif not correct and cwe not in resp:
+            elif not correct and cwe != resp:
                 print(f"{cwe} is INCORRECT AND THE MODEL IS CORRECT")
                 frequencies[cwe]['true_neg'] += 1
             else:
-                if correct and cwe not in resp:
-                    print("FALSE NEGATIVE")
+                if correct and cwe != resp:
+                    print(f"## {cwe} is CORRECT AND THE MODEL IS INCORRECT ##")
                     frequencies[cwe]['false_neg'] += 1
-                elif not correct and cwe in resp:
-                    print("FALSE POSITIVE")
+                elif not correct and cwe == resp:
+                    print(f"## {cwe} is INCORRECT AND THE MODEL IS INCORRECT ##")
                     frequencies[cwe]['false_pos'] += 1
 
                 # If the model gave an invalid response save that it errored out
