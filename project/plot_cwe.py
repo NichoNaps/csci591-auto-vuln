@@ -8,11 +8,9 @@ import tkinter # fix plt
 # This file computes stats and plots vulnerability detection
 
 
-# @TODO:
 """
-1. (Mostly implemented) We can compute the f1 score/precision for just each class
-2. compute the micro average to look at the overall performance. We use micro average because the dataset is imbalanced (has no CWE-306 for example)
-
+1. We can compute the f1 score/precision for just each class
+2. Compute the micro average to look at the overall performance. We use micro average because the dataset is imbalanced (has no CWE-306 for example)
 """
 
 
@@ -56,40 +54,44 @@ def computeStats(freq: dict):
         recall = freq['true_pos'] / (freq['true_pos'] + freq['false_neg'])
         precision = freq['true_pos'] / (freq['true_pos'] + freq['false_pos'])
         f1 = 2 * (precision * recall) / (precision + recall) # f1 represents a combination of both precision and recall
-        accuracy = (freq['true_pos'] + freq['true_neg']) / (sum(freq.values())) # correct / all
 
-        # print stats
-        print(f"Recall: {recall}")
-        print(f"Precision: {precision}")
-        print(f"F1: {f1}")
-        print(f"Accuracy: {accuracy}") # idk this seems very inaccurate
+        accuracy = (freq['true_pos'] + freq['true_neg']) / sum(freq.values())
 
-        return recall, precision, f1
-    except:
-        return None
-        # print("ERROR")
+
+        return accuracy, recall, precision, f1
+        
+    except Exception as e:
+        # print(e)
+
+        return None, None, None, None
 
 
 for idx, (variant, results) in enumerate(variantResults.items()):
-
     # https://machinelearningmastery.com/precision-recall-and-f-measure-for-imbalanced-classification/
 
     #@TODO what do we do with invalid_response?
 
-    # Print out stats on individual
-    for cwe, freq in sorted(results['individual'].items(), key=lambda item: item[0]):
+    print(f"\nVariant: {variant}")
 
-        match computeStats(freq):
-            case [recall, precision, f1]:
-                print(variant, cwe)
+    # Print out stats on individual classes
+    data = sorted(results['individual'].items(), key=lambda item: item[0])
+
+    # Note: we strip out accuracy because it doesn't work well on multiclass data
+    
+    rows = [
+            ['All CWEs', *computeStats(results['aggregate'])[1:]],
+            *[[cwe, *computeStats(freq)[1:]] for cwe, freq in data],
+        ]
+
+    prettyPrintTable(['CWE', 'Recall', 'Precision', 'F1'], rows)
             
-                
-    print("\n\nAggregate:")
-    print(results['aggregate'])
-    computeStats(results['aggregate'])
-    #@TODO print out the aggregate stats
+
+
+print("\nComparison of Variants For CWE Classification:")
+prettyPrintTable(['Variant', 'Recall', 'Precision', 'F1'], rows=[
+    [variant, *computeStats(results['aggregate'])[1:]] for variant, results in variantResults.items()
+])
 
 
 plotFreq({variant:results['aggregate'] for variant, results in variantResults.items()}, forLabel='CWE Classification')
-
 

@@ -150,3 +150,21 @@ def plotFreq(variantResults: dict, forLabel="UNTITLED"):
 
 
 
+
+# quick and dirty table printing with nice formatting
+def prettyPrintTable(headers: list[str], rows: list[list[str]]):
+    colWidths = [max([len(str(item)) for item in col]) for col in list(zip(*rows))] # flip the matrix to get columns then take max widths
+
+    formatRow = lambda row: " | ".join([f"{str(item):<{width}}" for item, width in zip(row, colWidths)])
+
+    # format the header with widths
+    header = formatRow(headers)
+
+    print(header)
+    print(len(header) * "-")
+
+    # print all lines
+    for row in rows:
+        if len(row) != len(headers):
+            raise Exception(f"Row has {len(row)} columns but there are {len(headers)} headers")
+        print(formatRow(row))
