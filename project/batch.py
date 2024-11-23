@@ -10,6 +10,12 @@ import random
 from test_chat_compl import LLM
 from util import * 
 
+"""
+A lot of the of the wording for the prompts below were inspired by the  
+Large Language Model for Vulnerability Detection: Emerging Results and Future Directions paper: https://github.com/soarsmu/ChatGPT-VulDetection
+because they worked better than the ones we came up. Ex: "code is non-vulnerable". Our chain-of-thought is similar to their A4 variant.
+"""
+
 
 def cwe_run_batch(tests, resultsFile, variant):
     llm = LLM(verbose=False)
@@ -283,14 +289,14 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    # set a default variant mode
+    if args.variant is None:
+        args.variant = 'chain-of-thought'
 
 
     # Perform vuln detection
     if args.mode == 'vuln':
 
-        # set a default variant mode
-        if args.variant is None:
-            args.variant = 'chain-of-thought'
 
         # Pre-process and get tests
         tests = vuln_parse_input_list(datasetsPath / "gpt-vuln/Cleaned_test_for_codexglue_binary.csv")
@@ -311,10 +317,6 @@ if __name__ == '__main__':
     
     # Perform CWE Classification
     elif args.mode == 'cwe':
-
-        # set a default variant mode
-        if args.variant is None:
-            args.variant = 'TODO-Something'
 
 
         with open(datasetsPath / f"diverse-vul/reduced_cwe_dataset.json", 'r') as f:

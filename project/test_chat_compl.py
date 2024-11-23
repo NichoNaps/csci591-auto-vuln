@@ -62,14 +62,13 @@ if __name__ == "__main__":
     llm.send('Please determine the intent of the following code:', role='system')
 
     while True:
-        llm.printHistory()
 
         inp = input("Input: ")
         inpCheck = inp
         res = "" 
         while inp != "SEND":
             res += inp + "\n"
-            inp = input("Input: ")
+            inp = input("Input (Send SEND to finally send the message): ")
 
         if inpCheck == "EXIT":
             print("Exiting....")
@@ -78,6 +77,8 @@ if __name__ == "__main__":
         llm.send(res)
 
         response = llm.getResponse()
+
+        llm.printHistory()
 
         print("AI:", response)
 
