@@ -66,7 +66,7 @@ python test_chat_compl.py
 
 Send some inputs. Then Run one input that is just SEND all caps and then it will run those inputs. The reason we wait for SEND, is so you can paste multiple lines of code in.
 
-# Usage of batch.py
+## Usage of batch.py
 batch.py runs both the CWE classification and Vulnerability detection tests.
 
 ```sh
@@ -83,7 +83,7 @@ python batch.py vuln 1 --variant in-context-learning
 ```
 
 
-# Plot results of batch.py
+## Plot results of batch.py
 batch.py saves its results into ./results/. From there run plot_cwe.py or plot_vuln.py to calculate and plot the stats on that data including f1 scores etc.
 ```sh
 python plot_cwe.py
