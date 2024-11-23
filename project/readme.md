@@ -1,14 +1,14 @@
 
 # Setup
-## Install Dependencies to run AI
 
-On windows I recommend running this all through WSL because it makes installing `llama-cpp-python` much easier because WSL comes with the neccesary dependencies.
+## Setup Windows
+On Windows I recommend running this all through WSL because it makes installing `llama-cpp-python` much easier because WSL comes with the neccesary dependencies.
 
 To fit the LLM in RAM, you may need to manually specify the RAM size of WSL if it defaults too low (it defaults to half of your RAM). On a 16Gig windows computer we had to manually specify 12Gb.
 
 From within WSL you can run the following to see the total amount of ram it has `free -m`.
 
-## (Optionally) Increase WSL RAM Limit On Windows
+### (Optionally) Increase WSL RAM Limit On Windows
 Create the .wslconfig file if it doesnt exist here: `C:/Users/<username>/.wslconfig` 
 
 File contents:
@@ -21,7 +21,7 @@ Then reset wsl from powershell with:
 ```sh
 wsl --shutdown
 ```
-
+The result of `free -m` should now be about the amount you specified in the config file.
 
 ## (Optionally) setup a virt environment
 ```sh
@@ -29,7 +29,7 @@ python -m venv env # create python virt env
 source env/bin/activate # activate python virt env (You'll have to do this every time)
 ```
 
-## Install llama-cpp-python
+## Install Dependencies
 
 We are downloading things from hugging face so we need this dependency.
 ```sh
