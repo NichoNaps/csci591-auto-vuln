@@ -1,6 +1,6 @@
 
-
-# Install Dependencies to run AI
+# Setup
+## Install Dependencies to run AI
 
 On windows I recommend running this all through WSL because it makes installing `llama-cpp-python` much easier because WSL comes with the neccesary dependencies.
 
@@ -8,7 +8,7 @@ To fit the LLM in RAM, you may need to manually specify the RAM size of WSL if i
 
 From within WSL you can run the following to see the total amount of ram it has `free -m`.
 
-### (Optionally) Increase WSL RAM Limit On Windows
+## (Optionally) Increase WSL RAM Limit On Windows
 Create the .wslconfig file if it doesnt exist here: `C:/Users/<username>/.wslconfig` 
 
 File contents:
@@ -23,13 +23,13 @@ wsl --shutdown
 ```
 
 
-### (Optionally) setup a virt environment
+## (Optionally) setup a virt environment
 ```sh
 python -m venv env # create python virt env
 source env/bin/activate # activate python virt env (You'll have to do this every time)
 ```
 
-### Install llama-cpp-python
+## Install llama-cpp-python
 
 We are downloading things from hugging face so we need this dependency.
 ```sh
@@ -57,6 +57,7 @@ Here is an example of a modern x86 cpu with AVX2 support on linux. Without this 
 CMAKE_ARGS="-DBUILD_SHARED_LIBS=on -DCMAKE_POSITION_INDEPENDENT_CODE=on -DGGML_NATIVE=off -DGGML_OPENMP=off -DGGML_AVX=on -DGGML_AVX2=on -DGGML_AVX512=off -DGGML_FMA=on -DGGML_F16C=on" pip install llama-cpp-python --no-cache-dir --force-reinstall
 ```
 
+# Usage
 ### Test Running a chatbot
 
 ```sh
@@ -66,6 +67,7 @@ python test_chat_compl.py
 Send some inputs. Then Run one input that is just SEND all caps and then it will run those inputs. The reason we wait for SEND, is so you can paste multiple lines of code in.
 
 # Usage of batch.py
+batch.py runs both the CWE classification and Vulnerability detection tests.
 
 ```sh
 # how to use batch:
@@ -81,5 +83,19 @@ python batch.py vuln 1 --variant in-context-learning
 ```
 
 
+# Plot results of batch.py
+batch.py saves its results into ./results/. From there run plot_cwe.py or plot_vuln.py to calculate and plot the stats on that data including f1 scores etc.
+```sh
+python plot_cwe.py
+python plot_vuln.py
+```
 
 
+# Layout
+- `batch.py` - runs testing and contains all prompts used
+- `test_chat_compl.py` - contains a wrapper class over llama-cpp-python to make it easer for our use case and contains a test runner for trying out an LLM.
+- `util.py` - contains helper functions, variables, and classes for the rest of our code
+- `plot_cwe.py` - plots stats on results of CWE classification
+- `plot_vuln.py` - plots stats on results of vulnerability detection
+- `results/` - a directory that batch.py saves results into
+- `datasets/` - a directory containing all of the datasets used
