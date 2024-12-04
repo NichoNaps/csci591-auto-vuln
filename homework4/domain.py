@@ -5,7 +5,6 @@ import networkx as nx
 # Define a domain lattice with partial order rules.
 # Meaning its the conversion rules for what is a subset of what.
 # @NOTE: Only supports going up or staying on the same type level (lose information or stay the same)
-# @NOTE: Only support going to a third super type if it is one hop up, which should be good enough for this assignment
 class AbstractDomain:
 
     def __init__(self, rules: list[tuple[str, str]]):
