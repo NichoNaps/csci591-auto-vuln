@@ -82,14 +82,14 @@ if __name__ == "__main__":
     # if one is a subset of the other take the larger one
     assert domain.join('BOTTOM', 'Z') == 'Z'
     assert domain.join('Z', 'TOP') == 'TOP'
+    
+    # joining should allow multiple hops
     assert domain.join('BOTTOM', 'TOP') == 'TOP'
 
     # joining these types requires going to the super type TOP
     assert domain.join('Z', 'N') == 'TOP'
     assert domain.join('N', 'Z') == 'TOP'
 
-    # joining should allow multiple hops
-    assert domain.join('BOTTOM', 'TOP') == 'TOP'
 
 
 
