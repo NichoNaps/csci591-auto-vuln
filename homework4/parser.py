@@ -48,7 +48,7 @@ def parse_line(line):
     
     # Halt statement
     elif line == "halt":
-        return ("halt")
+        return ("halt",)
     
     else:
         raise ValueError(f"ERROR: {line}")
@@ -75,6 +75,6 @@ def parse_program(filepath):
 if __name__ == "__main__":
 
     # Parse the program
-    result = parse_program("prog_4.w3a")
+    result = parse_program("programs/prog_4.w3a")
     for line_num, instruction in result:
         print(f"Line {line_num}: {instruction}")
