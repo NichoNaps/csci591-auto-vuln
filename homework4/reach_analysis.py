@@ -4,6 +4,8 @@ from worklist import worklist_algorithm
 
 programLines = Parser("programs/prog_1.w3a").parse_program()
 
+# Page.29 https://cmu-program-analysis.github.io/2024/resources/program-analysis.pdf
+
 
 varAssigns = []
 for line_num, instruction in programLines:
