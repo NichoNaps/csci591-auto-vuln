@@ -12,15 +12,46 @@ domain = AbstractDomain([
 ])
 
 
-def flow(node):
-    # TODO apply node.instruction using node.inputs and save the result in node.output
+# test with zero analysis
+# apply node.instruction using node.inputs and save the result in node.output
+def flow(instruction, state):
+    outputs = state.copy()
 
-    pass
+    # AN EXCUSE TO USE PYTHON PATTERN MATCHING FINALLLLYYYY!!!!!!!! :)
+    match instruction:
+
+        case ('assign_num', var, num):
+
+            if num == 0:
+                outputs[var] = 'Z'
+            else:
+                outputs[var] = 'N'
+        
+        case ('assign_op', var, varA, op, varB):
+
+            # Subtract variable from self is always zero
+            if op == '-' and varA == varB: 
+                outputs[var] = 'Z'
+
+            # adding variable to itself does nothing in zero analysis
+            if op == '+' and varA == varB: 
+                outputs[var] = state[varA]
+
+            # if adding zero to another variable its just that variable
+            if op == '+' and state[varB] == 'Z':
+                outputs[var] = state[varA]
+
+            # Give up and say its probably TOP
+            else:
+                outputs[var] = 'TOP'
+        
+    return outputs
 
 
 
 result = Parser("programs/prog_1.w3a").parse_program()
 
+#@TODO we need to find all variable names dynamically
 def makeState():
     return {'x': 'BOTTOM', 'y': 'BOTTOM'}
 
@@ -37,16 +68,23 @@ class Node:
     # Return a list of the line numbers that come out from this instruction
     def getSuccessors(self) -> list[int]:
 
-        # if this is a goto statement it has two successive locations
-        if self.instruction[0] in ['if_goto', 'goto']: 
-            return [self.line_num, self.instruction[-1]]
+        match self.instruction:
+
+            # halt has no successors
+            case ('halt',):
+                return [] 
+
+            # if this is a goto statement it has two successive locations
+            case (('if_goto' | 'goto'), *_):
+                return [self.line_num + 1, self.instruction[-1]]
         
-        else:
-            return [self.line_num]
+            # otherwise it is the next line
+            case _:
+                return [self.line_num + 1]
 
     
     def __str__(self):
-        return f"{self.line_num}: {self.instruction} \t Inputs:{self.inputs}, Outputs:{self.outputs}"
+        return f"{self.line_num}: {self.instruction}"
     
 
 
@@ -72,7 +110,14 @@ while len(worklist) > 0:
 
     node = worklist.pop(0)
 
-    node.output = flow(node)
+    print(f"\n\n########## Running on {node}")
+
+    # updates node.outputs using node.inputs following some flow analysis
+    node.outputs = flow(node.instruction, node.inputs) 
+
+    print('Flow Inputs:', node.inputs)
+    print('Flow Outputs:', node.outputs)
+    print()
 
     # Try adding successor lines as new work to do
     for childNode in [allNodes[i] for i in node.getSuccessors()]:
@@ -81,8 +126,13 @@ while len(worklist) > 0:
 
         # if the inputs did indeed change, add this childNode as a new job
         if newInputs != childNode.inputs:
+            print(f"Added successor to worklist {childNode} with inputs: {newInputs}")
             childNode.inputs = newInputs
-            worklist.append(childNode)
+
+            if childNode not in worklist:
+                worklist.append(childNode)
+            else:
+                print("Already in worklist")
         
 
 
