@@ -56,12 +56,15 @@ def flow_zero_analysis(instruction, state) -> list[dict[str, str]]:
                 outputs[var] = 'Z'
 
             # adding variable to itself does nothing in zero analysis
-            if op == '+' and varA == varB: 
+            elif op == '+' and varA == varB: 
                 outputs[var] = state[varA]
 
             # if adding zero to another variable its just that variable
-            if op == '+' and state[varB] == 'Z':
+            elif op == '+' and state[varB] == 'Z':
                 outputs[var] = state[varA]
+
+            elif op == '+' and state[varA] == 'Z':
+                outputs[var] = state[varB]
 
             # We could add some division 0/1 here if we wanted
 
@@ -79,3 +82,11 @@ programLines = Parser("programs/prog_4.w3a").parse_program()
 worklist_algorithm(programLines, domain, flow_zero_analysis)
 
 
+
+# elif state[varA] == 'Z' and state[varB] == 'Z':
+#     outputs[var] = 'Z'
+    
+# elif state[varA] == 'N' and state[varB] == 'N':
+#     outputs[var] = 'N'
+# elif state[varA] == 'P' and state[varB] == 'P':
+#     outputs[var] = 'P'
