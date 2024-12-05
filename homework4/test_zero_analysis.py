@@ -82,6 +82,7 @@ def run_zero_analysis(program: Program):
     
     worklist = WorklistAlgo(program, domain, flow_zero_analysis)
     worklist.run()
+    worklist.printStats()
 
 
 if __name__ == '__main__':

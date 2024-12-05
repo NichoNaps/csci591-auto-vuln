@@ -2,6 +2,24 @@ from domain import AbstractDomain
 from parser import *
 from parser import Program
 
+# quick and dirty table printing with nice formatting
+def prettyPrintTable(headers: list[str], rows: list[list[str]]):
+    colWidths = [max([len(str(item)) for item in col]) for col in list(zip(*[headers, *rows]))] # flip the matrix to get columns then take max widths
+
+    formatRow = lambda row: " | ".join([f"{str(item):<{width}}" for item, width in zip(row, colWidths)])
+
+    # format the header with widths
+    header = formatRow(headers)
+
+    print(header)
+    print(len(header) * "-")
+
+    # print all lines
+    for row in rows:
+        if len(row) != len(headers):
+            raise Exception(f"Row has {len(row)} columns but there are {len(headers)} headers")
+        print(formatRow(row))
+
 
 # Represents a line in the program within the worklist algorithm
 class Node:
@@ -57,6 +75,14 @@ class WorklistAlgo:
         # Stats metrics
         self.stats = []
         #@TODO
+    
+
+    # return a string of the current worklist line numbers
+    def prettyWorklist(self) -> str:
+        return ','.join([str(node.line_num) for node in self.worklist]) if len(self.worklist) > 0 else 'empty'
+
+    def printStats(self):
+        prettyPrintTable(['instr', 'worklist', 'abstract val'], self.stats)
 
     # Worklist algorithm based on page 25 of https://cmu-program-analysis.github.io/2024/resources/program-analysis.pdf
     def run(self):
@@ -66,7 +92,7 @@ class WorklistAlgo:
             return {varName:self.BOTTOM for varName in self.allVarNames}
 
 
-        worklist: list[Node] = []
+        self.worklist: list[Node] = []
 
         # add all nodes/lines of code once so each is visited at least once
         for node in self.allNodes.values():
@@ -74,16 +100,18 @@ class WorklistAlgo:
 
             node.input = makeNewState()
             node.outputs = makeNewState()
-            worklist.append(node)
+            self.worklist.append(node)
 
-        # allNodes[0].input = initialDataflowInformation???
+        # self.allNodes[1].input = #initialDataflowInformation???
+
+        self.stats.append((0, self.prettyWorklist(), self.allNodes[1].input))
 
 
-        while len(worklist) > 0:
+        while len(self.worklist) > 0:
 
-            node = worklist.pop(0)
+            node = self.worklist.pop(0)
 
-            print(f"\n\n########## Running on {node}")
+            print(f"\n\n########## Running on line {node}")
 
             # updates node.outputs using node.input following some flow analysis
             node.outputs = self.flowFunction(node.line_num, node.instruction, node.input) 
@@ -92,6 +120,7 @@ class WorklistAlgo:
             print('Flow Outputs:', node.outputs)
             print()
             
+            self.stats.append((node.line_num, self.prettyWorklist(), node.outputs.copy()))
 
 
             childNodes = [self.allNodes[i] for i in node.getSuccessors()]
@@ -108,11 +137,11 @@ class WorklistAlgo:
 
                 # if the inputs did indeed change, add this childNode as a new job
                 if newInputs != childNode.input:
-                    print(f"Added successor to worklist {childNode} with inputs: {newInputs}")
+                    print(f"Added successor to self.worklist {childNode} with inputs: {newInputs}")
                     childNode.input = newInputs
 
-                    if childNode not in worklist:
-                        worklist.append(childNode)
+                    if childNode not in self.worklist:
+                        self.worklist.append(childNode)
                     else:
                         print("Already in worklist") # we can skip adding it if it is already in the worklist
                 

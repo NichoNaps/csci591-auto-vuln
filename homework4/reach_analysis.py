@@ -6,6 +6,9 @@ from worklist import WorklistAlgo
 
 
 
+
+
+
 def run_reach_analysis(program: Program):
 
     varAssigns = []
@@ -65,8 +68,7 @@ def run_reach_analysis(program: Program):
     #@TODO do we need to do some inital set? what do we do in ifs???????
     worklist = WorklistAlgo(program, domain, flow_reach_analysis, BOTTOM=BOTTOM)
     worklist.run()
-
-    #@TODO do something with metrics
+    worklist.printStats()
 
 
 if __name__ == '__main__':
