@@ -25,6 +25,9 @@ def flow_zero_analysis(instruction, state):
                 outputs[var] = 'Z'
             else:
                 outputs[var] = 'N'
+
+        case ('assign_var', var, varA):
+            outputs[var] = state[varA]
         
         case ('assign_op', var, varA, op, varB):
 
