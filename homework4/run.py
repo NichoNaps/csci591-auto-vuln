@@ -1,6 +1,10 @@
 import argparse
 from pathlib import Path
 
+from int_sign_analysis import run_int_sign_analysis
+from reach_analysis import run_reach_analysis
+from parser import Program
+
 
 if __name__ == '__main__':
 
@@ -10,7 +14,12 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-
     print(args.analysis, args.path)
 
-    #@TODO
+    match args.analysis:
+        case 'signed':
+            run_int_sign_analysis(Program(args.path))
+        case 'reaching':
+            run_reach_analysis(Program(args.path))
+
+    

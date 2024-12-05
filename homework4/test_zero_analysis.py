@@ -1,95 +1,90 @@
 from domain import AbstractDomain
-from parser import Parser
-from worklist import worklist_algorithm
+from parser import Program
+from worklist import WorklistAlgo
+
+def run_zero_analysis(program: Program):
+
+    # define the zero analysis domain which is a simple diamond
+    domain = AbstractDomain([
+        ('BOTTOM', 'Z'),
+        ('BOTTOM', 'N'),
+        ('Z', 'TOP'),
+        ('N', 'TOP'),
+    ])
+
+    # test with zero analysis, this is missing a lot of the operations but it works on prog_1.w3a
+    # apply node.instruction using node.inputs and save the result in node.output
+    def flow_zero_analysis(line_num, instruction, state) -> list[dict[str, str]]:
+        outputs = state.copy()
+
+        # AN EXCUSE TO USE PYTHON PATTERN MATCHING FINALLLLYYYY!!!!!!!! :)
+        match instruction:
+
+            # this returns two resulting states for true and false case
+            # Remember this is always a comparison against a zero literal
+            case ('if_goto', var, op, *_): 
+                outputsTrue = outputs.copy()
+                outputsFalse = outputs.copy()
+
+                # If x = 0 then true means x = Z else x = N
+                if op == '=':
+                    outputsTrue[var] = 'Z'
+                    outputsFalse[var] = 'N'
+
+                elif op == '<':
+                    outputsTrue[var] = 'N'
+
+                    if state[var] != 'Z': #@TODO is this right?? only coerce to TOP if it isn't zero?
+                        outputsFalse[var] = 'TOP'
+
+                return [outputsTrue, outputsFalse]
 
 
-# define the zero analysis domain which is a simple diamond
-domain = AbstractDomain([
-    ('BOTTOM', 'Z'),
-    ('BOTTOM', 'N'),
-    ('Z', 'TOP'),
-    ('N', 'TOP'),
-])
+            case ('assign_num', var, num):
 
-# test with zero analysis, this is missing a lot of the operations but it works on prog_1.w3a
-# apply node.instruction using node.inputs and save the result in node.output
-def flow_zero_analysis(line_num, instruction, state) -> list[dict[str, str]]:
-    outputs = state.copy()
+                if num == 0:
+                    outputs[var] = 'Z'
+                else:
+                    outputs[var] = 'N'
 
-    # AN EXCUSE TO USE PYTHON PATTERN MATCHING FINALLLLYYYY!!!!!!!! :)
-    match instruction:
+            case ('assign_var', var, varA):
+                outputs[var] = state[varA]
+            
+            case ('assign_op', var, varA, op, varB):
 
-        # this returns two resulting states for true and false case
-        # Remember this is always a comparison against a zero literal
-        case ('if_goto', var, op, *_): 
-            outputsTrue = outputs.copy()
-            outputsFalse = outputs.copy()
+                # Subtract variable from self is always zero
+                if op == '-' and varA == varB: 
+                    outputs[var] = 'Z'
 
-            # If x = 0 then true means x = Z else x = N
-            if op == '=':
-                outputsTrue[var] = 'Z'
-                outputsFalse[var] = 'N'
+                # adding variable to itself does nothing in zero analysis
+                elif op == '+' and varA == varB: 
+                    outputs[var] = state[varA]
 
-            elif op == '<':
-                outputsTrue[var] = 'N'
+                # if adding zero to another variable its just that variable
+                elif op == '+' and state[varB] == 'Z':
+                    outputs[var] = state[varA]
 
-                if state[var] != 'Z': #@TODO is this right?? only coerce to TOP if it isn't zero?
-                    outputsFalse[var] = 'TOP'
+                elif op == '+' and state[varA] == 'Z':
+                    outputs[var] = state[varB]
 
-            return [outputsTrue, outputsFalse]
+                # We could add some division 0/1 here if we wanted
 
+                elif op == '/' and state[varB] == 'Z': # divide by zero
+                    outputs[var] = 'BOTTOM'
 
-        case ('assign_num', var, num):
-
-            if num == 0:
-                outputs[var] = 'Z'
-            else:
-                outputs[var] = 'N'
-
-        case ('assign_var', var, varA):
-            outputs[var] = state[varA]
+                # Give up and say its probably TOP
+                else:
+                    outputs[var] = 'TOP'
         
-        case ('assign_op', var, varA, op, varB):
 
-            # Subtract variable from self is always zero
-            if op == '-' and varA == varB: 
-                outputs[var] = 'Z'
-
-            # adding variable to itself does nothing in zero analysis
-            elif op == '+' and varA == varB: 
-                outputs[var] = state[varA]
-
-            # if adding zero to another variable its just that variable
-            elif op == '+' and state[varB] == 'Z':
-                outputs[var] = state[varA]
-
-            elif op == '+' and state[varA] == 'Z':
-                outputs[var] = state[varB]
-
-            # We could add some division 0/1 here if we wanted
-
-            elif op == '/' and state[varB] == 'Z': # divide by zero
-                outputs[var] = 'BOTTOM'
-
-            # Give up and say its probably TOP
-            else:
-                outputs[var] = 'TOP'
+        # return the one output
+        return [outputs]
     
-
-    # return the one output
-    return [outputs]
-
-
-programLines = Parser("programs/prog_4.w3a").parse_program()
-
-worklist_algorithm(programLines, domain, flow_zero_analysis)
+    worklist = WorklistAlgo(program, domain, flow_zero_analysis)
+    worklist.run()
 
 
+if __name__ == '__main__':
+    run_zero_analysis(Program('programs/prog_1.w3a'))
 
-# elif state[varA] == 'Z' and state[varB] == 'Z':
-#     outputs[var] = 'Z'
-    
-# elif state[varA] == 'N' and state[varB] == 'N':
-#     outputs[var] = 'N'
-# elif state[varA] == 'P' and state[varB] == 'P':
-#     outputs[var] = 'P'
+

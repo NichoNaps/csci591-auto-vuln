@@ -1,5 +1,6 @@
 from domain import AbstractDomain
 from parser import *
+from parser import Program
 
 
 # Represents a line in the program within the worklist algorithm
@@ -39,76 +40,82 @@ class Node:
         return f"{self.line_num}: {self.instruction}"
     
 
+class WorklistAlgo:
 
-# Worklist algorithm based on page 25 of https://cmu-program-analysis.github.io/2024/resources/program-analysis.pdf
-def worklist_algorithm(programLines, domain: AbstractDomain, flowFunction: callable, BOTTOM='BOTTOM'):
-
-    # First initialize all nodes by their line number for reference
-    allNodes: dict[int, Node] = {}
-    allVarNames = []
-    for line_num, instruction in programLines:
-        allNodes[line_num] = Node(line_num, instruction)
-
-        # gather all variable names
-        if 'assign' in instruction[0] and instruction[1] not in allVarNames:
-            allVarNames.append(instruction[1])
-
-
-    # creates a new state dictionary with all variables initialized to BOTTOM 
-    def makeNewState():
-        return {varName:BOTTOM for varName in allVarNames}
-
-
-    worklist: list[Node] = []
-
-    # add all nodes/lines of code once so each is visited at least once
-    for node in allNodes.values():
-        print('Initializing Line ', node)
-
-        node.input = makeNewState()
-        node.outputs = makeNewState()
-        worklist.append(node)
-
-    # allNodes[0].input = initialDataflowInformation???
-
-
-    while len(worklist) > 0:
-
-        node = worklist.pop(0)
-
-        print(f"\n\n########## Running on {node}")
-
-        # updates node.outputs using node.input following some flow analysis
-        node.outputs = flowFunction(node.line_num, node.instruction, node.input) 
-
-        print('Flow Input:', node.input)
-        print('Flow Outputs:', node.outputs)
-        print()
+    def __init__(self, program: Program, domain: AbstractDomain, flowFunction: callable, BOTTOM='BOTTOM'):
+        self.domain = domain
+        self.flowFunction = flowFunction
+        self.BOTTOM = BOTTOM
         
+        # First initialize all nodes by their line number for reference
+        self.allNodes: dict[int, Node] = {}
+        for line_num, instruction in program.getLines():
+            self.allNodes[line_num] = Node(line_num, instruction)
+
+        self.allVarNames = program.getVariableNames()
+    
+        # Stats metrics
+        self.stats = []
+        #@TODO
+
+    # Worklist algorithm based on page 25 of https://cmu-program-analysis.github.io/2024/resources/program-analysis.pdf
+    def run(self):
+
+        # creates a new state dictionary with all variables initialized to BOTTOM 
+        def makeNewState():
+            return {varName:self.BOTTOM for varName in self.allVarNames}
 
 
-        childNodes = [allNodes[i] for i in node.getSuccessors()]
+        worklist: list[Node] = []
 
-        # Sanity check we have enough outputs
-        if len(childNodes) > len(node.outputs):
-            raise Exception(f"Expected {len(childNode)} many output states from flow function")
+        # add all nodes/lines of code once so each is visited at least once
+        for node in self.allNodes.values():
+            print('Initializing Line ', node)
+
+            node.input = makeNewState()
+            node.outputs = makeNewState()
+            worklist.append(node)
+
+        # allNodes[0].input = initialDataflowInformation???
 
 
-        # Try adding successor lines as new work to do
-        for output, childNode in zip(node.outputs, childNodes):
+        while len(worklist) > 0:
 
-            newInputs = domain.joinStates(childNode.input, output)
+            node = worklist.pop(0)
 
-            # if the inputs did indeed change, add this childNode as a new job
-            if newInputs != childNode.input:
-                print(f"Added successor to worklist {childNode} with inputs: {newInputs}")
-                childNode.input = newInputs
+            print(f"\n\n########## Running on {node}")
 
-                if childNode not in worklist:
-                    worklist.append(childNode)
-                else:
-                    print("Already in worklist") # we can skip adding it if it is already in the worklist
+            # updates node.outputs using node.input following some flow analysis
+            node.outputs = self.flowFunction(node.line_num, node.instruction, node.input) 
+
+            print('Flow Input:', node.input)
+            print('Flow Outputs:', node.outputs)
+            print()
             
+
+
+            childNodes = [self.allNodes[i] for i in node.getSuccessors()]
+
+            # Sanity check we have enough outputs
+            if len(childNodes) > len(node.outputs):
+                raise Exception(f"Expected {len(childNode)} many output states from flow function")
+
+
+            # Try adding successor lines as new work to do
+            for output, childNode in zip(node.outputs, childNodes):
+
+                newInputs = self.domain.joinStates(childNode.input, output)
+
+                # if the inputs did indeed change, add this childNode as a new job
+                if newInputs != childNode.input:
+                    print(f"Added successor to worklist {childNode} with inputs: {newInputs}")
+                    childNode.input = newInputs
+
+                    if childNode not in worklist:
+                        worklist.append(childNode)
+                    else:
+                        print("Already in worklist") # we can skip adding it if it is already in the worklist
+                
 
 
 

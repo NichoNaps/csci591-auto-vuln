@@ -1,7 +1,26 @@
-class Parser:
+class Program:
 
     def __init__(self, filepath):
         self.filepath = filepath
+        self.programLines = self.parse_program()
+
+    # Get the tuples representing each line of the program
+    def getLines(self):
+        return self.programLines
+
+    # Get all variable names
+    def getVariableNames(self):
+        varNames = []
+
+        for line_num, instruction in self.programLines:
+
+            # gather all variable names
+            if 'assign' in instruction[0] and instruction[1] not in varNames:
+                varNames.append(instruction[1])
+        
+        return varNames
+
+
     def parse_line(self, line):
         # Strip whitespace and remove the line number and colon '1:'
         line = line.strip()
@@ -83,7 +102,7 @@ class Parser:
 if __name__ == "__main__":
 
     # Parse the program
-    parser = Parser("programs/prog_4.w3a")
+    parser = Program("programs/prog_4.w3a")
     result = parser.parse_program()
     # result = parse_program("programs/prog_4.w3a")
     for line_num, instruction in result:
