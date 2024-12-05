@@ -11,6 +11,10 @@ class AbstractDomain:
         self.graph = nx.DiGraph()
         self.graph.add_edges_from(rules)
 
+    # support printing
+    def __str__(self):
+        return f"Domain({', '.join(self.graph.nodes)})"
+
     def join(self, typeA: str, typeB: str) -> str:
         if typeA == typeB:
             return typeA
@@ -48,7 +52,19 @@ class AbstractDomain:
 
         
         return superType
+
     
+    # Bulk join all values in two state mappings {varname => value, ...}
+    def joinStates(self, stateA: dict[str, str], stateB: dict[str, str]) -> dict[str, str]:
+        res = {}
+
+        assert stateA.keys() == stateB.keys() # keys should be same in both
+
+        for key in stateA.keys(): 
+            res[key] = self.join(stateA[key], stateB[key])
+        
+        return res
+
 
     # Plot for debugging
     def plot(self):
@@ -74,6 +90,7 @@ if __name__ == "__main__":
         ('Z', 'TOP'),
         ('N', 'TOP'),
     ])
+    print(domain)
     # domain.plot()
 
     assert domain.join('Z', 'Z') == 'Z'
@@ -90,5 +107,6 @@ if __name__ == "__main__":
     assert domain.join('N', 'Z') == 'TOP'
 
 
+    assert domain.joinStates({'a': 'TOP'}, {'a': 'BOTTOM'}) == {'a': 'TOP'}
 
 
