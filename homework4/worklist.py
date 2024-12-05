@@ -41,7 +41,7 @@ class Node:
 
 
 # Worklist algorithm based on page 25 of https://cmu-program-analysis.github.io/2024/resources/program-analysis.pdf
-def worklist_algorithm(programLines, domain: AbstractDomain, flowFunction: callable):
+def worklist_algorithm(programLines, domain: AbstractDomain, flowFunction: callable, BOTTOM='BOTTOM'):
 
     # First initialize all nodes by their line number for reference
     allNodes: dict[int, Node] = {}
@@ -56,7 +56,7 @@ def worklist_algorithm(programLines, domain: AbstractDomain, flowFunction: calla
 
     # creates a new state dictionary with all variables initialized to BOTTOM 
     def makeNewState():
-        return {varName:'BOTTOM' for varName in allVarNames}
+        return {varName:BOTTOM for varName in allVarNames}
 
 
     worklist: list[Node] = []
@@ -79,7 +79,7 @@ def worklist_algorithm(programLines, domain: AbstractDomain, flowFunction: calla
         print(f"\n\n########## Running on {node}")
 
         # updates node.outputs using node.input following some flow analysis
-        node.outputs = flowFunction(node.instruction, node.input) 
+        node.outputs = flowFunction(node.line_num, node.instruction, node.input) 
 
         print('Flow Input:', node.input)
         print('Flow Outputs:', node.outputs)

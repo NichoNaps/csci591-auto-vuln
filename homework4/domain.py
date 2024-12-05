@@ -74,7 +74,7 @@ class AbstractDomain:
 
         plt.figure(figsize=(8, 6))
 
-        pos = nx.spring_layout(self.graph)  # Layout for better visualization
+        pos = nx.shell_layout(self.graph)  # Layout for better visualization
 
         # pos = nx.nx_agraph.graphviz_layout(self.graph, prog="dot") # use graphviz for its tree layout func
         nx.draw(self.graph, pos, with_labels=True, node_size=3000, node_color="powderblue")
@@ -84,10 +84,11 @@ class AbstractDomain:
 
 
 import itertools
+
+# generate all possible subsets of varnames and their partial order rules
 def produceSetPartialOrderRules(allVarNames: list[str]):
     rules = []
 
-    # generate all possible subsets of varnames and their partial order edges
     for i in range(len(allVarNames)):
         for subset in itertools.combinations(allVarNames, i): 
             for subsetB in itertools.combinations(allVarNames, i + 1): # get the next largest subsets

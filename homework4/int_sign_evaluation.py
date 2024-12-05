@@ -15,7 +15,7 @@ domain = AbstractDomain([
 
 # test with zero analysis, this is missing a lot of the operations but it works on prog_1.w3a
 # apply node.instruction using node.inputs and save the result in node.output
-def flow_sign_evaluation(instruction, state) -> list[dict[str, str]]:
+def flow_sign_evaluation(line_num, instruction, state) -> list[dict[str, str]]:
     outputs = state.copy()
 
     # AN EXCUSE TO USE PYTHON PATTERN MATCHING FINALLLLYYYY!!!!!!!! :)

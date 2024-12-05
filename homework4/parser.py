@@ -18,20 +18,24 @@ class Parser:
             parts = line.split(":=")
             left = parts[0].strip()
             right = parts[1].strip()
-            # Check if operations exist
-            if any(op in right for op in ["+", "-", "*", "/"]):
-                # If operations exist, split it
-                for op in ["+", "-", "*", "/"]:
-                    if op in right:
-                        operands = right.split(op)
-                        return ("assign_op", left, operands[0].strip(), op, operands[1].strip())
-            else:
-                # x := y without op, it can be a number
-                try:
-                    right = int(right)
-                    return ("assign_num", left, right)
-                except ValueError:
-                    return ("assign_var", left, right)
+
+            match right.split(' '):
+
+                case [a, op, b]:
+
+                    if op not in  ["+", "-", "*", "/"]:
+                        raise Exception("unsupported op")
+
+                    return ("assign_op", left, a.strip(), op, b.strip())
+                    
+                case [a]:
+
+                    # x := y without op, it can be a number
+                    try:
+                        right = int(a)
+                        return ("assign_num", left, right)
+                    except ValueError:
+                        return ("assign_var", left, a.strip())
 
         # Goto: goto n
         elif line.startswith("goto"):
@@ -48,7 +52,7 @@ class Parser:
             for op in ["<", "="]:  # Only < and = are valid operators
                 if op in left:
                     operand = left.split(op)
-                    return ("if_goto", operand[0].strip(), op, operand[1].strip(), target)
+                    return ("if_goto", operand[0].strip(), op, 0, target) # always compare against 0
 
         # Halt statement
         elif line == "halt":
