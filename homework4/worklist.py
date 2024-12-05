@@ -10,8 +10,8 @@ class Node:
         self.instruction: tuple = instruction
 
         # these are initilized elseware
-        self.inputs = None
-        self.outputs = None
+        self.input = None # singular input state
+        self.outputs = None # list of output states
     
     # Return a list of the line numbers that come out from this instruction
     def getSuccessors(self) -> list[int]:
@@ -22,10 +22,14 @@ class Node:
             case ('halt',):
                 return [] 
 
-            # if this is a goto statement it has two successive locations
-            case (('if_goto' | 'goto'), *_):
-                return [self.line_num + 1, self.instruction[-1]]
-        
+            # goto a specified line
+            case ('goto', *_):
+                return [self.instruction[-1]]
+
+            # if goto explores both the true and false case
+            case ('if_goto', *_):
+                return [self.instruction[-1], self.line_num + 1]
+
             # otherwise it is the next line
             case _:
                 return [self.line_num + 1]
@@ -40,7 +44,7 @@ class Node:
 def worklist_algorithm(programLines, domain: AbstractDomain, flowFunction: callable):
 
     # First initialize all nodes by their line number for reference
-    allNodes = {}
+    allNodes: dict[int, Node] = {}
     allVarNames = []
     for line_num, instruction in programLines:
         allNodes[line_num] = Node(line_num, instruction)
@@ -61,7 +65,7 @@ def worklist_algorithm(programLines, domain: AbstractDomain, flowFunction: calla
     for node in allNodes.values():
         print('Initializing Line ', node)
 
-        node.inputs = makeNewState()
+        node.input = makeNewState()
         node.outputs = makeNewState()
         worklist.append(node)
 
@@ -74,22 +78,31 @@ def worklist_algorithm(programLines, domain: AbstractDomain, flowFunction: calla
 
         print(f"\n\n########## Running on {node}")
 
-        # updates node.outputs using node.inputs following some flow analysis
-        node.outputs = flowFunction(node.instruction, node.inputs) 
+        # updates node.outputs using node.input following some flow analysis
+        node.outputs = flowFunction(node.instruction, node.input) 
 
-        print('Flow Inputs:', node.inputs)
+        print('Flow Input:', node.input)
         print('Flow Outputs:', node.outputs)
         print()
+        
+
+
+        childNodes = [allNodes[i] for i in node.getSuccessors()]
+
+        # Sanity check we have enough outputs
+        if len(childNodes) > len(node.outputs):
+            raise Exception(f"Expected {len(childNode)} many output states from flow function")
+
 
         # Try adding successor lines as new work to do
-        for childNode in [allNodes[i] for i in node.getSuccessors()]:
+        for output, childNode in zip(node.outputs, childNodes):
 
-            newInputs = domain.joinStates(childNode.inputs, node.outputs)
+            newInputs = domain.joinStates(childNode.input, output)
 
             # if the inputs did indeed change, add this childNode as a new job
-            if newInputs != childNode.inputs:
+            if newInputs != childNode.input:
                 print(f"Added successor to worklist {childNode} with inputs: {newInputs}")
-                childNode.inputs = newInputs
+                childNode.input = newInputs
 
                 if childNode not in worklist:
                     worklist.append(childNode)
