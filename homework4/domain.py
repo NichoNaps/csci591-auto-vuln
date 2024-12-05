@@ -13,7 +13,7 @@ class AbstractDomain:
 
     # support printing
     def __str__(self):
-        return f"Domain({', '.join(self.graph.nodes)})"
+        return f"Domain({', '.join(str(node) for node in self.graph.nodes)})"
 
     def join(self, typeA: str, typeB: str) -> str:
         if typeA == typeB:
@@ -74,14 +74,43 @@ class AbstractDomain:
 
         plt.figure(figsize=(8, 6))
 
-        pos = nx.shell_layout(self.graph)  # Layout for better visualization
+        pos = nx.spring_layout(self.graph)  # Layout for better visualization
+
+        # pos = nx.nx_agraph.graphviz_layout(self.graph, prog="dot") # use graphviz for its tree layout func
         nx.draw(self.graph, pos, with_labels=True, node_size=3000, node_color="powderblue")
         nx.draw_networkx_edges(self.graph, pos, edge_color="black", arrows=True)
         plt.title("Partial Order Graph")
         plt.show()
 
 
+import itertools
+def produceSetPartialOrderRules(allVarNames: list[str]):
+    rules = []
+
+    # generate all possible subsets of varnames and their partial order edges
+    for i in range(len(allVarNames)):
+        for subset in itertools.combinations(allVarNames, i): 
+            for subsetB in itertools.combinations(allVarNames, i + 1): # get the next largest subsets
+
+                if len(subset) == 1:
+                    rules.append(("BOTTOM", tuple(subset)))
+
+                if set(subset).intersection(set(subsetB)):
+
+                    # coerce the largest set to TOP
+                    if len(subsetB) == len(allVarNames):
+                        rules.append((tuple(subset), "TOP"))
+                    else:
+                        rules.append((tuple(subset), tuple(subsetB)))
+
+    return rules
+            
+
 if __name__ == "__main__":
+    domain = AbstractDomain(produceSetPartialOrderRules(['A', 'B', 'C']))
+    print(domain)
+    domain.plot()
+
 
     # define the zero analysis domain which is a simple diamond
     domain = AbstractDomain([

@@ -68,6 +68,9 @@ def flow_zero_analysis(instruction, state) -> list[dict[str, str]]:
 
             # We could add some division 0/1 here if we wanted
 
+            elif op == '/' and state[varB] == 'Z': # divide by zero
+                outputs[var] = 'BOTTOM'
+
             # Give up and say its probably TOP
             else:
                 outputs[var] = 'TOP'
