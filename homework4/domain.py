@@ -92,24 +92,25 @@ def produceSetPartialOrderRules(allVarNames: list[str]):
         for subset in itertools.combinations(allVarNames, i): 
             for subsetB in itertools.combinations(allVarNames, i + 1): # get the next largest subsets
 
+                # connect an empty subset as bottom
                 if len(subset) == 1:
-                    rules.append(("BOTTOM", tuple(subset)))
+                    rules.append((tuple(), tuple(subset)))
 
                 if set(subset).intersection(set(subsetB)):
+                    rules.append((tuple(subset), tuple(subsetB)))
 
-                    # coerce the largest set to TOP
-                    if len(subsetB) == len(allVarNames):
-                        rules.append((tuple(subset), "TOP"))
-                    else:
-                        rules.append((tuple(subset), tuple(subsetB)))
-
-    return rules
+    return tuple(), tuple(allVarNames), rules
             
 
 if __name__ == "__main__":
-    domain = AbstractDomain(produceSetPartialOrderRules(['A', 'B', 'C']))
+    BOTTOM, TOP, rules = produceSetPartialOrderRules(['A', 'B', 'C'])
+    domain = AbstractDomain(rules)
     print(domain)
-    domain.plot()
+    # domain.plot()
+
+    assert domain.join(tuple(), ('A',)) == ('A',)
+    assert domain.join(('A', 'C'), ('B',)) == ('A', 'B', 'C') # go to largest super type
+    assert domain.join(('C',), ('B',)) == ('B', 'C') # go to closest supertype
 
 
     # define the zero analysis domain which is a simple diamond
