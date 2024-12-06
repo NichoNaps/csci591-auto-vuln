@@ -33,10 +33,10 @@ Already in worklist
 Flow Input: {'x': 'TOP', 'y': 'P'}
 Flow Outputs: [{'x': 'TOP', 'y': 'P'}]
 
-instr | worklist | abstract val                  
--------------------------------------------------
-0     | 1,2,3,4  | {'x': 'BOTTOM', 'y': 'BOTTOM'}
-1     | 2,3,4    | [{'x': 'P', 'y': 'BOTTOM'}]   
-2     | 3,4      | [{'x': 'P', 'y': 'P'}]        
-3     | 4        | [{'x': 'TOP', 'y': 'P'}]      
-4     | empty    | [{'x': 'TOP', 'y': 'P'}]      
+instr | worklist | abstract val       
+--------------------------------------
+0     | 1,2,3,4  | x->BOTTOM y->BOTTOM
+1     | 2,3,4    | x->P y->BOTTOM     
+2     | 3,4      | x->P y->P          
+3     | 4        | x->TOP y->P        
+4     | empty    | x->TOP y->P        

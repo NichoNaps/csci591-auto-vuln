@@ -1,0 +1,71 @@
+reaching programs/prog_2.w3a
+Assignments: ['x_1', 'x_3']
+Initializing Line  1: ('assign_num', 'x', 0)
+Initializing Line  2: ('if_goto', 'x', '<', 0, 5)
+Initializing Line  3: ('assign_num', 'x', 1)
+Initializing Line  4: ('goto', 2)
+Initializing Line  5: ('halt',)
+
+
+########## Running on line 1: ('assign_num', 'x', 0)
+Flow Input: {'x': ()}
+Flow Outputs: [{'x': ('x_1',)}]
+
+Added successor to self.worklist 2: ('if_goto', 'x', '<', 0, 5) with inputs: {'x': ('x_1',)}
+Already in worklist
+
+
+########## Running on line 2: ('if_goto', 'x', '<', 0, 5)
+Flow Input: {'x': ('x_1',)}
+Flow Outputs: [{'x': ('x_1',)}, {'x': ('x_1',)}]
+
+Added successor to self.worklist 5: ('halt',) with inputs: {'x': ('x_1',)}
+Already in worklist
+Added successor to self.worklist 3: ('assign_num', 'x', 1) with inputs: {'x': ('x_1',)}
+Already in worklist
+
+
+########## Running on line 3: ('assign_num', 'x', 1)
+Flow Input: {'x': ('x_1',)}
+Flow Outputs: [{'x': ('x_3',)}]
+
+Added successor to self.worklist 4: ('goto', 2) with inputs: {'x': ('x_3',)}
+Already in worklist
+
+
+########## Running on line 4: ('goto', 2)
+Flow Input: {'x': ('x_3',)}
+Flow Outputs: [{'x': ('x_3',)}]
+
+Added successor to self.worklist 2: ('if_goto', 'x', '<', 0, 5) with inputs: {'x': ('x_1', 'x_3')}
+
+
+########## Running on line 2: ('if_goto', 'x', '<', 0, 5)
+Flow Input: {'x': ('x_1', 'x_3')}
+Flow Outputs: [{'x': ('x_1', 'x_3')}, {'x': ('x_1', 'x_3')}]
+
+Added successor to self.worklist 5: ('halt',) with inputs: {'x': ('x_1', 'x_3')}
+Already in worklist
+Added successor to self.worklist 3: ('assign_num', 'x', 1) with inputs: {'x': ('x_1', 'x_3')}
+
+
+########## Running on line 3: ('assign_num', 'x', 1)
+Flow Input: {'x': ('x_1', 'x_3')}
+Flow Outputs: [{'x': ('x_3',)}]
+
+
+
+########## Running on line 5: ('halt',)
+Flow Input: {'x': ('x_1', 'x_3')}
+Flow Outputs: [{'x': ('x_1', 'x_3')}]
+
+instr | worklist  | abstract val
+--------------------------------
+0     | 1,2,3,4,5 | {}          
+1     | 2,3,4,5   | {x_1}       
+2     | 3,4,5     | {x_1}       
+3     | 4,5       | {x_3}       
+4     | 5         | {x_3}       
+2     | 5         | {x_1, x_3}  
+3     | 5         | {x_3}       
+5     | empty     | {x_1, x_3}  

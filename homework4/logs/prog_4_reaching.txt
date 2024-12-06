@@ -1,0 +1,181 @@
+reaching programs/prog_4.w3a
+Assignments: ['t_1', 'u_2', 'y_3', 'z_4', 'z_6', 'y_7', 'x_9', 'z_10']
+Initializing Line  1: ('assign_num', 't', 1)
+Initializing Line  2: ('assign_num', 'u', -1)
+Initializing Line  3: ('assign_var', 'y', 'x')
+Initializing Line  4: ('assign_num', 'z', 1)
+Initializing Line  5: ('if_goto', 'y', '=', 0, 9)
+Initializing Line  6: ('assign_op', 'z', 'z', '*', 'y')
+Initializing Line  7: ('assign_op', 'y', 'y', '-', 't')
+Initializing Line  8: ('goto', 5)
+Initializing Line  9: ('assign_var', 'x', 'u')
+Initializing Line  10: ('assign_op', 'z', 'y', '/', 'x')
+Initializing Line  11: ('halt',)
+
+
+########## Running on line 1: ('assign_num', 't', 1)
+Flow Input: {'t': (), 'u': (), 'y': (), 'z': (), 'x': ()}
+Flow Outputs: [{'t': ('t_1',), 'u': (), 'y': (), 'z': (), 'x': ()}]
+
+Added successor to self.worklist 2: ('assign_num', 'u', -1) with inputs: {'t': ('t_1',), 'u': (), 'y': (), 'z': (), 'x': ()}
+Already in worklist
+
+
+########## Running on line 2: ('assign_num', 'u', -1)
+Flow Input: {'t': ('t_1',), 'u': (), 'y': (), 'z': (), 'x': ()}
+Flow Outputs: [{'t': ('t_1',), 'u': ('u_2',), 'y': (), 'z': (), 'x': ()}]
+
+Added successor to self.worklist 3: ('assign_var', 'y', 'x') with inputs: {'t': ('t_1',), 'u': ('u_2',), 'y': (), 'z': (), 'x': ()}
+Already in worklist
+
+
+########## Running on line 3: ('assign_var', 'y', 'x')
+kill set {'y_7'}
+gen set ('y_3',)
+Flow Input: {'t': ('t_1',), 'u': ('u_2',), 'y': (), 'z': (), 'x': ()}
+Flow Outputs: [{'t': ('t_1',), 'u': ('u_2',), 'y': ('y_3',), 'z': (), 'x': ()}]
+
+Added successor to self.worklist 4: ('assign_num', 'z', 1) with inputs: {'t': ('t_1',), 'u': ('u_2',), 'y': ('y_3',), 'z': (), 'x': ()}
+Already in worklist
+
+
+########## Running on line 4: ('assign_num', 'z', 1)
+Flow Input: {'t': ('t_1',), 'u': ('u_2',), 'y': ('y_3',), 'z': (), 'x': ()}
+Flow Outputs: [{'t': ('t_1',), 'u': ('u_2',), 'y': ('y_3',), 'z': ('z_4',), 'x': ()}]
+
+Added successor to self.worklist 5: ('if_goto', 'y', '=', 0, 9) with inputs: {'t': ('t_1',), 'u': ('u_2',), 'y': ('y_3',), 'z': ('z_4',), 'x': ()}
+Already in worklist
+
+
+########## Running on line 5: ('if_goto', 'y', '=', 0, 9)
+Flow Input: {'t': ('t_1',), 'u': ('u_2',), 'y': ('y_3',), 'z': ('z_4',), 'x': ()}
+Flow Outputs: [{'t': ('t_1',), 'u': ('u_2',), 'y': ('y_3',), 'z': ('z_4',), 'x': ()}, {'t': ('t_1',), 'u': ('u_2',), 'y': ('y_3',), 'z': ('z_4',), 'x': ()}]
+
+Added successor to self.worklist 9: ('assign_var', 'x', 'u') with inputs: {'t': ('t_1',), 'u': ('u_2',), 'y': ('y_3',), 'z': ('z_4',), 'x': ()}
+Already in worklist
+Added successor to self.worklist 6: ('assign_op', 'z', 'z', '*', 'y') with inputs: {'t': ('t_1',), 'u': ('u_2',), 'y': ('y_3',), 'z': ('z_4',), 'x': ()}
+Already in worklist
+
+
+########## Running on line 6: ('assign_op', 'z', 'z', '*', 'y')
+kill set {'z_4', 'z_10'}
+gen set ('y_3', 'z_4', 'z_6')
+Flow Input: {'t': ('t_1',), 'u': ('u_2',), 'y': ('y_3',), 'z': ('z_4',), 'x': ()}
+Flow Outputs: [{'t': ('t_1',), 'u': ('u_2',), 'y': ('y_3',), 'z': ('y_3', 'z_6'), 'x': ()}]
+
+Added successor to self.worklist 7: ('assign_op', 'y', 'y', '-', 't') with inputs: {'t': ('t_1',), 'u': ('u_2',), 'y': ('y_3',), 'z': ('y_3', 'z_6'), 'x': ()}
+Already in worklist
+
+
+########## Running on line 7: ('assign_op', 'y', 'y', '-', 't')
+kill set {'y_3'}
+gen set ('t_1', 'y_3', 'y_7')
+Flow Input: {'t': ('t_1',), 'u': ('u_2',), 'y': ('y_3',), 'z': ('y_3', 'z_6'), 'x': ()}
+Flow Outputs: [{'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_7'), 'z': ('z_6',), 'x': ()}]
+
+Added successor to self.worklist 8: ('goto', 5) with inputs: {'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_7'), 'z': ('z_6',), 'x': ()}
+Already in worklist
+
+
+########## Running on line 8: ('goto', 5)
+Flow Input: {'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_7'), 'z': ('z_6',), 'x': ()}
+Flow Outputs: [{'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_7'), 'z': ('z_6',), 'x': ()}]
+
+Added successor to self.worklist 5: ('if_goto', 'y', '=', 0, 9) with inputs: {'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_3', 'y_7'), 'z': ('z_4', 'z_6'), 'x': ()}
+
+
+########## Running on line 5: ('if_goto', 'y', '=', 0, 9)
+Flow Input: {'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_3', 'y_7'), 'z': ('z_4', 'z_6'), 'x': ()}
+Flow Outputs: [{'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_3', 'y_7'), 'z': ('z_4', 'z_6'), 'x': ()}, {'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_3', 'y_7'), 'z': ('z_4', 'z_6'), 'x': ()}]
+
+Added successor to self.worklist 9: ('assign_var', 'x', 'u') with inputs: {'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_3', 'y_7'), 'z': ('z_4', 'z_6'), 'x': ()}
+Already in worklist
+Added successor to self.worklist 6: ('assign_op', 'z', 'z', '*', 'y') with inputs: {'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_3', 'y_7'), 'z': ('z_4', 'z_6'), 'x': ()}
+
+
+########## Running on line 6: ('assign_op', 'z', 'z', '*', 'y')
+kill set {'z_4', 'z_10'}
+gen set ('t_1', 'y_3', 'y_7', 'z_4', 'z_6')
+Flow Input: {'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_3', 'y_7'), 'z': ('z_4', 'z_6'), 'x': ()}
+Flow Outputs: [{'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_3', 'y_7'), 'z': ('t_1', 'y_3', 'y_7', 'z_6'), 'x': ()}]
+
+Added successor to self.worklist 7: ('assign_op', 'y', 'y', '-', 't') with inputs: {'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_3', 'y_7'), 'z': ('t_1', 'y_3', 'y_7', 'z_6'), 'x': ()}
+
+
+########## Running on line 7: ('assign_op', 'y', 'y', '-', 't')
+kill set {'y_3'}
+gen set ('t_1', 'y_3', 'y_7')
+Flow Input: {'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_3', 'y_7'), 'z': ('t_1', 'y_3', 'y_7', 'z_6'), 'x': ()}
+Flow Outputs: [{'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_7'), 'z': ('t_1', 'y_7', 'z_6'), 'x': ()}]
+
+Added successor to self.worklist 8: ('goto', 5) with inputs: {'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_7'), 'z': ('t_1', 'y_7', 'z_6'), 'x': ()}
+
+
+########## Running on line 8: ('goto', 5)
+Flow Input: {'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_7'), 'z': ('t_1', 'y_7', 'z_6'), 'x': ()}
+Flow Outputs: [{'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_7'), 'z': ('t_1', 'y_7', 'z_6'), 'x': ()}]
+
+Added successor to self.worklist 5: ('if_goto', 'y', '=', 0, 9) with inputs: {'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_3', 'y_7'), 'z': ('t_1', 'y_7', 'z_4', 'z_6'), 'x': ()}
+
+
+########## Running on line 5: ('if_goto', 'y', '=', 0, 9)
+Flow Input: {'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_3', 'y_7'), 'z': ('t_1', 'y_7', 'z_4', 'z_6'), 'x': ()}
+Flow Outputs: [{'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_3', 'y_7'), 'z': ('t_1', 'y_7', 'z_4', 'z_6'), 'x': ()}, {'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_3', 'y_7'), 'z': ('t_1', 'y_7', 'z_4', 'z_6'), 'x': ()}]
+
+Added successor to self.worklist 9: ('assign_var', 'x', 'u') with inputs: {'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_3', 'y_7'), 'z': ('t_1', 'y_7', 'z_4', 'z_6'), 'x': ()}
+Already in worklist
+Added successor to self.worklist 6: ('assign_op', 'z', 'z', '*', 'y') with inputs: {'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_3', 'y_7'), 'z': ('t_1', 'y_7', 'z_4', 'z_6'), 'x': ()}
+
+
+########## Running on line 6: ('assign_op', 'z', 'z', '*', 'y')
+kill set {'z_4', 'z_10'}
+gen set ('t_1', 'y_3', 'y_7', 'z_4', 'z_6')
+Flow Input: {'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_3', 'y_7'), 'z': ('t_1', 'y_7', 'z_4', 'z_6'), 'x': ()}
+Flow Outputs: [{'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_3', 'y_7'), 'z': ('t_1', 'y_3', 'y_7', 'z_6'), 'x': ()}]
+
+
+
+########## Running on line 9: ('assign_var', 'x', 'u')
+kill set set()
+gen set ('u_2', 'x_9')
+Flow Input: {'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_3', 'y_7'), 'z': ('t_1', 'y_7', 'z_4', 'z_6'), 'x': ()}
+Flow Outputs: [{'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_3', 'y_7'), 'z': ('t_1', 'y_7', 'z_4', 'z_6'), 'x': ('u_2', 'x_9')}]
+
+Added successor to self.worklist 10: ('assign_op', 'z', 'y', '/', 'x') with inputs: {'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_3', 'y_7'), 'z': ('t_1', 'y_7', 'z_4', 'z_6'), 'x': ('u_2', 'x_9')}
+Already in worklist
+
+
+########## Running on line 10: ('assign_op', 'z', 'y', '/', 'x')
+kill set {'z_4', 'z_6'}
+gen set ('t_1', 'u_2', 'x_9', 'y_3', 'y_7', 'z_10')
+Flow Input: {'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_3', 'y_7'), 'z': ('t_1', 'y_7', 'z_4', 'z_6'), 'x': ('u_2', 'x_9')}
+Flow Outputs: [{'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_3', 'y_7'), 'z': ('t_1', 'u_2', 'x_9', 'y_3', 'y_7', 'z_10'), 'x': ('u_2', 'x_9')}]
+
+Added successor to self.worklist 11: ('halt',) with inputs: {'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_3', 'y_7'), 'z': ('t_1', 'u_2', 'x_9', 'y_3', 'y_7', 'z_10'), 'x': ('u_2', 'x_9')}
+Already in worklist
+
+
+########## Running on line 11: ('halt',)
+Flow Input: {'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_3', 'y_7'), 'z': ('t_1', 'u_2', 'x_9', 'y_3', 'y_7', 'z_10'), 'x': ('u_2', 'x_9')}
+Flow Outputs: [{'t': ('t_1',), 'u': ('u_2',), 'y': ('t_1', 'y_3', 'y_7'), 'z': ('t_1', 'u_2', 'x_9', 'y_3', 'y_7', 'z_10'), 'x': ('u_2', 'x_9')}]
+
+instr | worklist                | abstract val                       
+---------------------------------------------------------------------
+0     | 1,2,3,4,5,6,7,8,9,10,11 | {}                                 
+1     | 2,3,4,5,6,7,8,9,10,11   | {t_1}                              
+2     | 3,4,5,6,7,8,9,10,11     | {u_2, t_1}                         
+3     | 4,5,6,7,8,9,10,11       | {y_3, u_2, t_1}                    
+4     | 5,6,7,8,9,10,11         | {z_4, y_3, u_2, t_1}               
+5     | 6,7,8,9,10,11           | {z_4, y_3, u_2, t_1}               
+6     | 7,8,9,10,11             | {y_3, z_6, u_2, t_1}               
+7     | 8,9,10,11               | {y_7, z_6, u_2, t_1}               
+8     | 9,10,11                 | {y_7, z_6, u_2, t_1}               
+5     | 9,10,11                 | {z_4, t_1, y_3, z_6, y_7, u_2}     
+6     | 9,10,11                 | {t_1, y_3, z_6, y_7, u_2}          
+7     | 9,10,11                 | {y_7, z_6, u_2, t_1}               
+8     | 9,10,11                 | {y_7, z_6, u_2, t_1}               
+5     | 9,10,11                 | {z_4, t_1, y_3, z_6, y_7, u_2}     
+6     | 9,10,11                 | {t_1, y_3, z_6, y_7, u_2}          
+9     | 10,11                   | {z_4, t_1, y_3, z_6, x_9, y_7, u_2}
+10    | 11                      | {z_10, t_1, y_3, x_9, y_7, u_2}    
+11    | empty                   | {z_10, t_1, y_3, x_9, y_7, u_2}    

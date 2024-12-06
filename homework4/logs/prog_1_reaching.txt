@@ -1,0 +1,45 @@
+reaching programs/prog_1.w3a
+Assignments: ['x_1', 'y_2', 'x_3']
+Initializing Line  1: ('assign_num', 'x', 1)
+Initializing Line  2: ('assign_num', 'y', 1)
+Initializing Line  3: ('assign_op', 'x', 'x', '-', 'y')
+Initializing Line  4: ('halt',)
+
+
+########## Running on line 1: ('assign_num', 'x', 1)
+Flow Input: {'x': (), 'y': ()}
+Flow Outputs: [{'x': ('x_1',), 'y': ()}]
+
+Added successor to self.worklist 2: ('assign_num', 'y', 1) with inputs: {'x': ('x_1',), 'y': ()}
+Already in worklist
+
+
+########## Running on line 2: ('assign_num', 'y', 1)
+Flow Input: {'x': ('x_1',), 'y': ()}
+Flow Outputs: [{'x': ('x_1',), 'y': ('y_2',)}]
+
+Added successor to self.worklist 3: ('assign_op', 'x', 'x', '-', 'y') with inputs: {'x': ('x_1',), 'y': ('y_2',)}
+Already in worklist
+
+
+########## Running on line 3: ('assign_op', 'x', 'x', '-', 'y')
+kill set {'x_1'}
+gen set ('x_1', 'x_3', 'y_2')
+Flow Input: {'x': ('x_1',), 'y': ('y_2',)}
+Flow Outputs: [{'x': ('x_3', 'y_2'), 'y': ('y_2',)}]
+
+Added successor to self.worklist 4: ('halt',) with inputs: {'x': ('x_3', 'y_2'), 'y': ('y_2',)}
+Already in worklist
+
+
+########## Running on line 4: ('halt',)
+Flow Input: {'x': ('x_3', 'y_2'), 'y': ('y_2',)}
+Flow Outputs: [{'x': ('x_3', 'y_2'), 'y': ('y_2',)}]
+
+instr | worklist | abstract val
+-------------------------------
+0     | 1,2,3,4  | {}          
+1     | 2,3,4    | {x_1}       
+2     | 3,4      | {y_2, x_1}  
+3     | 4        | {x_3, y_2}  
+4     | empty    | {x_3, y_2}  

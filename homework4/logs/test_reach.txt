@@ -1,0 +1,145 @@
+reaching programs/test_reach.w3a
+Assignments: ['y_1', 'z_2', 'z_4', 'y_5', 'y_7']
+Initializing Line  1: ('assign_num', 'y', 0)
+Initializing Line  2: ('assign_num', 'z', 1)
+Initializing Line  3: ('if_goto', 'y', '=', 0, 7)
+Initializing Line  4: ('assign_op', 'z', 'z', '*', 'y')
+Initializing Line  5: ('assign_var', 'y', 'y')
+Initializing Line  6: ('goto', 3)
+Initializing Line  7: ('assign_num', 'y', 0)
+Initializing Line  8: ('halt',)
+
+
+########## Running on line 1: ('assign_num', 'y', 0)
+Flow Input: {'y': (), 'z': ()}
+Flow Outputs: [{'y': ('y_1',), 'z': ()}]
+
+Added successor to self.worklist 2: ('assign_num', 'z', 1) with inputs: {'y': ('y_1',), 'z': ()}
+Already in worklist
+
+
+########## Running on line 2: ('assign_num', 'z', 1)
+Flow Input: {'y': ('y_1',), 'z': ()}
+Flow Outputs: [{'y': ('y_1',), 'z': ('z_2',)}]
+
+Added successor to self.worklist 3: ('if_goto', 'y', '=', 0, 7) with inputs: {'y': ('y_1',), 'z': ('z_2',)}
+Already in worklist
+
+
+########## Running on line 3: ('if_goto', 'y', '=', 0, 7)
+Flow Input: {'y': ('y_1',), 'z': ('z_2',)}
+Flow Outputs: [{'y': ('y_1',), 'z': ('z_2',)}, {'y': ('y_1',), 'z': ('z_2',)}]
+
+Added successor to self.worklist 7: ('assign_num', 'y', 0) with inputs: {'y': ('y_1',), 'z': ('z_2',)}
+Already in worklist
+Added successor to self.worklist 4: ('assign_op', 'z', 'z', '*', 'y') with inputs: {'y': ('y_1',), 'z': ('z_2',)}
+Already in worklist
+
+
+########## Running on line 4: ('assign_op', 'z', 'z', '*', 'y')
+kill set {'z_2'}
+gen set ('y_1', 'z_2', 'z_4')
+Flow Input: {'y': ('y_1',), 'z': ('z_2',)}
+Flow Outputs: [{'y': ('y_1',), 'z': ('y_1', 'z_4')}]
+
+Added successor to self.worklist 5: ('assign_var', 'y', 'y') with inputs: {'y': ('y_1',), 'z': ('y_1', 'z_4')}
+Already in worklist
+
+
+########## Running on line 5: ('assign_var', 'y', 'y')
+kill set {'y_1', 'y_7'}
+gen set ('y_1', 'y_5')
+Flow Input: {'y': ('y_1',), 'z': ('y_1', 'z_4')}
+Flow Outputs: [{'y': ('y_5',), 'z': ('z_4',)}]
+
+Added successor to self.worklist 6: ('goto', 3) with inputs: {'y': ('y_5',), 'z': ('z_4',)}
+Already in worklist
+
+
+########## Running on line 6: ('goto', 3)
+Flow Input: {'y': ('y_5',), 'z': ('z_4',)}
+Flow Outputs: [{'y': ('y_5',), 'z': ('z_4',)}]
+
+Added successor to self.worklist 3: ('if_goto', 'y', '=', 0, 7) with inputs: {'y': ('y_1', 'y_5'), 'z': ('z_2', 'z_4')}
+
+
+########## Running on line 3: ('if_goto', 'y', '=', 0, 7)
+Flow Input: {'y': ('y_1', 'y_5'), 'z': ('z_2', 'z_4')}
+Flow Outputs: [{'y': ('y_1', 'y_5'), 'z': ('z_2', 'z_4')}, {'y': ('y_1', 'y_5'), 'z': ('z_2', 'z_4')}]
+
+Added successor to self.worklist 7: ('assign_num', 'y', 0) with inputs: {'y': ('y_1', 'y_5'), 'z': ('z_2', 'z_4')}
+Already in worklist
+Added successor to self.worklist 4: ('assign_op', 'z', 'z', '*', 'y') with inputs: {'y': ('y_1', 'y_5'), 'z': ('z_2', 'z_4')}
+
+
+########## Running on line 4: ('assign_op', 'z', 'z', '*', 'y')
+kill set {'z_2'}
+gen set ('y_1', 'y_5', 'z_2', 'z_4')
+Flow Input: {'y': ('y_1', 'y_5'), 'z': ('z_2', 'z_4')}
+Flow Outputs: [{'y': ('y_1', 'y_5'), 'z': ('y_1', 'y_5', 'z_4')}]
+
+Added successor to self.worklist 5: ('assign_var', 'y', 'y') with inputs: {'y': ('y_1', 'y_5'), 'z': ('y_1', 'y_5', 'z_4')}
+
+
+########## Running on line 5: ('assign_var', 'y', 'y')
+kill set {'y_1', 'y_7'}
+gen set ('y_1', 'y_5')
+Flow Input: {'y': ('y_1', 'y_5'), 'z': ('y_1', 'y_5', 'z_4')}
+Flow Outputs: [{'y': ('y_5',), 'z': ('y_5', 'z_4')}]
+
+Added successor to self.worklist 6: ('goto', 3) with inputs: {'y': ('y_5',), 'z': ('y_5', 'z_4')}
+
+
+########## Running on line 6: ('goto', 3)
+Flow Input: {'y': ('y_5',), 'z': ('y_5', 'z_4')}
+Flow Outputs: [{'y': ('y_5',), 'z': ('y_5', 'z_4')}]
+
+Added successor to self.worklist 3: ('if_goto', 'y', '=', 0, 7) with inputs: {'y': ('y_1', 'y_5'), 'z': ('y_5', 'z_2', 'z_4')}
+
+
+########## Running on line 3: ('if_goto', 'y', '=', 0, 7)
+Flow Input: {'y': ('y_1', 'y_5'), 'z': ('y_5', 'z_2', 'z_4')}
+Flow Outputs: [{'y': ('y_1', 'y_5'), 'z': ('y_5', 'z_2', 'z_4')}, {'y': ('y_1', 'y_5'), 'z': ('y_5', 'z_2', 'z_4')}]
+
+Added successor to self.worklist 7: ('assign_num', 'y', 0) with inputs: {'y': ('y_1', 'y_5'), 'z': ('y_5', 'z_2', 'z_4')}
+Already in worklist
+Added successor to self.worklist 4: ('assign_op', 'z', 'z', '*', 'y') with inputs: {'y': ('y_1', 'y_5'), 'z': ('y_5', 'z_2', 'z_4')}
+
+
+########## Running on line 4: ('assign_op', 'z', 'z', '*', 'y')
+kill set {'z_2'}
+gen set ('y_1', 'y_5', 'z_2', 'z_4')
+Flow Input: {'y': ('y_1', 'y_5'), 'z': ('y_5', 'z_2', 'z_4')}
+Flow Outputs: [{'y': ('y_1', 'y_5'), 'z': ('y_1', 'y_5', 'z_4')}]
+
+
+
+########## Running on line 7: ('assign_num', 'y', 0)
+Flow Input: {'y': ('y_1', 'y_5'), 'z': ('y_5', 'z_2', 'z_4')}
+Flow Outputs: [{'y': ('y_7',), 'z': ('y_5', 'z_2', 'z_4')}]
+
+Added successor to self.worklist 8: ('halt',) with inputs: {'y': ('y_7',), 'z': ('y_5', 'z_2', 'z_4')}
+Already in worklist
+
+
+########## Running on line 8: ('halt',)
+Flow Input: {'y': ('y_7',), 'z': ('y_5', 'z_2', 'z_4')}
+Flow Outputs: [{'y': ('y_7',), 'z': ('y_5', 'z_2', 'z_4')}]
+
+instr | worklist        | abstract val        
+----------------------------------------------
+0     | 1,2,3,4,5,6,7,8 | {}                  
+1     | 2,3,4,5,6,7,8   | {y_1}               
+2     | 3,4,5,6,7,8     | {y_1, z_2}          
+3     | 4,5,6,7,8       | {y_1, z_2}          
+4     | 5,6,7,8         | {y_1, z_4}          
+5     | 6,7,8           | {y_5, z_4}          
+6     | 7,8             | {y_5, z_4}          
+3     | 7,8             | {y_1, y_5, z_2, z_4}
+4     | 7,8             | {y_1, y_5, z_4}     
+5     | 7,8             | {y_5, z_4}          
+6     | 7,8             | {y_5, z_4}          
+3     | 7,8             | {y_1, y_5, z_2, z_4}
+4     | 7,8             | {y_1, y_5, z_4}     
+7     | 8               | {y_5, y_7, z_2, z_4}
+8     | empty           | {y_5, y_7, z_2, z_4}

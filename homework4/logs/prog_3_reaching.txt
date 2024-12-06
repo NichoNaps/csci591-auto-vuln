@@ -1,0 +1,125 @@
+reaching programs/prog_3.w3a
+Assignments: ['t_1', 'x_2', 'y_3', 'y_5', 'x_6', 'x_8']
+Initializing Line  1: ('assign_num', 't', 1)
+Initializing Line  2: ('assign_num', 'x', 10)
+Initializing Line  3: ('assign_num', 'y', 0)
+Initializing Line  4: ('if_goto', 'x', '=', 0, 8)
+Initializing Line  5: ('assign_num', 'y', 1)
+Initializing Line  6: ('assign_op', 'x', 'x', '-', 't')
+Initializing Line  7: ('goto', 4)
+Initializing Line  8: ('assign_var', 'x', 'y')
+Initializing Line  9: ('halt',)
+
+
+########## Running on line 1: ('assign_num', 't', 1)
+Flow Input: {'t': (), 'x': (), 'y': ()}
+Flow Outputs: [{'t': ('t_1',), 'x': (), 'y': ()}]
+
+Added successor to self.worklist 2: ('assign_num', 'x', 10) with inputs: {'t': ('t_1',), 'x': (), 'y': ()}
+Already in worklist
+
+
+########## Running on line 2: ('assign_num', 'x', 10)
+Flow Input: {'t': ('t_1',), 'x': (), 'y': ()}
+Flow Outputs: [{'t': ('t_1',), 'x': ('x_2',), 'y': ()}]
+
+Added successor to self.worklist 3: ('assign_num', 'y', 0) with inputs: {'t': ('t_1',), 'x': ('x_2',), 'y': ()}
+Already in worklist
+
+
+########## Running on line 3: ('assign_num', 'y', 0)
+Flow Input: {'t': ('t_1',), 'x': ('x_2',), 'y': ()}
+Flow Outputs: [{'t': ('t_1',), 'x': ('x_2',), 'y': ('y_3',)}]
+
+Added successor to self.worklist 4: ('if_goto', 'x', '=', 0, 8) with inputs: {'t': ('t_1',), 'x': ('x_2',), 'y': ('y_3',)}
+Already in worklist
+
+
+########## Running on line 4: ('if_goto', 'x', '=', 0, 8)
+Flow Input: {'t': ('t_1',), 'x': ('x_2',), 'y': ('y_3',)}
+Flow Outputs: [{'t': ('t_1',), 'x': ('x_2',), 'y': ('y_3',)}, {'t': ('t_1',), 'x': ('x_2',), 'y': ('y_3',)}]
+
+Added successor to self.worklist 8: ('assign_var', 'x', 'y') with inputs: {'t': ('t_1',), 'x': ('x_2',), 'y': ('y_3',)}
+Already in worklist
+Added successor to self.worklist 5: ('assign_num', 'y', 1) with inputs: {'t': ('t_1',), 'x': ('x_2',), 'y': ('y_3',)}
+Already in worklist
+
+
+########## Running on line 5: ('assign_num', 'y', 1)
+Flow Input: {'t': ('t_1',), 'x': ('x_2',), 'y': ('y_3',)}
+Flow Outputs: [{'t': ('t_1',), 'x': ('x_2',), 'y': ('y_5',)}]
+
+Added successor to self.worklist 6: ('assign_op', 'x', 'x', '-', 't') with inputs: {'t': ('t_1',), 'x': ('x_2',), 'y': ('y_5',)}
+Already in worklist
+
+
+########## Running on line 6: ('assign_op', 'x', 'x', '-', 't')
+kill set {'x_2', 'x_8'}
+gen set ('t_1', 'x_2', 'x_6')
+Flow Input: {'t': ('t_1',), 'x': ('x_2',), 'y': ('y_5',)}
+Flow Outputs: [{'t': ('t_1',), 'x': ('t_1', 'x_6'), 'y': ('y_5',)}]
+
+Added successor to self.worklist 7: ('goto', 4) with inputs: {'t': ('t_1',), 'x': ('t_1', 'x_6'), 'y': ('y_5',)}
+Already in worklist
+
+
+########## Running on line 7: ('goto', 4)
+Flow Input: {'t': ('t_1',), 'x': ('t_1', 'x_6'), 'y': ('y_5',)}
+Flow Outputs: [{'t': ('t_1',), 'x': ('t_1', 'x_6'), 'y': ('y_5',)}]
+
+Added successor to self.worklist 4: ('if_goto', 'x', '=', 0, 8) with inputs: {'t': ('t_1',), 'x': ('t_1', 'x_2', 'x_6'), 'y': ('y_3', 'y_5')}
+
+
+########## Running on line 4: ('if_goto', 'x', '=', 0, 8)
+Flow Input: {'t': ('t_1',), 'x': ('t_1', 'x_2', 'x_6'), 'y': ('y_3', 'y_5')}
+Flow Outputs: [{'t': ('t_1',), 'x': ('t_1', 'x_2', 'x_6'), 'y': ('y_3', 'y_5')}, {'t': ('t_1',), 'x': ('t_1', 'x_2', 'x_6'), 'y': ('y_3', 'y_5')}]
+
+Added successor to self.worklist 8: ('assign_var', 'x', 'y') with inputs: {'t': ('t_1',), 'x': ('t_1', 'x_2', 'x_6'), 'y': ('y_3', 'y_5')}
+Already in worklist
+Added successor to self.worklist 5: ('assign_num', 'y', 1) with inputs: {'t': ('t_1',), 'x': ('t_1', 'x_2', 'x_6'), 'y': ('y_3', 'y_5')}
+
+
+########## Running on line 5: ('assign_num', 'y', 1)
+Flow Input: {'t': ('t_1',), 'x': ('t_1', 'x_2', 'x_6'), 'y': ('y_3', 'y_5')}
+Flow Outputs: [{'t': ('t_1',), 'x': ('t_1', 'x_2', 'x_6'), 'y': ('y_5',)}]
+
+Added successor to self.worklist 6: ('assign_op', 'x', 'x', '-', 't') with inputs: {'t': ('t_1',), 'x': ('t_1', 'x_2', 'x_6'), 'y': ('y_5',)}
+
+
+########## Running on line 6: ('assign_op', 'x', 'x', '-', 't')
+kill set {'x_2', 'x_8'}
+gen set ('t_1', 'x_2', 'x_6')
+Flow Input: {'t': ('t_1',), 'x': ('t_1', 'x_2', 'x_6'), 'y': ('y_5',)}
+Flow Outputs: [{'t': ('t_1',), 'x': ('t_1', 'x_6'), 'y': ('y_5',)}]
+
+
+
+########## Running on line 8: ('assign_var', 'x', 'y')
+kill set {'x_2', 'x_6'}
+gen set ('x_8', 'y_3', 'y_5')
+Flow Input: {'t': ('t_1',), 'x': ('t_1', 'x_2', 'x_6'), 'y': ('y_3', 'y_5')}
+Flow Outputs: [{'t': ('t_1',), 'x': ('x_8', 'y_3', 'y_5'), 'y': ('y_3', 'y_5')}]
+
+Added successor to self.worklist 9: ('halt',) with inputs: {'t': ('t_1',), 'x': ('x_8', 'y_3', 'y_5'), 'y': ('y_3', 'y_5')}
+Already in worklist
+
+
+########## Running on line 9: ('halt',)
+Flow Input: {'t': ('t_1',), 'x': ('x_8', 'y_3', 'y_5'), 'y': ('y_3', 'y_5')}
+Flow Outputs: [{'t': ('t_1',), 'x': ('x_8', 'y_3', 'y_5'), 'y': ('y_3', 'y_5')}]
+
+instr | worklist          | abstract val             
+-----------------------------------------------------
+0     | 1,2,3,4,5,6,7,8,9 | {}                       
+1     | 2,3,4,5,6,7,8,9   | {t_1}                    
+2     | 3,4,5,6,7,8,9     | {x_2, t_1}               
+3     | 4,5,6,7,8,9       | {x_2, t_1, y_3}          
+4     | 5,6,7,8,9         | {x_2, t_1, y_3}          
+5     | 6,7,8,9           | {y_5, x_2, t_1}          
+6     | 7,8,9             | {y_5, t_1, x_6}          
+7     | 8,9               | {y_5, t_1, x_6}          
+4     | 8,9               | {y_5, t_1, y_3, x_2, x_6}
+5     | 8,9               | {y_5, x_2, t_1, x_6}     
+6     | 8,9               | {y_5, t_1, x_6}          
+8     | 9                 | {y_3, y_5, t_1, x_8}     
+9     | empty             | {y_3, y_5, t_1, x_8}     

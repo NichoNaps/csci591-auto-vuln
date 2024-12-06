@@ -39,12 +39,6 @@ Flow Outputs: [{'x': 'P'}]
 Added successor to self.worklist 2: ('if_goto', 'x', '<', 0, 5) with inputs: {'x': 'TOP'}
 
 
-########## Running on line 5: ('halt',)
-Flow Input: {'x': 'N'}
-Flow Outputs: [{'x': 'N'}]
-
-
-
 ########## Running on line 2: ('if_goto', 'x', '<', 0, 5)
 Flow Input: {'x': 'TOP'}
 Flow Outputs: [{'x': 'N'}, {'x': 'P'}]
@@ -56,13 +50,19 @@ Added successor to self.worklist 3: ('assign_num', 'x', 1) with inputs: {'x': 'T
 Flow Input: {'x': 'TOP'}
 Flow Outputs: [{'x': 'P'}]
 
-instr | worklist  | abstract val            
---------------------------------------------
-0     | 1,2,3,4,5 | {'x': 'BOTTOM'}         
-1     | 2,3,4,5   | [{'x': 'Z'}]            
-2     | 3,4,5     | [{'x': 'N'}, {'x': 'Z'}]
-3     | 4,5       | [{'x': 'P'}]            
-4     | 5         | [{'x': 'P'}]            
-5     | 2         | [{'x': 'N'}]            
-2     | empty     | [{'x': 'N'}, {'x': 'P'}]
-3     | empty     | [{'x': 'P'}]            
+
+
+########## Running on line 5: ('halt',)
+Flow Input: {'x': 'N'}
+Flow Outputs: [{'x': 'N'}]
+
+instr | worklist  | abstract val 
+---------------------------------
+0     | 1,2,3,4,5 | x->BOTTOM    
+1     | 2,3,4,5   | x->Z         
+2     | 3,4,5     | x->N AND x->Z
+3     | 4,5       | x->P         
+4     | 5         | x->P         
+2     | 5         | x->N AND x->P
+3     | 5         | x->P         
+5     | empty     | x->N         
