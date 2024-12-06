@@ -15,12 +15,10 @@ def run_int_sign_analysis(program: Program):
         ('N', 'TOP'),
     ])
 
-    # test with zero analysis, this is missing a lot of the operations but it works on prog_1.w3a
     # apply node.instruction using node.inputs and save the result in node.output
     def flow_sign_evaluation(line_num, instruction, state) -> list[dict[str, str]]:
         outputs = state.copy()
 
-        # AN EXCUSE TO USE PYTHON PATTERN MATCHING FINALLLLYYYY!!!!!!!! :)
         match instruction:
 
             # this returns two resulting states for true and false case
@@ -32,13 +30,16 @@ def run_int_sign_analysis(program: Program):
                 # If x = 0 then true means x = Z else x = N
                 if op == '=':
                     outputsTrue[var] = 'Z'
-                    outputsFalse[var] = 'N'
+                    outputsFalse[var] = 'TOP'
 
                 elif op == '<':
                     outputsTrue[var] = 'N'
 
-                    if state[var] != 'Z': #@TODO is this right?? only coerce to TOP if it isn't zero?
-                        outputsFalse[var] = 'TOP'
+                    if state[var] != 'Z':
+                        outputsFalse[var] = 'P'
+                    else:
+                        outputsFalse[var] = 'Z'
+
 
                 return [outputsTrue, outputsFalse]
 
@@ -138,7 +139,8 @@ def run_int_sign_analysis(program: Program):
 
     worklist = WorklistAlgo(program, domain, flow_sign_evaluation)
     worklist.run()
-    worklist.printStats()
+
+    output = worklist.printStats()
 
 
 if __name__ == '__main__':

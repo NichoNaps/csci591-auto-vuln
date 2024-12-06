@@ -5,9 +5,7 @@ from int_sign_analysis import run_int_sign_analysis
 from reach_analysis import run_reach_analysis
 from parser import Program
 
-
 if __name__ == '__main__':
-
     parser = argparse.ArgumentParser(prog='run',description='')
     parser.add_argument('analysis', choices=['reaching', 'signed'], help='flow analysis mode')
     parser.add_argument('path', type=Path, help='specify path to w3a program')  

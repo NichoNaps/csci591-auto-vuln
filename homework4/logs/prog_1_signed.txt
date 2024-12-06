@@ -1,0 +1,1 @@
+signed clearprograms/prog_1.w3a
