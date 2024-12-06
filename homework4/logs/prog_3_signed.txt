@@ -1,0 +1,124 @@
+signed programs/prog_3.w3a
+Initializing Line  1: ('assign_num', 't', 1)
+Initializing Line  2: ('assign_num', 'x', 10)
+Initializing Line  3: ('assign_num', 'y', 0)
+Initializing Line  4: ('if_goto', 'x', '=', 0, 8)
+Initializing Line  5: ('assign_num', 'y', 1)
+Initializing Line  6: ('assign_op', 'x', 'x', '-', 't')
+Initializing Line  7: ('goto', 4)
+Initializing Line  8: ('assign_var', 'x', 'y')
+Initializing Line  9: ('halt',)
+
+
+########## Running on line 1: ('assign_num', 't', 1)
+Flow Input: {'t': 'BOTTOM', 'x': 'BOTTOM', 'y': 'BOTTOM'}
+Flow Outputs: [{'t': 'P', 'x': 'BOTTOM', 'y': 'BOTTOM'}]
+
+Added successor to self.worklist 2: ('assign_num', 'x', 10) with inputs: {'t': 'P', 'x': 'BOTTOM', 'y': 'BOTTOM'}
+Already in worklist
+
+
+########## Running on line 2: ('assign_num', 'x', 10)
+Flow Input: {'t': 'P', 'x': 'BOTTOM', 'y': 'BOTTOM'}
+Flow Outputs: [{'t': 'P', 'x': 'P', 'y': 'BOTTOM'}]
+
+Added successor to self.worklist 3: ('assign_num', 'y', 0) with inputs: {'t': 'P', 'x': 'P', 'y': 'BOTTOM'}
+Already in worklist
+
+
+########## Running on line 3: ('assign_num', 'y', 0)
+Flow Input: {'t': 'P', 'x': 'P', 'y': 'BOTTOM'}
+Flow Outputs: [{'t': 'P', 'x': 'P', 'y': 'Z'}]
+
+Added successor to self.worklist 4: ('if_goto', 'x', '=', 0, 8) with inputs: {'t': 'P', 'x': 'P', 'y': 'Z'}
+Already in worklist
+
+
+########## Running on line 4: ('if_goto', 'x', '=', 0, 8)
+Flow Input: {'t': 'P', 'x': 'P', 'y': 'Z'}
+Flow Outputs: [{'t': 'P', 'x': 'Z', 'y': 'Z'}, {'t': 'P', 'x': 'TOP', 'y': 'Z'}]
+
+Added successor to self.worklist 8: ('assign_var', 'x', 'y') with inputs: {'t': 'P', 'x': 'Z', 'y': 'Z'}
+Already in worklist
+Added successor to self.worklist 5: ('assign_num', 'y', 1) with inputs: {'t': 'P', 'x': 'TOP', 'y': 'Z'}
+Already in worklist
+
+
+########## Running on line 5: ('assign_num', 'y', 1)
+Flow Input: {'t': 'P', 'x': 'TOP', 'y': 'Z'}
+Flow Outputs: [{'t': 'P', 'x': 'TOP', 'y': 'P'}]
+
+Added successor to self.worklist 6: ('assign_op', 'x', 'x', '-', 't') with inputs: {'t': 'P', 'x': 'TOP', 'y': 'P'}
+Already in worklist
+
+
+########## Running on line 6: ('assign_op', 'x', 'x', '-', 't')
+Flow Input: {'t': 'P', 'x': 'TOP', 'y': 'P'}
+Flow Outputs: [{'t': 'P', 'x': 'TOP', 'y': 'P'}]
+
+Added successor to self.worklist 7: ('goto', 4) with inputs: {'t': 'P', 'x': 'TOP', 'y': 'P'}
+Already in worklist
+
+
+########## Running on line 7: ('goto', 4)
+Flow Input: {'t': 'P', 'x': 'TOP', 'y': 'P'}
+Flow Outputs: [{'t': 'P', 'x': 'TOP', 'y': 'P'}]
+
+Added successor to self.worklist 4: ('if_goto', 'x', '=', 0, 8) with inputs: {'t': 'P', 'x': 'TOP', 'y': 'TOP'}
+
+
+########## Running on line 8: ('assign_var', 'x', 'y')
+Flow Input: {'t': 'P', 'x': 'Z', 'y': 'Z'}
+Flow Outputs: [{'t': 'P', 'x': 'Z', 'y': 'Z'}]
+
+Added successor to self.worklist 9: ('halt',) with inputs: {'t': 'P', 'x': 'Z', 'y': 'Z'}
+Already in worklist
+
+
+########## Running on line 9: ('halt',)
+Flow Input: {'t': 'P', 'x': 'Z', 'y': 'Z'}
+Flow Outputs: [{'t': 'P', 'x': 'Z', 'y': 'Z'}]
+
+
+
+########## Running on line 4: ('if_goto', 'x', '=', 0, 8)
+Flow Input: {'t': 'P', 'x': 'TOP', 'y': 'TOP'}
+Flow Outputs: [{'t': 'P', 'x': 'Z', 'y': 'TOP'}, {'t': 'P', 'x': 'TOP', 'y': 'TOP'}]
+
+Added successor to self.worklist 8: ('assign_var', 'x', 'y') with inputs: {'t': 'P', 'x': 'Z', 'y': 'TOP'}
+Added successor to self.worklist 5: ('assign_num', 'y', 1) with inputs: {'t': 'P', 'x': 'TOP', 'y': 'TOP'}
+
+
+########## Running on line 8: ('assign_var', 'x', 'y')
+Flow Input: {'t': 'P', 'x': 'Z', 'y': 'TOP'}
+Flow Outputs: [{'t': 'P', 'x': 'TOP', 'y': 'TOP'}]
+
+Added successor to self.worklist 9: ('halt',) with inputs: {'t': 'P', 'x': 'TOP', 'y': 'TOP'}
+
+
+########## Running on line 5: ('assign_num', 'y', 1)
+Flow Input: {'t': 'P', 'x': 'TOP', 'y': 'TOP'}
+Flow Outputs: [{'t': 'P', 'x': 'TOP', 'y': 'P'}]
+
+
+
+########## Running on line 9: ('halt',)
+Flow Input: {'t': 'P', 'x': 'TOP', 'y': 'TOP'}
+Flow Outputs: [{'t': 'P', 'x': 'TOP', 'y': 'TOP'}]
+
+instr | worklist          | abstract val                                                          
+--------------------------------------------------------------------------------------------------
+0     | 1,2,3,4,5,6,7,8,9 | {'t': 'BOTTOM', 'x': 'BOTTOM', 'y': 'BOTTOM'}                         
+1     | 2,3,4,5,6,7,8,9   | [{'t': 'P', 'x': 'BOTTOM', 'y': 'BOTTOM'}]                            
+2     | 3,4,5,6,7,8,9     | [{'t': 'P', 'x': 'P', 'y': 'BOTTOM'}]                                 
+3     | 4,5,6,7,8,9       | [{'t': 'P', 'x': 'P', 'y': 'Z'}]                                      
+4     | 5,6,7,8,9         | [{'t': 'P', 'x': 'Z', 'y': 'Z'}, {'t': 'P', 'x': 'TOP', 'y': 'Z'}]    
+5     | 6,7,8,9           | [{'t': 'P', 'x': 'TOP', 'y': 'P'}]                                    
+6     | 7,8,9             | [{'t': 'P', 'x': 'TOP', 'y': 'P'}]                                    
+7     | 8,9               | [{'t': 'P', 'x': 'TOP', 'y': 'P'}]                                    
+8     | 9,4               | [{'t': 'P', 'x': 'Z', 'y': 'Z'}]                                      
+9     | 4                 | [{'t': 'P', 'x': 'Z', 'y': 'Z'}]                                      
+4     | empty             | [{'t': 'P', 'x': 'Z', 'y': 'TOP'}, {'t': 'P', 'x': 'TOP', 'y': 'TOP'}]
+8     | 5                 | [{'t': 'P', 'x': 'TOP', 'y': 'TOP'}]                                  
+5     | 9                 | [{'t': 'P', 'x': 'TOP', 'y': 'P'}]                                    
+9     | empty             | [{'t': 'P', 'x': 'TOP', 'y': 'TOP'}]                                  

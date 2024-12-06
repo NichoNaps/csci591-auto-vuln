@@ -1,1 +1,42 @@
-signed clearprograms/prog_1.w3a
+signed programs/prog_1.w3a
+Initializing Line  1: ('assign_num', 'x', 1)
+Initializing Line  2: ('assign_num', 'y', 1)
+Initializing Line  3: ('assign_op', 'x', 'x', '-', 'y')
+Initializing Line  4: ('halt',)
+
+
+########## Running on line 1: ('assign_num', 'x', 1)
+Flow Input: {'x': 'BOTTOM', 'y': 'BOTTOM'}
+Flow Outputs: [{'x': 'P', 'y': 'BOTTOM'}]
+
+Added successor to self.worklist 2: ('assign_num', 'y', 1) with inputs: {'x': 'P', 'y': 'BOTTOM'}
+Already in worklist
+
+
+########## Running on line 2: ('assign_num', 'y', 1)
+Flow Input: {'x': 'P', 'y': 'BOTTOM'}
+Flow Outputs: [{'x': 'P', 'y': 'P'}]
+
+Added successor to self.worklist 3: ('assign_op', 'x', 'x', '-', 'y') with inputs: {'x': 'P', 'y': 'P'}
+Already in worklist
+
+
+########## Running on line 3: ('assign_op', 'x', 'x', '-', 'y')
+Flow Input: {'x': 'P', 'y': 'P'}
+Flow Outputs: [{'x': 'TOP', 'y': 'P'}]
+
+Added successor to self.worklist 4: ('halt',) with inputs: {'x': 'TOP', 'y': 'P'}
+Already in worklist
+
+
+########## Running on line 4: ('halt',)
+Flow Input: {'x': 'TOP', 'y': 'P'}
+Flow Outputs: [{'x': 'TOP', 'y': 'P'}]
+
+instr | worklist | abstract val                  
+-------------------------------------------------
+0     | 1,2,3,4  | {'x': 'BOTTOM', 'y': 'BOTTOM'}
+1     | 2,3,4    | [{'x': 'P', 'y': 'BOTTOM'}]   
+2     | 3,4      | [{'x': 'P', 'y': 'P'}]        
+3     | 4        | [{'x': 'TOP', 'y': 'P'}]      
+4     | empty    | [{'x': 'TOP', 'y': 'P'}]      

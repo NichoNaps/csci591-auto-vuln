@@ -1,0 +1,144 @@
+signed programs/prog_4.w3a
+Initializing Line  1: ('assign_num', 't', 1)
+Initializing Line  2: ('assign_num', 'u', -1)
+Initializing Line  3: ('assign_var', 'y', 'x')
+Initializing Line  4: ('assign_num', 'z', 1)
+Initializing Line  5: ('if_goto', 'y', '=', 0, 9)
+Initializing Line  6: ('assign_op', 'z', 'z', '*', 'y')
+Initializing Line  7: ('assign_op', 'y', 'y', '-', 't')
+Initializing Line  8: ('goto', 5)
+Initializing Line  9: ('assign_var', 'x', 'u')
+Initializing Line  10: ('assign_op', 'z', 'y', '/', 'x')
+Initializing Line  11: ('halt',)
+
+
+########## Running on line 1: ('assign_num', 't', 1)
+Flow Input: {'t': 'BOTTOM', 'u': 'BOTTOM', 'y': 'BOTTOM', 'z': 'BOTTOM', 'x': 'BOTTOM'}
+Flow Outputs: [{'t': 'P', 'u': 'BOTTOM', 'y': 'BOTTOM', 'z': 'BOTTOM', 'x': 'BOTTOM'}]
+
+Added successor to self.worklist 2: ('assign_num', 'u', -1) with inputs: {'t': 'P', 'u': 'BOTTOM', 'y': 'BOTTOM', 'z': 'BOTTOM', 'x': 'BOTTOM'}
+Already in worklist
+
+
+########## Running on line 2: ('assign_num', 'u', -1)
+Flow Input: {'t': 'P', 'u': 'BOTTOM', 'y': 'BOTTOM', 'z': 'BOTTOM', 'x': 'BOTTOM'}
+Flow Outputs: [{'t': 'P', 'u': 'N', 'y': 'BOTTOM', 'z': 'BOTTOM', 'x': 'BOTTOM'}]
+
+Added successor to self.worklist 3: ('assign_var', 'y', 'x') with inputs: {'t': 'P', 'u': 'N', 'y': 'BOTTOM', 'z': 'BOTTOM', 'x': 'BOTTOM'}
+Already in worklist
+
+
+########## Running on line 3: ('assign_var', 'y', 'x')
+Flow Input: {'t': 'P', 'u': 'N', 'y': 'BOTTOM', 'z': 'BOTTOM', 'x': 'BOTTOM'}
+Flow Outputs: [{'t': 'P', 'u': 'N', 'y': 'BOTTOM', 'z': 'BOTTOM', 'x': 'BOTTOM'}]
+
+Added successor to self.worklist 4: ('assign_num', 'z', 1) with inputs: {'t': 'P', 'u': 'N', 'y': 'BOTTOM', 'z': 'BOTTOM', 'x': 'BOTTOM'}
+Already in worklist
+
+
+########## Running on line 4: ('assign_num', 'z', 1)
+Flow Input: {'t': 'P', 'u': 'N', 'y': 'BOTTOM', 'z': 'BOTTOM', 'x': 'BOTTOM'}
+Flow Outputs: [{'t': 'P', 'u': 'N', 'y': 'BOTTOM', 'z': 'P', 'x': 'BOTTOM'}]
+
+Added successor to self.worklist 5: ('if_goto', 'y', '=', 0, 9) with inputs: {'t': 'P', 'u': 'N', 'y': 'BOTTOM', 'z': 'P', 'x': 'BOTTOM'}
+Already in worklist
+
+
+########## Running on line 5: ('if_goto', 'y', '=', 0, 9)
+Flow Input: {'t': 'P', 'u': 'N', 'y': 'BOTTOM', 'z': 'P', 'x': 'BOTTOM'}
+Flow Outputs: [{'t': 'P', 'u': 'N', 'y': 'Z', 'z': 'P', 'x': 'BOTTOM'}, {'t': 'P', 'u': 'N', 'y': 'TOP', 'z': 'P', 'x': 'BOTTOM'}]
+
+Added successor to self.worklist 9: ('assign_var', 'x', 'u') with inputs: {'t': 'P', 'u': 'N', 'y': 'Z', 'z': 'P', 'x': 'BOTTOM'}
+Already in worklist
+Added successor to self.worklist 6: ('assign_op', 'z', 'z', '*', 'y') with inputs: {'t': 'P', 'u': 'N', 'y': 'TOP', 'z': 'P', 'x': 'BOTTOM'}
+Already in worklist
+
+
+########## Running on line 6: ('assign_op', 'z', 'z', '*', 'y')
+Flow Input: {'t': 'P', 'u': 'N', 'y': 'TOP', 'z': 'P', 'x': 'BOTTOM'}
+Flow Outputs: [{'t': 'P', 'u': 'N', 'y': 'TOP', 'z': 'TOP', 'x': 'BOTTOM'}]
+
+Added successor to self.worklist 7: ('assign_op', 'y', 'y', '-', 't') with inputs: {'t': 'P', 'u': 'N', 'y': 'TOP', 'z': 'TOP', 'x': 'BOTTOM'}
+Already in worklist
+
+
+########## Running on line 7: ('assign_op', 'y', 'y', '-', 't')
+Flow Input: {'t': 'P', 'u': 'N', 'y': 'TOP', 'z': 'TOP', 'x': 'BOTTOM'}
+Flow Outputs: [{'t': 'P', 'u': 'N', 'y': 'TOP', 'z': 'TOP', 'x': 'BOTTOM'}]
+
+Added successor to self.worklist 8: ('goto', 5) with inputs: {'t': 'P', 'u': 'N', 'y': 'TOP', 'z': 'TOP', 'x': 'BOTTOM'}
+Already in worklist
+
+
+########## Running on line 8: ('goto', 5)
+Flow Input: {'t': 'P', 'u': 'N', 'y': 'TOP', 'z': 'TOP', 'x': 'BOTTOM'}
+Flow Outputs: [{'t': 'P', 'u': 'N', 'y': 'TOP', 'z': 'TOP', 'x': 'BOTTOM'}]
+
+Added successor to self.worklist 5: ('if_goto', 'y', '=', 0, 9) with inputs: {'t': 'P', 'u': 'N', 'y': 'TOP', 'z': 'TOP', 'x': 'BOTTOM'}
+
+
+########## Running on line 9: ('assign_var', 'x', 'u')
+Flow Input: {'t': 'P', 'u': 'N', 'y': 'Z', 'z': 'P', 'x': 'BOTTOM'}
+Flow Outputs: [{'t': 'P', 'u': 'N', 'y': 'Z', 'z': 'P', 'x': 'N'}]
+
+Added successor to self.worklist 10: ('assign_op', 'z', 'y', '/', 'x') with inputs: {'t': 'P', 'u': 'N', 'y': 'Z', 'z': 'P', 'x': 'N'}
+Already in worklist
+
+
+########## Running on line 10: ('assign_op', 'z', 'y', '/', 'x')
+Flow Input: {'t': 'P', 'u': 'N', 'y': 'Z', 'z': 'P', 'x': 'N'}
+Flow Outputs: [{'t': 'P', 'u': 'N', 'y': 'Z', 'z': 'TOP', 'x': 'N'}]
+
+Added successor to self.worklist 11: ('halt',) with inputs: {'t': 'P', 'u': 'N', 'y': 'Z', 'z': 'TOP', 'x': 'N'}
+Already in worklist
+
+
+########## Running on line 11: ('halt',)
+Flow Input: {'t': 'P', 'u': 'N', 'y': 'Z', 'z': 'TOP', 'x': 'N'}
+Flow Outputs: [{'t': 'P', 'u': 'N', 'y': 'Z', 'z': 'TOP', 'x': 'N'}]
+
+
+
+########## Running on line 5: ('if_goto', 'y', '=', 0, 9)
+Flow Input: {'t': 'P', 'u': 'N', 'y': 'TOP', 'z': 'TOP', 'x': 'BOTTOM'}
+Flow Outputs: [{'t': 'P', 'u': 'N', 'y': 'Z', 'z': 'TOP', 'x': 'BOTTOM'}, {'t': 'P', 'u': 'N', 'y': 'TOP', 'z': 'TOP', 'x': 'BOTTOM'}]
+
+Added successor to self.worklist 9: ('assign_var', 'x', 'u') with inputs: {'t': 'P', 'u': 'N', 'y': 'Z', 'z': 'TOP', 'x': 'BOTTOM'}
+Added successor to self.worklist 6: ('assign_op', 'z', 'z', '*', 'y') with inputs: {'t': 'P', 'u': 'N', 'y': 'TOP', 'z': 'TOP', 'x': 'BOTTOM'}
+
+
+########## Running on line 9: ('assign_var', 'x', 'u')
+Flow Input: {'t': 'P', 'u': 'N', 'y': 'Z', 'z': 'TOP', 'x': 'BOTTOM'}
+Flow Outputs: [{'t': 'P', 'u': 'N', 'y': 'Z', 'z': 'TOP', 'x': 'N'}]
+
+Added successor to self.worklist 10: ('assign_op', 'z', 'y', '/', 'x') with inputs: {'t': 'P', 'u': 'N', 'y': 'Z', 'z': 'TOP', 'x': 'N'}
+
+
+########## Running on line 6: ('assign_op', 'z', 'z', '*', 'y')
+Flow Input: {'t': 'P', 'u': 'N', 'y': 'TOP', 'z': 'TOP', 'x': 'BOTTOM'}
+Flow Outputs: [{'t': 'P', 'u': 'N', 'y': 'TOP', 'z': 'TOP', 'x': 'BOTTOM'}]
+
+
+
+########## Running on line 10: ('assign_op', 'z', 'y', '/', 'x')
+Flow Input: {'t': 'P', 'u': 'N', 'y': 'Z', 'z': 'TOP', 'x': 'N'}
+Flow Outputs: [{'t': 'P', 'u': 'N', 'y': 'Z', 'z': 'TOP', 'x': 'N'}]
+
+instr | worklist                | abstract val                                                                                                            
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+0     | 1,2,3,4,5,6,7,8,9,10,11 | {'t': 'BOTTOM', 'u': 'BOTTOM', 'y': 'BOTTOM', 'z': 'BOTTOM', 'x': 'BOTTOM'}                                             
+1     | 2,3,4,5,6,7,8,9,10,11   | [{'t': 'P', 'u': 'BOTTOM', 'y': 'BOTTOM', 'z': 'BOTTOM', 'x': 'BOTTOM'}]                                                
+2     | 3,4,5,6,7,8,9,10,11     | [{'t': 'P', 'u': 'N', 'y': 'BOTTOM', 'z': 'BOTTOM', 'x': 'BOTTOM'}]                                                     
+3     | 4,5,6,7,8,9,10,11       | [{'t': 'P', 'u': 'N', 'y': 'BOTTOM', 'z': 'BOTTOM', 'x': 'BOTTOM'}]                                                     
+4     | 5,6,7,8,9,10,11         | [{'t': 'P', 'u': 'N', 'y': 'BOTTOM', 'z': 'P', 'x': 'BOTTOM'}]                                                          
+5     | 6,7,8,9,10,11           | [{'t': 'P', 'u': 'N', 'y': 'Z', 'z': 'P', 'x': 'BOTTOM'}, {'t': 'P', 'u': 'N', 'y': 'TOP', 'z': 'P', 'x': 'BOTTOM'}]    
+6     | 7,8,9,10,11             | [{'t': 'P', 'u': 'N', 'y': 'TOP', 'z': 'TOP', 'x': 'BOTTOM'}]                                                           
+7     | 8,9,10,11               | [{'t': 'P', 'u': 'N', 'y': 'TOP':, 'z': 'TOP', 'x': 'BOTTOM'}]
+8     | 9,10,11                 | [{'t': 'P', 'u': 'N', 'y': 'TOP', 'z': 'TOP', 'x': 'BOTTOM'}]                                                           
+9     | 10,11,5                 | [{'t': 'P', 'u': 'N', 'y': 'Z', 'z': 'P', 'x': 'N'}]                                                                    
+10    | 11,5                    | [{'t': 'P', 'u': 'N', 'y': 'Z', 'z': 'TOP', 'x': 'N'}]                                                                  
+11    | 5                       | [{'t': 'P', 'u': 'N', 'y': 'Z', 'z': 'TOP', 'x': 'N'}]                                                                  
+5     | empty                   | [{'t': 'P', 'u': 'N', 'y': 'Z', 'z': 'TOP', 'x': 'BOTTOM'}, {'t': 'P', 'u': 'N', 'y': 'TOP', 'z': 'TOP', 'x': 'BOTTOM'}]
+9     | 6                       | [{'t': 'P', 'u': 'N', 'y': 'Z', 'z': 'TOP', 'x': 'N'}]                                                                  
+6     | 10                      | [{'t': 'P', 'u': 'N', 'y': 'TOP', 'z': 'TOP', 'x': 'BOTTOM'}]                                                           
+10    | empty                   | [{'t': 'P', 'u': 'N', 'y': 'Z', 'z': 'TOP', 'x': 'N'}]                                                                  
