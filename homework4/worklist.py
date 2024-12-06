@@ -74,7 +74,6 @@ class WorklistAlgo:
     
         # Stats metrics
         self.stats = []
-        #@TODO
     
 
     # return a string of the current worklist line numbers

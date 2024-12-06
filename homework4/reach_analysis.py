@@ -37,7 +37,6 @@ def run_reach_analysis(program: Program):
                 outputsTrue = outputs.copy()
                 outputsFalse = outputs.copy()
 
-                #@TODO
 
                 return [outputsTrue, outputsFalse]
 
@@ -90,7 +89,6 @@ def run_reach_analysis(program: Program):
 
     # domain.plot()
 
-    #@TODO do we need to do some inital set? what do we do in ifs???????
     worklist = WorklistAlgo(program, domain, flow_reach_analysis, BOTTOM=BOTTOM)
     worklist.run()
     worklist.printStats(formatAbstractVal=lambda outputs: "{" + ", ".join([v for v in set([val for d in outputs for vals in d.values() for val in vals])]) + "}")
