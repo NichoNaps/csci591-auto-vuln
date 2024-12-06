@@ -140,7 +140,7 @@ def run_int_sign_analysis(program: Program):
     worklist = WorklistAlgo(program, domain, flow_sign_evaluation)
     worklist.run()
 
-    output = worklist.printStats()
+    worklist.printStats(formatAbstractVal=lambda outputs: ",".join([" ".join([f"{key}->{value}" for key, value in state.items()]) for state in outputs]))
 
 
 if __name__ == '__main__':

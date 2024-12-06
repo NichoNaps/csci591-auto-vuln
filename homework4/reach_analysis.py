@@ -5,10 +5,6 @@ from worklist import WorklistAlgo
 # Page.29 https://cmu-program-analysis.github.io/2024/resources/program-analysis.pdf
 
 
-
-
-
-
 def run_reach_analysis(program: Program):
 
     varAssigns = []
@@ -32,6 +28,7 @@ def run_reach_analysis(program: Program):
     def flow_reach_analysis(line_num, instruction, state) -> list[dict[str, str]]:
         outputs = state.copy()
 
+
         match instruction:
 
             # this returns two resulting states for true and false case
@@ -51,28 +48,56 @@ def run_reach_analysis(program: Program):
                 outputs[var] = (f'{var}_{line_num}',)
 
             case ('assign_var', var, varA):
+                current = (f'{var}_{line_num}',)
 
                 # we assigned a var so append this assignment to the existing reachability of varA
-                outputs[var] = domain.join(state[varA], (f'{var}_{line_num}',)) # 
+                # print(f"{state[varA]} UNION {current}")
+                outputs[var] = domain.join(state[varA], current) 
+
+                # find all other places this vary is defined at
+                killll = set([vary for vary in varAssigns if vary.startswith(var) and vary != current[0]])
+
+                print('kill set', killll)
+                print('gen set', outputs[var])
+
+                # use kill set on all variables
+                for key, gen in outputs.items():
+                    outputs[key] = tuple(sorted(list(set(gen).difference(killll))))
+                # input(outputs[var])
             
             case ('assign_op', var, varA, op, varB):
+                current = (f'{var}_{line_num}',)
 
                 # Joing this var assignment with the reachabilities of varA and varB
-                outputs[var] = domain.join((f'{var}_{line_num}',), domain.join(state[varB], state[varA])) # Just take the union of our reachabilities
+                # print(f"{state[varA]} {state[varB]} UNION {current}")
+                outputs[var] = domain.join(current, domain.join(state[varB], state[varA])) # Just take the union of our reachabilities
+
+                # find all other places this vary is defined at
+                killll = set([vary for vary in varAssigns if vary.startswith(var) and vary != current[0]])
+
+                print('kill set', killll)
+                print('gen set', outputs[var])
+
+                # use kill set on all variables
+                for key, gen in outputs.items():
+                    outputs[key] = tuple(sorted(list(set(gen).difference(killll))))
+                # input(outputs[var])
+
         
 
         # return the one output
         return [outputs]
 
+    # domain.plot()
 
     #@TODO do we need to do some inital set? what do we do in ifs???????
     worklist = WorklistAlgo(program, domain, flow_reach_analysis, BOTTOM=BOTTOM)
     worklist.run()
-    worklist.printStats()
+    worklist.printStats(formatAbstractVal=lambda outputs: "{" + ", ".join([v for v in set([val for d in outputs for vals in d.values() for val in vals])]) + "}")
 
 
 if __name__ == '__main__':
 
-    run_reach_analysis(Program('programs/prog_1.w3a'))
+    run_reach_analysis(Program('programs/test_reach.w3a'))
 
 

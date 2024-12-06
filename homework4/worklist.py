@@ -81,15 +81,21 @@ class WorklistAlgo:
     def prettyWorklist(self) -> str:
         return ','.join([str(node.line_num) for node in self.worklist]) if len(self.worklist) > 0 else 'empty'
 
-    def printStats(self):
-        prettyPrintTable(['instr', 'worklist', 'abstract val'], self.stats)
+    def printStats(self, formatAbstractVal: callable = None):
+
+        # apply custom formatter
+        stats = [[row[0], row[1], row[2] if formatAbstractVal is None else formatAbstractVal(row[2])] for row in self.stats]
+
+        prettyPrintTable(['instr', 'worklist', 'abstract val'], stats)
+
+
+    # creates a new state dictionary with all variables initialized to BOTTOM 
+    def makeNewState(self):
+        return {varName:self.BOTTOM for varName in self.allVarNames}
+
 
     # Worklist algorithm based on page 25 of https://cmu-program-analysis.github.io/2024/resources/program-analysis.pdf
     def run(self):
-
-        # creates a new state dictionary with all variables initialized to BOTTOM 
-        def makeNewState():
-            return {varName:self.BOTTOM for varName in self.allVarNames}
 
 
         self.worklist: list[Node] = []
@@ -98,13 +104,13 @@ class WorklistAlgo:
         for node in self.allNodes.values():
             print('Initializing Line ', node)
 
-            node.input = makeNewState()
-            node.outputs = makeNewState()
+            node.input = self.makeNewState()
+            node.outputs = self.makeNewState()
             self.worklist.append(node)
 
         # self.allNodes[1].input = #initialDataflowInformation???
 
-        self.stats.append((0, self.prettyWorklist(), self.allNodes[1].input))
+        self.stats.append((0, self.prettyWorklist(), [self.allNodes[1].input]))
 
 
         while len(self.worklist) > 0:
@@ -141,7 +147,7 @@ class WorklistAlgo:
                     childNode.input = newInputs
 
                     if childNode not in self.worklist:
-                        self.worklist.append(childNode)
+                        self.worklist.insert(0, childNode)
                     else:
                         print("Already in worklist") # we can skip adding it if it is already in the worklist
                 

@@ -37,6 +37,8 @@ class AbstractDomain:
             try:
                 dist = nx.shortest_path_length(self.graph, typeA, node) + nx.shortest_path_length(self.graph, typeB, node)
 
+                # print(f"Found Super Type: {typeA} and {typeB} fit in {node} in {dist}")
+
                 if shortestDist is None or dist < shortestDist:
                     shortestDist = dist
                     superType = node
@@ -50,6 +52,7 @@ class AbstractDomain:
         if superType is None:
             raise Exception(f"Unsupported join between {typeA} and {typeB}")
 
+        # print("USING SUPER TYPE", superType)
         
         return superType
 
@@ -74,7 +77,7 @@ class AbstractDomain:
 
         plt.figure(figsize=(8, 6))
 
-        pos = nx.shell_layout(self.graph)  # Layout for better visualization
+        pos = nx.spring_layout(self.graph)  # Layout for better visualization
 
         # pos = nx.nx_agraph.graphviz_layout(self.graph, prog="dot") # use graphviz for its tree layout func
         nx.draw(self.graph, pos, with_labels=True, node_size=3000, node_color="powderblue")
@@ -87,17 +90,20 @@ import itertools
 
 # generate all possible subsets of varnames and their partial order rules
 def produceSetPartialOrderRules(allVarNames: list[str]):
+    allVarNames = sorted(allVarNames)
     rules = []
 
     for i in range(len(allVarNames)):
         for subset in itertools.combinations(allVarNames, i): 
             for subsetB in itertools.combinations(allVarNames, i + 1): # get the next largest subsets
 
+                # print(subset, subsetB)
+
                 # connect an empty subset as bottom
                 if len(subset) == 1:
                     rules.append((tuple(), tuple(subset)))
 
-                if set(subset).intersection(set(subsetB)):
+                if set(subset).issubset(set(subsetB)):
                     rules.append((tuple(subset), tuple(subsetB)))
 
     return tuple(), tuple(allVarNames), rules
