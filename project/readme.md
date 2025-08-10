@@ -1,3 +1,9 @@
+# Introduction
+This is the source code for our group's chosen final project in automated vulnerability discovery. In it, we use Llama2 a large language model via llamacpp to do static code analysis on datasets including:
+1) classify whether a snippet of code is vulnerable or not 
+2) classify what kind of vulnerability a code snippet is (CWE)
+
+See the full `Report.pdf` for reasoning, methodology, comparisons and results.
 
 # Setup
 
@@ -51,7 +57,7 @@ install llama-cpp-python
 
 
 
-Here is an example of a modern x86 cpu with AVX2 support on linux. Without this it took ~500ms per token, with it it took ~100ms per token so about 5x better. Most build environments should auto detect so you don't have to manually specify this many flags.
+Here is an example of a modern x86 cpu with AVX2 support on linux. Without this it took ~500ms per token, with it it took ~100ms per token so about 5x better. **Most build environments should auto detect** so you don't have to manually specify this many flags.
 ```sh
 # source: https://github.com/ollama/ollama/blob/main/llm/generate/gen_linux.sh
 CMAKE_ARGS="-DBUILD_SHARED_LIBS=on -DCMAKE_POSITION_INDEPENDENT_CODE=on -DGGML_NATIVE=off -DGGML_OPENMP=off -DGGML_AVX=on -DGGML_AVX2=on -DGGML_AVX512=off -DGGML_FMA=on -DGGML_F16C=on" pip install llama-cpp-python --no-cache-dir --force-reinstall

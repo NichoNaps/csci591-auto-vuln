@@ -1,0 +1,202 @@
+Covers Lines 2 - 2
+Constraints:
+
+Mappings:
+Layer 0
+
+
+############ Found Node {: b'{'
+############ Found Node declaration: b'int x = 0;'
+(init_declarator declarator: (identifier) value: (number_literal))
+Parsing Expression: (number_literal)  ->  0
+Applying 0 post assignments of expression
+Performing Declaration x = 0;
+############ Found Node if_statement: b"if (x++) {\n        // Can't enter enter because x = 0\n    }"
+Parsing Expression: (parenthesized_expression (update_expression argument: (identifier)))  ->  (x++)
+Parsing Expression: (update_expression argument: (identifier))  ->  x++
+Found Pre/Post assignment on x
+Applying 1 post assignments of expression
+Got constraint from if statement: If(x_0 == 0, False, True)
+>>>>>>>>>>>> Starting TRUE Fork for (x++)
+Covers Lines 5 - 5
+Constraints:
+0 == x_0
+x_1 == x_0 + 1
+If(x_0 == 0, False, True)
+
+INFEASIBLE
+
+Mappings:
+Layer 0
+   x => x_1
+
+
+INFEASIBLE!
+>>>>>>>>>>>> Starting FALSE Fork for (x++)
+Covers Lines 9 - 9
+Constraints:
+0 == x_0
+x_1 == x_0 + 1
+Not(If(x_0 == 0, False, True))
+
+Mappings:
+Layer 0
+   x => x_1
+
+
+############ Found Node if_statement: b'if (x) {\n        // Must enter because x = 1\n    }'
+Parsing Expression: (parenthesized_expression (identifier))  ->  (x)
+Parsing Expression: (identifier)  ->  x
+x  ->  x_1
+Applying 0 post assignments of expression
+Got constraint from if statement: If(x_1 == 0, False, True)
+>>>>>>>>>>>> Starting TRUE Fork for (x)
+Covers Lines 9 - 9
+Constraints:
+0 == x_0
+x_1 == x_0 + 1
+Not(If(x_0 == 0, False, True))
+If(x_1 == 0, False, True)
+
+Mappings:
+Layer 0
+   x => x_1
+
+
+############ Found Node compound_statement: b'{\n        // Must enter because x = 1\n    }'
+############ Found Node {: b'{'
+############ Found Node comment: b'// Must enter because x = 1'
+############ Found Node }: b'}'
+Hit end of code block, going up node tree and then to the next sibling:
+(compound_statement (comment)) b'{\n        // Must enter because x = 1\n    }'
+Hit end of code block, going up node tree and then to the next sibling:
+(expression_statement (update_expression argument: (identifier))) b'x--;'
+############ Found Node expression_statement: b'x--;'
+Parsing Expression: (update_expression argument: (identifier))  ->  x--
+Found Pre/Post assignment on x
+Applying 1 post assignments of expression
+############ Found Node if_statement: b"if (x) {\n        // Can't enter enter because x = 0\n    }"
+Parsing Expression: (parenthesized_expression (identifier))  ->  (x)
+Parsing Expression: (identifier)  ->  x
+x  ->  x_2
+Applying 0 post assignments of expression
+Got constraint from if statement: If(x_2 == 0, False, True)
+>>>>>>>>>>>> Starting TRUE Fork for (x)
+Covers Lines 15 - 15
+Constraints:
+0 == x_0
+x_1 == x_0 + 1
+Not(If(x_0 == 0, False, True))
+If(x_1 == 0, False, True)
+x_2 == x_1 - 1
+If(x_2 == 0, False, True)
+
+INFEASIBLE
+
+Mappings:
+Layer 0
+   x => x_2
+
+
+INFEASIBLE!
+>>>>>>>>>>>> Starting FALSE Fork for (x)
+Covers Lines 19 - 19
+Constraints:
+0 == x_0
+x_1 == x_0 + 1
+Not(If(x_0 == 0, False, True))
+If(x_1 == 0, False, True)
+x_2 == x_1 - 1
+Not(If(x_2 == 0, False, True))
+
+Mappings:
+Layer 0
+   x => x_2
+
+
+############ Found Node if_statement: b'if (++x) {\n        // Must enter because x = 1\n    }'
+Parsing Expression: (parenthesized_expression (update_expression argument: (identifier)))  ->  (++x)
+Parsing Expression: (update_expression argument: (identifier))  ->  ++x
+Found Pre/Post assignment on x
+Applying 0 post assignments of expression
+Got constraint from if statement: If(x_3 == 0, False, True)
+>>>>>>>>>>>> Starting TRUE Fork for (++x)
+Covers Lines 19 - 19
+Constraints:
+0 == x_0
+x_1 == x_0 + 1
+Not(If(x_0 == 0, False, True))
+If(x_1 == 0, False, True)
+x_2 == x_1 - 1
+Not(If(x_2 == 0, False, True))
+x_3 == x_2 + 1
+If(x_3 == 0, False, True)
+
+Mappings:
+Layer 0
+   x => x_3
+
+
+############ Found Node compound_statement: b'{\n        // Must enter because x = 1\n    }'
+############ Found Node {: b'{'
+############ Found Node comment: b'// Must enter because x = 1'
+############ Found Node }: b'}'
+Hit end of code block, going up node tree and then to the next sibling:
+(compound_statement (comment)) b'{\n        // Must enter because x = 1\n    }'
+Hit end of code block, going up node tree and then to the next sibling:
+(return_statement (number_literal)) b'return 1;'
+############ Found Node return_statement: b'return 1;'
+Function Returned 1
+>>>>>>>>>>>> Starting FALSE Fork for (++x)
+Covers Lines 24 - 24
+Constraints:
+0 == x_0
+x_1 == x_0 + 1
+Not(If(x_0 == 0, False, True))
+If(x_1 == 0, False, True)
+x_2 == x_1 - 1
+Not(If(x_2 == 0, False, True))
+x_3 == x_2 + 1
+Not(If(x_3 == 0, False, True))
+
+INFEASIBLE
+
+Mappings:
+Layer 0
+   x => x_3
+
+
+INFEASIBLE!
+>>>>>>>>>>>> Starting FALSE Fork for (x)
+Covers Lines 13 - 13
+Constraints:
+0 == x_0
+x_1 == x_0 + 1
+Not(If(x_0 == 0, False, True))
+Not(If(x_1 == 0, False, True))
+
+INFEASIBLE
+
+Mappings:
+Layer 0
+   x => x_1
+
+
+INFEASIBLE!
+
+
+
+
+###### Stats on symbolic state tree:
+Infeasible states: 4
+
+Feasible paths: 1
+
+Feasible paths to target (return 1;): 1
+
+#### Feasible path to target 1/1:
+Constraints on function parameters to reach target statement:
+True
+
+Concrete values to reach target statement:
+

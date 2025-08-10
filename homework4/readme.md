@@ -1,3 +1,7 @@
+# Introduction 
+This is a data flow analysis tool written in python for the While3addr language. Data flow analysis is a useful static analysis tool in cyber security to find potential vulnerabilities in code without needing to run it like determining if customer data is being logged. We implemented the worklist algorithm for this data analysis tool allowing you to extend its functionality with different types of analysis. Included for this assignment are the following following analysis:
+- **Integer Sign Analysis**: Determine at each point in the program whether an integer variable is positive, negative, or unknown
+- **Reaching Definition Analysis**: Determine at each point in the program which variable assignments are active (uses subscripts to denote the line number where the assignment occurred).
 
 # Setup
 

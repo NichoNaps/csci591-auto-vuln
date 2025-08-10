@@ -1,0 +1,114 @@
+(function_definition type: (primitive_type) declarator: (function_declarator declarator: (identifier) parameters: (parameter_list (parameter_declaration type: (primitive_type) declarator: (identifier)) (parameter_declaration type: (primitive_type) declarator: (identifier)))) body: (compound_statement (if_statement condition: (parenthesized_expression (binary_expression left: (identifier) right: (identifier))) consequence: (compound_statement (expression_statement (assignment_expression left: (identifier) right: (binary_expression left: (identifier) right: (identifier)))) (expression_statement (assignment_expression left: (identifier) right: (binary_expression left: (identifier) right: (identifier)))) (expression_statement (assignment_expression left: (identifier) right: (binary_expression left: (identifier) right: (identifier))))) alternative: (else_clause (compound_statement (declaration type: (primitive_type) declarator: (init_declarator declarator: (identifier) value: (update_expression argument: (identifier)))) (comment) (expression_statement (assignment_expression left: (identifier) right: (identifier))) (return_statement (number_literal))))) (return_statement (number_literal))))
+Covers Lines 2 - 2
+Constraints:
+
+Mappings:
+Layer 0
+   x => x_0
+   y => y_0
+
+
+############ Found Node {: b'{'
+############ Found Node if_statement: b'if (x > y) {\n        x = x + y;\n        y = x - y;\n        x = x - y;\n    } else {\n        int y = y++; // variable shadow\n        x = y;\n\n        return 1;\n    }'
+Parsing Expression: (parenthesized_expression (binary_expression left: (identifier) right: (identifier)))  ->  (x > y)
+Parsing Expression: (binary_expression left: (identifier) right: (identifier))  ->  x > y
+Parsing Expression: (identifier)  ->  x
+x  ->  x_0
+Parsing Expression: (identifier)  ->  y
+y  ->  y_0
+OPERATOR >
+Applying 0 post assignments of expression
+Got constraint from if statement: x_0 > y_0
+>>>>>>>>>>>> Starting TRUE Fork for (x > y)
+Covers Lines 4 - 4
+Constraints:
+x_0 > y_0
+
+Mappings:
+Layer 0
+   x => x_0
+   y => y_0
+
+
+############ Found Node compound_statement: b'{\n        x = x + y;\n        y = x - y;\n        x = x - y;\n    }'
+############ Found Node {: b'{'
+############ Found Node expression_statement: b'x = x + y;'
+Parsing Expression: (binary_expression left: (identifier) right: (identifier))  ->  x + y
+Parsing Expression: (identifier)  ->  x
+x  ->  x_0
+Parsing Expression: (identifier)  ->  y
+y  ->  y_0
+OPERATOR +
+Applying 0 post assignments of expression
+Performing Assignment: x = x_0 + y_0;
+############ Found Node expression_statement: b'y = x - y;'
+Parsing Expression: (binary_expression left: (identifier) right: (identifier))  ->  x - y
+Parsing Expression: (identifier)  ->  x
+x  ->  x_1
+Parsing Expression: (identifier)  ->  y
+y  ->  y_0
+OPERATOR -
+Applying 0 post assignments of expression
+Performing Assignment: y = x_1 - y_0;
+############ Found Node expression_statement: b'x = x - y;'
+Parsing Expression: (binary_expression left: (identifier) right: (identifier))  ->  x - y
+Parsing Expression: (identifier)  ->  x
+x  ->  x_1
+Parsing Expression: (identifier)  ->  y
+y  ->  y_1
+OPERATOR -
+Applying 0 post assignments of expression
+Performing Assignment: x = x_1 - y_1;
+############ Found Node }: b'}'
+Hit end of code block, going up node tree and then to the next sibling:
+(else_clause (compound_statement (declaration type: (primitive_type) declarator: (init_declarator declarator: (identifier) value: (update_expression argument: (identifier)))) (comment) (expression_statement (assignment_expression left: (identifier) right: (identifier))) (return_statement (number_literal)))) b'else {\n        int y = y++; // variable shadow\n        x = y;\n\n        return 1;\n    }'
+Hit end of code block, going up node tree and then to the next sibling:
+(return_statement (number_literal)) b'return 0;'
+############ Found Node return_statement: b'return 0;'
+Function Returned 0
+>>>>>>>>>>>> Starting FALSE Fork for (x > y)
+Covers Lines 8 - 8
+Constraints:
+Not(x_0 > y_0)
+
+Mappings:
+Layer 0
+   x => x_0
+   y => y_0
+
+
+############ Found Node compound_statement: b'{\n        int y = y++; // variable shadow\n        x = y;\n\n        return 1;\n    }'
+############ Found Node {: b'{'
+############ Found Node declaration: b'int y = y++;'
+(init_declarator declarator: (identifier) value: (update_expression argument: (identifier)))
+Parsing Expression: (update_expression argument: (identifier))  ->  y++
+Found Pre/Post assignment on y
+Applying 1 post assignments of expression
+Performing Declaration y = y_0;
+############ Found Node comment: b'// variable shadow'
+############ Found Node expression_statement: b'x = y;'
+Parsing Expression: (identifier)  ->  y
+y  ->  y_3
+Applying 0 post assignments of expression
+Performing Assignment: x = y_3;
+############ Found Node return_statement: b'return 1;'
+Function Returned 1
+
+
+
+
+###### Stats on symbolic state tree:
+Infeasible states: 0
+
+Feasible paths: 2
+
+Feasible paths to target (return 1;): 1
+
+#### Feasible path to target 1/1:
+Constraints on function parameters to reach target statement:
+x_0 <= y_0
+
+Concrete values to reach target statement:
+y_0 = 0
+x_0 = 0
+

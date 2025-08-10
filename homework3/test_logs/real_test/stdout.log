@@ -1,0 +1,1264 @@
+Covers Lines 12 - 12
+Constraints:
+
+Mappings:
+Layer 0
+   x => x_0
+
+
+############ Found Node {: b'{'
+############ Found Node declaration: b'int y = f();'
+(init_declarator declarator: (identifier) value: (call_expression function: (identifier) arguments: (argument_list)))
+Parsing Expression: (call_expression function: (identifier) arguments: (argument_list))  ->  f()
+Applying 0 post assignments of expression
+Performing Declaration y = call_f_0;
+############ Found Node if_statement: b'if (x > y) {\n    int i = 0;\n    while (i < 10) {\n      x--;\n      i++;\n    }\n\n    if (x == y) {\n      puts("nope");\n      return 0;\n    } else {\n      if (x < y) {\n        // Get here\n        puts("got it!");\n        return 1;\n      } else {\n        puts("not here");\n        return 0;\n      }\n\n    }\n  }'
+Parsing Expression: (parenthesized_expression (binary_expression left: (identifier) right: (identifier)))  ->  (x > y)
+Parsing Expression: (binary_expression left: (identifier) right: (identifier))  ->  x > y
+Parsing Expression: (identifier)  ->  x
+x  ->  x_0
+Parsing Expression: (identifier)  ->  y
+y  ->  y_0
+OPERATOR >
+Applying 0 post assignments of expression
+Got constraint from if statement: x_0 > y_0
+>>>>>>>>>>>> Starting TRUE Fork for (x > y)
+Covers Lines 14 - 14
+Constraints:
+y_0 == call_f_0
+x_0 > y_0
+
+Mappings:
+Layer 0
+   x => x_0
+   y => y_0
+
+
+############ Found Node compound_statement: b'{\n    int i = 0;\n    while (i < 10) {\n      x--;\n      i++;\n    }\n\n    if (x == y) {\n      puts("nope");\n      return 0;\n    } else {\n      if (x < y) {\n        // Get here\n        puts("got it!");\n        return 1;\n      } else {\n        puts("not here");\n        return 0;\n      }\n\n    }\n  }'
+############ Found Node {: b'{'
+############ Found Node declaration: b'int i = 0;'
+(init_declarator declarator: (identifier) value: (number_literal))
+Parsing Expression: (number_literal)  ->  0
+Applying 0 post assignments of expression
+Performing Declaration i = 0;
+############ Found Node while_statement: b'while (i < 10) {\n      x--;\n      i++;\n    }'
+######################## Handling While Loop
+Parsing Expression: (parenthesized_expression (binary_expression left: (identifier) right: (number_literal)))  ->  (i < 10)
+Parsing Expression: (binary_expression left: (identifier) right: (number_literal))  ->  i < 10
+Parsing Expression: (identifier)  ->  i
+i  ->  i_0
+Parsing Expression: (number_literal)  ->  10
+OPERATOR <
+Applying 0 post assignments of expression
+while loop constraint: 10 > i_0
+>>>>>>>>>>>> Starting TRUE Fork for (i < 10)
+Covers Lines 16 - 16
+Constraints:
+y_0 == call_f_0
+x_0 > y_0
+0 == i_0
+10 > i_0
+
+Mappings:
+Layer 0
+   x => x_0
+   y => y_0
+Layer 1
+   i => i_0
+
+
+############ Found Node compound_statement: b'{\n      x--;\n      i++;\n    }'
+############ Found Node {: b'{'
+############ Found Node expression_statement: b'x--;'
+Parsing Expression: (update_expression argument: (identifier))  ->  x--
+Found Pre/Post assignment on x
+Applying 1 post assignments of expression
+############ Found Node expression_statement: b'i++;'
+Parsing Expression: (update_expression argument: (identifier))  ->  i++
+Found Pre/Post assignment on i
+Applying 1 post assignments of expression
+############ Found Node }: b'}'
+Hit end of code block, going up node tree and then to the next sibling:
+(compound_statement (expression_statement (update_expression argument: (identifier))) (expression_statement (update_expression argument: (identifier)))) b'{\n      x--;\n      i++;\n    }'
+Hit end of code block, going up node tree and then to the next sibling:
+######################## Handling While Loop
+Parsing Expression: (parenthesized_expression (binary_expression left: (identifier) right: (number_literal)))  ->  (i < 10)
+Parsing Expression: (binary_expression left: (identifier) right: (number_literal))  ->  i < 10
+Parsing Expression: (identifier)  ->  i
+i  ->  i_1
+Parsing Expression: (number_literal)  ->  10
+OPERATOR <
+Applying 0 post assignments of expression
+while loop constraint: 10 > i_1
+>>>>>>>>>>>> Starting TRUE Fork for (i < 10)
+Covers Lines 16 - 16
+Constraints:
+y_0 == call_f_0
+x_0 > y_0
+0 == i_0
+10 > i_0
+x_1 == x_0 - 1
+i_1 == i_0 + 1
+10 > i_1
+
+Mappings:
+Layer 0
+   x => x_1
+   y => y_0
+Layer 1
+   i => i_1
+
+
+############ Found Node compound_statement: b'{\n      x--;\n      i++;\n    }'
+############ Found Node {: b'{'
+############ Found Node expression_statement: b'x--;'
+Parsing Expression: (update_expression argument: (identifier))  ->  x--
+Found Pre/Post assignment on x
+Applying 1 post assignments of expression
+############ Found Node expression_statement: b'i++;'
+Parsing Expression: (update_expression argument: (identifier))  ->  i++
+Found Pre/Post assignment on i
+Applying 1 post assignments of expression
+############ Found Node }: b'}'
+Hit end of code block, going up node tree and then to the next sibling:
+(compound_statement (expression_statement (update_expression argument: (identifier))) (expression_statement (update_expression argument: (identifier)))) b'{\n      x--;\n      i++;\n    }'
+Hit end of code block, going up node tree and then to the next sibling:
+######################## Handling While Loop
+Parsing Expression: (parenthesized_expression (binary_expression left: (identifier) right: (number_literal)))  ->  (i < 10)
+Parsing Expression: (binary_expression left: (identifier) right: (number_literal))  ->  i < 10
+Parsing Expression: (identifier)  ->  i
+i  ->  i_2
+Parsing Expression: (number_literal)  ->  10
+OPERATOR <
+Applying 0 post assignments of expression
+while loop constraint: 10 > i_2
+>>>>>>>>>>>> Starting TRUE Fork for (i < 10)
+Covers Lines 16 - 16
+Constraints:
+y_0 == call_f_0
+x_0 > y_0
+0 == i_0
+10 > i_0
+x_1 == x_0 - 1
+i_1 == i_0 + 1
+10 > i_1
+x_2 == x_1 - 1
+i_2 == i_1 + 1
+10 > i_2
+
+Mappings:
+Layer 0
+   x => x_2
+   y => y_0
+Layer 1
+   i => i_2
+
+
+############ Found Node compound_statement: b'{\n      x--;\n      i++;\n    }'
+############ Found Node {: b'{'
+############ Found Node expression_statement: b'x--;'
+Parsing Expression: (update_expression argument: (identifier))  ->  x--
+Found Pre/Post assignment on x
+Applying 1 post assignments of expression
+############ Found Node expression_statement: b'i++;'
+Parsing Expression: (update_expression argument: (identifier))  ->  i++
+Found Pre/Post assignment on i
+Applying 1 post assignments of expression
+############ Found Node }: b'}'
+Hit end of code block, going up node tree and then to the next sibling:
+(compound_statement (expression_statement (update_expression argument: (identifier))) (expression_statement (update_expression argument: (identifier)))) b'{\n      x--;\n      i++;\n    }'
+Hit end of code block, going up node tree and then to the next sibling:
+######################## Handling While Loop
+Parsing Expression: (parenthesized_expression (binary_expression left: (identifier) right: (number_literal)))  ->  (i < 10)
+Parsing Expression: (binary_expression left: (identifier) right: (number_literal))  ->  i < 10
+Parsing Expression: (identifier)  ->  i
+i  ->  i_3
+Parsing Expression: (number_literal)  ->  10
+OPERATOR <
+Applying 0 post assignments of expression
+while loop constraint: 10 > i_3
+>>>>>>>>>>>> Starting TRUE Fork for (i < 10)
+Covers Lines 16 - 16
+Constraints:
+y_0 == call_f_0
+x_0 > y_0
+0 == i_0
+10 > i_0
+x_1 == x_0 - 1
+i_1 == i_0 + 1
+10 > i_1
+x_2 == x_1 - 1
+i_2 == i_1 + 1
+10 > i_2
+x_3 == x_2 - 1
+i_3 == i_2 + 1
+10 > i_3
+
+Mappings:
+Layer 0
+   x => x_3
+   y => y_0
+Layer 1
+   i => i_3
+
+
+############ Found Node compound_statement: b'{\n      x--;\n      i++;\n    }'
+############ Found Node {: b'{'
+############ Found Node expression_statement: b'x--;'
+Parsing Expression: (update_expression argument: (identifier))  ->  x--
+Found Pre/Post assignment on x
+Applying 1 post assignments of expression
+############ Found Node expression_statement: b'i++;'
+Parsing Expression: (update_expression argument: (identifier))  ->  i++
+Found Pre/Post assignment on i
+Applying 1 post assignments of expression
+############ Found Node }: b'}'
+Hit end of code block, going up node tree and then to the next sibling:
+(compound_statement (expression_statement (update_expression argument: (identifier))) (expression_statement (update_expression argument: (identifier)))) b'{\n      x--;\n      i++;\n    }'
+Hit end of code block, going up node tree and then to the next sibling:
+######################## Handling While Loop
+Parsing Expression: (parenthesized_expression (binary_expression left: (identifier) right: (number_literal)))  ->  (i < 10)
+Parsing Expression: (binary_expression left: (identifier) right: (number_literal))  ->  i < 10
+Parsing Expression: (identifier)  ->  i
+i  ->  i_4
+Parsing Expression: (number_literal)  ->  10
+OPERATOR <
+Applying 0 post assignments of expression
+while loop constraint: 10 > i_4
+>>>>>>>>>>>> Starting TRUE Fork for (i < 10)
+Covers Lines 16 - 16
+Constraints:
+y_0 == call_f_0
+x_0 > y_0
+0 == i_0
+10 > i_0
+x_1 == x_0 - 1
+i_1 == i_0 + 1
+10 > i_1
+x_2 == x_1 - 1
+i_2 == i_1 + 1
+10 > i_2
+x_3 == x_2 - 1
+i_3 == i_2 + 1
+10 > i_3
+x_4 == x_3 - 1
+i_4 == i_3 + 1
+10 > i_4
+
+Mappings:
+Layer 0
+   x => x_4
+   y => y_0
+Layer 1
+   i => i_4
+
+
+############ Found Node compound_statement: b'{\n      x--;\n      i++;\n    }'
+############ Found Node {: b'{'
+############ Found Node expression_statement: b'x--;'
+Parsing Expression: (update_expression argument: (identifier))  ->  x--
+Found Pre/Post assignment on x
+Applying 1 post assignments of expression
+############ Found Node expression_statement: b'i++;'
+Parsing Expression: (update_expression argument: (identifier))  ->  i++
+Found Pre/Post assignment on i
+Applying 1 post assignments of expression
+############ Found Node }: b'}'
+Hit end of code block, going up node tree and then to the next sibling:
+(compound_statement (expression_statement (update_expression argument: (identifier))) (expression_statement (update_expression argument: (identifier)))) b'{\n      x--;\n      i++;\n    }'
+Hit end of code block, going up node tree and then to the next sibling:
+######################## Handling While Loop
+Parsing Expression: (parenthesized_expression (binary_expression left: (identifier) right: (number_literal)))  ->  (i < 10)
+Parsing Expression: (binary_expression left: (identifier) right: (number_literal))  ->  i < 10
+Parsing Expression: (identifier)  ->  i
+i  ->  i_5
+Parsing Expression: (number_literal)  ->  10
+OPERATOR <
+Applying 0 post assignments of expression
+while loop constraint: 10 > i_5
+>>>>>>>>>>>> Starting TRUE Fork for (i < 10)
+Covers Lines 16 - 16
+Constraints:
+y_0 == call_f_0
+x_0 > y_0
+0 == i_0
+10 > i_0
+x_1 == x_0 - 1
+i_1 == i_0 + 1
+10 > i_1
+x_2 == x_1 - 1
+i_2 == i_1 + 1
+10 > i_2
+x_3 == x_2 - 1
+i_3 == i_2 + 1
+10 > i_3
+x_4 == x_3 - 1
+i_4 == i_3 + 1
+10 > i_4
+x_5 == x_4 - 1
+i_5 == i_4 + 1
+10 > i_5
+
+Mappings:
+Layer 0
+   x => x_5
+   y => y_0
+Layer 1
+   i => i_5
+
+
+############ Found Node compound_statement: b'{\n      x--;\n      i++;\n    }'
+############ Found Node {: b'{'
+############ Found Node expression_statement: b'x--;'
+Parsing Expression: (update_expression argument: (identifier))  ->  x--
+Found Pre/Post assignment on x
+Applying 1 post assignments of expression
+############ Found Node expression_statement: b'i++;'
+Parsing Expression: (update_expression argument: (identifier))  ->  i++
+Found Pre/Post assignment on i
+Applying 1 post assignments of expression
+############ Found Node }: b'}'
+Hit end of code block, going up node tree and then to the next sibling:
+(compound_statement (expression_statement (update_expression argument: (identifier))) (expression_statement (update_expression argument: (identifier)))) b'{\n      x--;\n      i++;\n    }'
+Hit end of code block, going up node tree and then to the next sibling:
+######################## Handling While Loop
+Parsing Expression: (parenthesized_expression (binary_expression left: (identifier) right: (number_literal)))  ->  (i < 10)
+Parsing Expression: (binary_expression left: (identifier) right: (number_literal))  ->  i < 10
+Parsing Expression: (identifier)  ->  i
+i  ->  i_6
+Parsing Expression: (number_literal)  ->  10
+OPERATOR <
+Applying 0 post assignments of expression
+while loop constraint: 10 > i_6
+>>>>>>>>>>>> Starting TRUE Fork for (i < 10)
+Covers Lines 16 - 16
+Constraints:
+y_0 == call_f_0
+x_0 > y_0
+0 == i_0
+10 > i_0
+x_1 == x_0 - 1
+i_1 == i_0 + 1
+10 > i_1
+x_2 == x_1 - 1
+i_2 == i_1 + 1
+10 > i_2
+x_3 == x_2 - 1
+i_3 == i_2 + 1
+10 > i_3
+x_4 == x_3 - 1
+i_4 == i_3 + 1
+10 > i_4
+x_5 == x_4 - 1
+i_5 == i_4 + 1
+10 > i_5
+x_6 == x_5 - 1
+i_6 == i_5 + 1
+10 > i_6
+
+Mappings:
+Layer 0
+   x => x_6
+   y => y_0
+Layer 1
+   i => i_6
+
+
+############ Found Node compound_statement: b'{\n      x--;\n      i++;\n    }'
+############ Found Node {: b'{'
+############ Found Node expression_statement: b'x--;'
+Parsing Expression: (update_expression argument: (identifier))  ->  x--
+Found Pre/Post assignment on x
+Applying 1 post assignments of expression
+############ Found Node expression_statement: b'i++;'
+Parsing Expression: (update_expression argument: (identifier))  ->  i++
+Found Pre/Post assignment on i
+Applying 1 post assignments of expression
+############ Found Node }: b'}'
+Hit end of code block, going up node tree and then to the next sibling:
+(compound_statement (expression_statement (update_expression argument: (identifier))) (expression_statement (update_expression argument: (identifier)))) b'{\n      x--;\n      i++;\n    }'
+Hit end of code block, going up node tree and then to the next sibling:
+######################## Handling While Loop
+Parsing Expression: (parenthesized_expression (binary_expression left: (identifier) right: (number_literal)))  ->  (i < 10)
+Parsing Expression: (binary_expression left: (identifier) right: (number_literal))  ->  i < 10
+Parsing Expression: (identifier)  ->  i
+i  ->  i_7
+Parsing Expression: (number_literal)  ->  10
+OPERATOR <
+Applying 0 post assignments of expression
+while loop constraint: 10 > i_7
+>>>>>>>>>>>> Starting TRUE Fork for (i < 10)
+Covers Lines 16 - 16
+Constraints:
+y_0 == call_f_0
+x_0 > y_0
+0 == i_0
+10 > i_0
+x_1 == x_0 - 1
+i_1 == i_0 + 1
+10 > i_1
+x_2 == x_1 - 1
+i_2 == i_1 + 1
+10 > i_2
+x_3 == x_2 - 1
+i_3 == i_2 + 1
+10 > i_3
+x_4 == x_3 - 1
+i_4 == i_3 + 1
+10 > i_4
+x_5 == x_4 - 1
+i_5 == i_4 + 1
+10 > i_5
+x_6 == x_5 - 1
+i_6 == i_5 + 1
+10 > i_6
+x_7 == x_6 - 1
+i_7 == i_6 + 1
+10 > i_7
+
+Mappings:
+Layer 0
+   x => x_7
+   y => y_0
+Layer 1
+   i => i_7
+
+
+############ Found Node compound_statement: b'{\n      x--;\n      i++;\n    }'
+############ Found Node {: b'{'
+############ Found Node expression_statement: b'x--;'
+Parsing Expression: (update_expression argument: (identifier))  ->  x--
+Found Pre/Post assignment on x
+Applying 1 post assignments of expression
+############ Found Node expression_statement: b'i++;'
+Parsing Expression: (update_expression argument: (identifier))  ->  i++
+Found Pre/Post assignment on i
+Applying 1 post assignments of expression
+############ Found Node }: b'}'
+Hit end of code block, going up node tree and then to the next sibling:
+(compound_statement (expression_statement (update_expression argument: (identifier))) (expression_statement (update_expression argument: (identifier)))) b'{\n      x--;\n      i++;\n    }'
+Hit end of code block, going up node tree and then to the next sibling:
+######################## Handling While Loop
+Parsing Expression: (parenthesized_expression (binary_expression left: (identifier) right: (number_literal)))  ->  (i < 10)
+Parsing Expression: (binary_expression left: (identifier) right: (number_literal))  ->  i < 10
+Parsing Expression: (identifier)  ->  i
+i  ->  i_8
+Parsing Expression: (number_literal)  ->  10
+OPERATOR <
+Applying 0 post assignments of expression
+while loop constraint: 10 > i_8
+>>>>>>>>>>>> Starting TRUE Fork for (i < 10)
+Covers Lines 16 - 16
+Constraints:
+y_0 == call_f_0
+x_0 > y_0
+0 == i_0
+10 > i_0
+x_1 == x_0 - 1
+i_1 == i_0 + 1
+10 > i_1
+x_2 == x_1 - 1
+i_2 == i_1 + 1
+10 > i_2
+x_3 == x_2 - 1
+i_3 == i_2 + 1
+10 > i_3
+x_4 == x_3 - 1
+i_4 == i_3 + 1
+10 > i_4
+x_5 == x_4 - 1
+i_5 == i_4 + 1
+10 > i_5
+x_6 == x_5 - 1
+i_6 == i_5 + 1
+10 > i_6
+x_7 == x_6 - 1
+i_7 == i_6 + 1
+10 > i_7
+x_8 == x_7 - 1
+i_8 == i_7 + 1
+10 > i_8
+
+Mappings:
+Layer 0
+   x => x_8
+   y => y_0
+Layer 1
+   i => i_8
+
+
+############ Found Node compound_statement: b'{\n      x--;\n      i++;\n    }'
+############ Found Node {: b'{'
+############ Found Node expression_statement: b'x--;'
+Parsing Expression: (update_expression argument: (identifier))  ->  x--
+Found Pre/Post assignment on x
+Applying 1 post assignments of expression
+############ Found Node expression_statement: b'i++;'
+Parsing Expression: (update_expression argument: (identifier))  ->  i++
+Found Pre/Post assignment on i
+Applying 1 post assignments of expression
+############ Found Node }: b'}'
+Hit end of code block, going up node tree and then to the next sibling:
+(compound_statement (expression_statement (update_expression argument: (identifier))) (expression_statement (update_expression argument: (identifier)))) b'{\n      x--;\n      i++;\n    }'
+Hit end of code block, going up node tree and then to the next sibling:
+######################## Handling While Loop
+Parsing Expression: (parenthesized_expression (binary_expression left: (identifier) right: (number_literal)))  ->  (i < 10)
+Parsing Expression: (binary_expression left: (identifier) right: (number_literal))  ->  i < 10
+Parsing Expression: (identifier)  ->  i
+i  ->  i_9
+Parsing Expression: (number_literal)  ->  10
+OPERATOR <
+Applying 0 post assignments of expression
+while loop constraint: 10 > i_9
+>>>>>>>>>>>> Starting TRUE Fork for (i < 10)
+Covers Lines 16 - 16
+Constraints:
+y_0 == call_f_0
+x_0 > y_0
+0 == i_0
+10 > i_0
+x_1 == x_0 - 1
+i_1 == i_0 + 1
+10 > i_1
+x_2 == x_1 - 1
+i_2 == i_1 + 1
+10 > i_2
+x_3 == x_2 - 1
+i_3 == i_2 + 1
+10 > i_3
+x_4 == x_3 - 1
+i_4 == i_3 + 1
+10 > i_4
+x_5 == x_4 - 1
+i_5 == i_4 + 1
+10 > i_5
+x_6 == x_5 - 1
+i_6 == i_5 + 1
+10 > i_6
+x_7 == x_6 - 1
+i_7 == i_6 + 1
+10 > i_7
+x_8 == x_7 - 1
+i_8 == i_7 + 1
+10 > i_8
+x_9 == x_8 - 1
+i_9 == i_8 + 1
+10 > i_9
+
+Mappings:
+Layer 0
+   x => x_9
+   y => y_0
+Layer 1
+   i => i_9
+
+
+############ Found Node compound_statement: b'{\n      x--;\n      i++;\n    }'
+############ Found Node {: b'{'
+############ Found Node expression_statement: b'x--;'
+Parsing Expression: (update_expression argument: (identifier))  ->  x--
+Found Pre/Post assignment on x
+Applying 1 post assignments of expression
+############ Found Node expression_statement: b'i++;'
+Parsing Expression: (update_expression argument: (identifier))  ->  i++
+Found Pre/Post assignment on i
+Applying 1 post assignments of expression
+############ Found Node }: b'}'
+Hit end of code block, going up node tree and then to the next sibling:
+(compound_statement (expression_statement (update_expression argument: (identifier))) (expression_statement (update_expression argument: (identifier)))) b'{\n      x--;\n      i++;\n    }'
+Hit end of code block, going up node tree and then to the next sibling:
+######################## Handling While Loop
+Parsing Expression: (parenthesized_expression (binary_expression left: (identifier) right: (number_literal)))  ->  (i < 10)
+Parsing Expression: (binary_expression left: (identifier) right: (number_literal))  ->  i < 10
+Parsing Expression: (identifier)  ->  i
+i  ->  i_10
+Parsing Expression: (number_literal)  ->  10
+OPERATOR <
+Applying 0 post assignments of expression
+while loop constraint: 10 > i_10
+>>>>>>>>>>>> Starting TRUE Fork for (i < 10)
+Covers Lines 16 - 16
+Constraints:
+y_0 == call_f_0
+x_0 > y_0
+0 == i_0
+10 > i_0
+x_1 == x_0 - 1
+i_1 == i_0 + 1
+10 > i_1
+x_2 == x_1 - 1
+i_2 == i_1 + 1
+10 > i_2
+x_3 == x_2 - 1
+i_3 == i_2 + 1
+10 > i_3
+x_4 == x_3 - 1
+i_4 == i_3 + 1
+10 > i_4
+x_5 == x_4 - 1
+i_5 == i_4 + 1
+10 > i_5
+x_6 == x_5 - 1
+i_6 == i_5 + 1
+10 > i_6
+x_7 == x_6 - 1
+i_7 == i_6 + 1
+10 > i_7
+x_8 == x_7 - 1
+i_8 == i_7 + 1
+10 > i_8
+x_9 == x_8 - 1
+i_9 == i_8 + 1
+10 > i_9
+x_10 == x_9 - 1
+i_10 == i_9 + 1
+10 > i_10
+
+INFEASIBLE
+
+Mappings:
+Layer 0
+   x => x_10
+   y => y_0
+Layer 1
+   i => i_10
+
+
+INFEASIBLE!
+>>>>>>>>>>>> Starting FALSE Fork for (i < 10)
+Covers Lines 21 - 21
+Constraints:
+y_0 == call_f_0
+x_0 > y_0
+0 == i_0
+10 > i_0
+x_1 == x_0 - 1
+i_1 == i_0 + 1
+10 > i_1
+x_2 == x_1 - 1
+i_2 == i_1 + 1
+10 > i_2
+x_3 == x_2 - 1
+i_3 == i_2 + 1
+10 > i_3
+x_4 == x_3 - 1
+i_4 == i_3 + 1
+10 > i_4
+x_5 == x_4 - 1
+i_5 == i_4 + 1
+10 > i_5
+x_6 == x_5 - 1
+i_6 == i_5 + 1
+10 > i_6
+x_7 == x_6 - 1
+i_7 == i_6 + 1
+10 > i_7
+x_8 == x_7 - 1
+i_8 == i_7 + 1
+10 > i_8
+x_9 == x_8 - 1
+i_9 == i_8 + 1
+10 > i_9
+x_10 == x_9 - 1
+i_10 == i_9 + 1
+Not(10 > i_10)
+
+Mappings:
+Layer 0
+   x => x_10
+   y => y_0
+Layer 1
+   i => i_10
+
+
+############ Found Node if_statement: b'if (x == y) {\n      puts("nope");\n      return 0;\n    } else {\n      if (x < y) {\n        // Get here\n        puts("got it!");\n        return 1;\n      } else {\n        puts("not here");\n        return 0;\n      }\n\n    }'
+Parsing Expression: (parenthesized_expression (binary_expression left: (identifier) right: (identifier)))  ->  (x == y)
+Parsing Expression: (binary_expression left: (identifier) right: (identifier))  ->  x == y
+Parsing Expression: (identifier)  ->  x
+x  ->  x_10
+Parsing Expression: (identifier)  ->  y
+y  ->  y_0
+OPERATOR ==
+Applying 0 post assignments of expression
+Got constraint from if statement: x_10 == y_0
+>>>>>>>>>>>> Starting TRUE Fork for (x == y)
+Covers Lines 21 - 21
+Constraints:
+y_0 == call_f_0
+x_0 > y_0
+0 == i_0
+10 > i_0
+x_1 == x_0 - 1
+i_1 == i_0 + 1
+10 > i_1
+x_2 == x_1 - 1
+i_2 == i_1 + 1
+10 > i_2
+x_3 == x_2 - 1
+i_3 == i_2 + 1
+10 > i_3
+x_4 == x_3 - 1
+i_4 == i_3 + 1
+10 > i_4
+x_5 == x_4 - 1
+i_5 == i_4 + 1
+10 > i_5
+x_6 == x_5 - 1
+i_6 == i_5 + 1
+10 > i_6
+x_7 == x_6 - 1
+i_7 == i_6 + 1
+10 > i_7
+x_8 == x_7 - 1
+i_8 == i_7 + 1
+10 > i_8
+x_9 == x_8 - 1
+i_9 == i_8 + 1
+10 > i_9
+x_10 == x_9 - 1
+i_10 == i_9 + 1
+Not(10 > i_10)
+x_10 == y_0
+
+Mappings:
+Layer 0
+   x => x_10
+   y => y_0
+Layer 1
+   i => i_10
+
+
+############ Found Node compound_statement: b'{\n      puts("nope");\n      return 0;\n    }'
+############ Found Node {: b'{'
+############ Found Node expression_statement: b'puts("nope");'
+############ Found Node return_statement: b'return 0;'
+Function Returned 0
+>>>>>>>>>>>> Starting FALSE Fork for (x == y)
+Covers Lines 24 - 24
+Constraints:
+y_0 == call_f_0
+x_0 > y_0
+0 == i_0
+10 > i_0
+x_1 == x_0 - 1
+i_1 == i_0 + 1
+10 > i_1
+x_2 == x_1 - 1
+i_2 == i_1 + 1
+10 > i_2
+x_3 == x_2 - 1
+i_3 == i_2 + 1
+10 > i_3
+x_4 == x_3 - 1
+i_4 == i_3 + 1
+10 > i_4
+x_5 == x_4 - 1
+i_5 == i_4 + 1
+10 > i_5
+x_6 == x_5 - 1
+i_6 == i_5 + 1
+10 > i_6
+x_7 == x_6 - 1
+i_7 == i_6 + 1
+10 > i_7
+x_8 == x_7 - 1
+i_8 == i_7 + 1
+10 > i_8
+x_9 == x_8 - 1
+i_9 == i_8 + 1
+10 > i_9
+x_10 == x_9 - 1
+i_10 == i_9 + 1
+Not(10 > i_10)
+Not(x_10 == y_0)
+
+Mappings:
+Layer 0
+   x => x_10
+   y => y_0
+Layer 1
+   i => i_10
+
+
+############ Found Node compound_statement: b'{\n      if (x < y) {\n        // Get here\n        puts("got it!");\n        return 1;\n      } else {\n        puts("not here");\n        return 0;\n      }\n\n    }'
+############ Found Node {: b'{'
+############ Found Node if_statement: b'if (x < y) {\n        // Get here\n        puts("got it!");\n        return 1;\n      } else {\n        puts("not here");\n        return 0;\n      }'
+Parsing Expression: (parenthesized_expression (binary_expression left: (identifier) right: (identifier)))  ->  (x < y)
+Parsing Expression: (binary_expression left: (identifier) right: (identifier))  ->  x < y
+Parsing Expression: (identifier)  ->  x
+x  ->  x_10
+Parsing Expression: (identifier)  ->  y
+y  ->  y_0
+OPERATOR <
+Applying 0 post assignments of expression
+Got constraint from if statement: x_10 < y_0
+>>>>>>>>>>>> Starting TRUE Fork for (x < y)
+Covers Lines 25 - 25
+Constraints:
+y_0 == call_f_0
+x_0 > y_0
+0 == i_0
+10 > i_0
+x_1 == x_0 - 1
+i_1 == i_0 + 1
+10 > i_1
+x_2 == x_1 - 1
+i_2 == i_1 + 1
+10 > i_2
+x_3 == x_2 - 1
+i_3 == i_2 + 1
+10 > i_3
+x_4 == x_3 - 1
+i_4 == i_3 + 1
+10 > i_4
+x_5 == x_4 - 1
+i_5 == i_4 + 1
+10 > i_5
+x_6 == x_5 - 1
+i_6 == i_5 + 1
+10 > i_6
+x_7 == x_6 - 1
+i_7 == i_6 + 1
+10 > i_7
+x_8 == x_7 - 1
+i_8 == i_7 + 1
+10 > i_8
+x_9 == x_8 - 1
+i_9 == i_8 + 1
+10 > i_9
+x_10 == x_9 - 1
+i_10 == i_9 + 1
+Not(10 > i_10)
+Not(x_10 == y_0)
+x_10 < y_0
+
+Mappings:
+Layer 0
+   x => x_10
+   y => y_0
+Layer 1
+   i => i_10
+Layer 2
+
+
+############ Found Node compound_statement: b'{\n        // Get here\n        puts("got it!");\n        return 1;\n      }'
+############ Found Node {: b'{'
+############ Found Node comment: b'// Get here'
+############ Found Node expression_statement: b'puts("got it!");'
+############ Found Node return_statement: b'return 1;'
+Function Returned 1
+>>>>>>>>>>>> Starting FALSE Fork for (x < y)
+Covers Lines 29 - 29
+Constraints:
+y_0 == call_f_0
+x_0 > y_0
+0 == i_0
+10 > i_0
+x_1 == x_0 - 1
+i_1 == i_0 + 1
+10 > i_1
+x_2 == x_1 - 1
+i_2 == i_1 + 1
+10 > i_2
+x_3 == x_2 - 1
+i_3 == i_2 + 1
+10 > i_3
+x_4 == x_3 - 1
+i_4 == i_3 + 1
+10 > i_4
+x_5 == x_4 - 1
+i_5 == i_4 + 1
+10 > i_5
+x_6 == x_5 - 1
+i_6 == i_5 + 1
+10 > i_6
+x_7 == x_6 - 1
+i_7 == i_6 + 1
+10 > i_7
+x_8 == x_7 - 1
+i_8 == i_7 + 1
+10 > i_8
+x_9 == x_8 - 1
+i_9 == i_8 + 1
+10 > i_9
+x_10 == x_9 - 1
+i_10 == i_9 + 1
+Not(10 > i_10)
+Not(x_10 == y_0)
+Not(x_10 < y_0)
+
+Mappings:
+Layer 0
+   x => x_10
+   y => y_0
+Layer 1
+   i => i_10
+Layer 2
+
+
+############ Found Node compound_statement: b'{\n        puts("not here");\n        return 0;\n      }'
+############ Found Node {: b'{'
+############ Found Node expression_statement: b'puts("not here");'
+############ Found Node return_statement: b'return 0;'
+Function Returned 0
+>>>>>>>>>>>> Starting FALSE Fork for (i < 10)
+Covers Lines 21 - 21
+Constraints:
+y_0 == call_f_0
+x_0 > y_0
+0 == i_0
+10 > i_0
+x_1 == x_0 - 1
+i_1 == i_0 + 1
+10 > i_1
+x_2 == x_1 - 1
+i_2 == i_1 + 1
+10 > i_2
+x_3 == x_2 - 1
+i_3 == i_2 + 1
+10 > i_3
+x_4 == x_3 - 1
+i_4 == i_3 + 1
+10 > i_4
+x_5 == x_4 - 1
+i_5 == i_4 + 1
+10 > i_5
+x_6 == x_5 - 1
+i_6 == i_5 + 1
+10 > i_6
+x_7 == x_6 - 1
+i_7 == i_6 + 1
+10 > i_7
+x_8 == x_7 - 1
+i_8 == i_7 + 1
+10 > i_8
+x_9 == x_8 - 1
+i_9 == i_8 + 1
+Not(10 > i_9)
+
+INFEASIBLE
+
+Mappings:
+Layer 0
+   x => x_9
+   y => y_0
+Layer 1
+   i => i_9
+
+
+INFEASIBLE!
+>>>>>>>>>>>> Starting FALSE Fork for (i < 10)
+Covers Lines 21 - 21
+Constraints:
+y_0 == call_f_0
+x_0 > y_0
+0 == i_0
+10 > i_0
+x_1 == x_0 - 1
+i_1 == i_0 + 1
+10 > i_1
+x_2 == x_1 - 1
+i_2 == i_1 + 1
+10 > i_2
+x_3 == x_2 - 1
+i_3 == i_2 + 1
+10 > i_3
+x_4 == x_3 - 1
+i_4 == i_3 + 1
+10 > i_4
+x_5 == x_4 - 1
+i_5 == i_4 + 1
+10 > i_5
+x_6 == x_5 - 1
+i_6 == i_5 + 1
+10 > i_6
+x_7 == x_6 - 1
+i_7 == i_6 + 1
+10 > i_7
+x_8 == x_7 - 1
+i_8 == i_7 + 1
+Not(10 > i_8)
+
+INFEASIBLE
+
+Mappings:
+Layer 0
+   x => x_8
+   y => y_0
+Layer 1
+   i => i_8
+
+
+INFEASIBLE!
+>>>>>>>>>>>> Starting FALSE Fork for (i < 10)
+Covers Lines 21 - 21
+Constraints:
+y_0 == call_f_0
+x_0 > y_0
+0 == i_0
+10 > i_0
+x_1 == x_0 - 1
+i_1 == i_0 + 1
+10 > i_1
+x_2 == x_1 - 1
+i_2 == i_1 + 1
+10 > i_2
+x_3 == x_2 - 1
+i_3 == i_2 + 1
+10 > i_3
+x_4 == x_3 - 1
+i_4 == i_3 + 1
+10 > i_4
+x_5 == x_4 - 1
+i_5 == i_4 + 1
+10 > i_5
+x_6 == x_5 - 1
+i_6 == i_5 + 1
+10 > i_6
+x_7 == x_6 - 1
+i_7 == i_6 + 1
+Not(10 > i_7)
+
+INFEASIBLE
+
+Mappings:
+Layer 0
+   x => x_7
+   y => y_0
+Layer 1
+   i => i_7
+
+
+INFEASIBLE!
+>>>>>>>>>>>> Starting FALSE Fork for (i < 10)
+Covers Lines 21 - 21
+Constraints:
+y_0 == call_f_0
+x_0 > y_0
+0 == i_0
+10 > i_0
+x_1 == x_0 - 1
+i_1 == i_0 + 1
+10 > i_1
+x_2 == x_1 - 1
+i_2 == i_1 + 1
+10 > i_2
+x_3 == x_2 - 1
+i_3 == i_2 + 1
+10 > i_3
+x_4 == x_3 - 1
+i_4 == i_3 + 1
+10 > i_4
+x_5 == x_4 - 1
+i_5 == i_4 + 1
+10 > i_5
+x_6 == x_5 - 1
+i_6 == i_5 + 1
+Not(10 > i_6)
+
+INFEASIBLE
+
+Mappings:
+Layer 0
+   x => x_6
+   y => y_0
+Layer 1
+   i => i_6
+
+
+INFEASIBLE!
+>>>>>>>>>>>> Starting FALSE Fork for (i < 10)
+Covers Lines 21 - 21
+Constraints:
+y_0 == call_f_0
+x_0 > y_0
+0 == i_0
+10 > i_0
+x_1 == x_0 - 1
+i_1 == i_0 + 1
+10 > i_1
+x_2 == x_1 - 1
+i_2 == i_1 + 1
+10 > i_2
+x_3 == x_2 - 1
+i_3 == i_2 + 1
+10 > i_3
+x_4 == x_3 - 1
+i_4 == i_3 + 1
+10 > i_4
+x_5 == x_4 - 1
+i_5 == i_4 + 1
+Not(10 > i_5)
+
+INFEASIBLE
+
+Mappings:
+Layer 0
+   x => x_5
+   y => y_0
+Layer 1
+   i => i_5
+
+
+INFEASIBLE!
+>>>>>>>>>>>> Starting FALSE Fork for (i < 10)
+Covers Lines 21 - 21
+Constraints:
+y_0 == call_f_0
+x_0 > y_0
+0 == i_0
+10 > i_0
+x_1 == x_0 - 1
+i_1 == i_0 + 1
+10 > i_1
+x_2 == x_1 - 1
+i_2 == i_1 + 1
+10 > i_2
+x_3 == x_2 - 1
+i_3 == i_2 + 1
+10 > i_3
+x_4 == x_3 - 1
+i_4 == i_3 + 1
+Not(10 > i_4)
+
+INFEASIBLE
+
+Mappings:
+Layer 0
+   x => x_4
+   y => y_0
+Layer 1
+   i => i_4
+
+
+INFEASIBLE!
+>>>>>>>>>>>> Starting FALSE Fork for (i < 10)
+Covers Lines 21 - 21
+Constraints:
+y_0 == call_f_0
+x_0 > y_0
+0 == i_0
+10 > i_0
+x_1 == x_0 - 1
+i_1 == i_0 + 1
+10 > i_1
+x_2 == x_1 - 1
+i_2 == i_1 + 1
+10 > i_2
+x_3 == x_2 - 1
+i_3 == i_2 + 1
+Not(10 > i_3)
+
+INFEASIBLE
+
+Mappings:
+Layer 0
+   x => x_3
+   y => y_0
+Layer 1
+   i => i_3
+
+
+INFEASIBLE!
+>>>>>>>>>>>> Starting FALSE Fork for (i < 10)
+Covers Lines 21 - 21
+Constraints:
+y_0 == call_f_0
+x_0 > y_0
+0 == i_0
+10 > i_0
+x_1 == x_0 - 1
+i_1 == i_0 + 1
+10 > i_1
+x_2 == x_1 - 1
+i_2 == i_1 + 1
+Not(10 > i_2)
+
+INFEASIBLE
+
+Mappings:
+Layer 0
+   x => x_2
+   y => y_0
+Layer 1
+   i => i_2
+
+
+INFEASIBLE!
+>>>>>>>>>>>> Starting FALSE Fork for (i < 10)
+Covers Lines 21 - 21
+Constraints:
+y_0 == call_f_0
+x_0 > y_0
+0 == i_0
+10 > i_0
+x_1 == x_0 - 1
+i_1 == i_0 + 1
+Not(10 > i_1)
+
+INFEASIBLE
+
+Mappings:
+Layer 0
+   x => x_1
+   y => y_0
+Layer 1
+   i => i_1
+
+
+INFEASIBLE!
+>>>>>>>>>>>> Starting FALSE Fork for (i < 10)
+Covers Lines 21 - 21
+Constraints:
+y_0 == call_f_0
+x_0 > y_0
+0 == i_0
+Not(10 > i_0)
+
+INFEASIBLE
+
+Mappings:
+Layer 0
+   x => x_0
+   y => y_0
+Layer 1
+   i => i_0
+
+
+INFEASIBLE!
+>>>>>>>>>>>> Starting FALSE Fork for (x > y)
+Covers Lines 36 - 36
+Constraints:
+y_0 == call_f_0
+Not(x_0 > y_0)
+
+Mappings:
+Layer 0
+   x => x_0
+   y => y_0
+
+
+############ Found Node expression_statement: b'puts("wrong way");'
+############ Found Node return_statement: b'return 0;'
+Function Returned 0
+
+
+
+
+###### Stats on symbolic state tree:
+Infeasible states: 11
+
+Feasible paths: 4
+
+Feasible paths to target (return 1;): 1
+
+#### Feasible path to target 1/1:
+Constraints on function parameters to reach target statement:
+Not(x_0 <= y_0)
+Not(x_0 == 10 + y_0)
+Not(y_0 <= -10 + x_0)
+
+Concrete values to reach target statement:
+y_0 = -1
+x_0 = 0
+

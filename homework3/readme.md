@@ -1,5 +1,14 @@
-Assignment: https://www.cs.montana.edu/revelle/csci591/assignments/03/
+# Introduction
+This is a symbolic execution engine written in python that can symbolically execute a small portion of the C language (A singular function including int, while, if, else). Symbolic execution is a static analysis tool in cyber security that determines whether a point in code can be reached and what inputs are needed to reach it all while never needing to run the code.
 
+Our implementation uses tree sitter to parse the abstract syntax tree of a singular function written in C and then walks through the function accumulating constraints on variables that must be true to reach that point in the program. The Z3 library is then used to determine if those constraints are unsatisfiable (Ex: x > 10 && x < 10) or satisfiable. If a line with "return 1" is satisfiable to reach, we also use Z3 to get possible assignments of the function's arguments needed to reach that line.
+
+See `test_logs/*` for examples of the program in action. 
+
+Example Output:
+![Diagram of a symbolically executed program](test_logs/test_incri/image.png)
+
+Assignment: https://www.cs.montana.edu/revelle/csci591/assignments/03/
 
 # Setup
 
