@@ -8,7 +8,6 @@ See `test_logs/*` for examples of the program in action.
 Example Output:
 ![Diagram of a symbolically executed program](test_logs/test_incri/image.png)
 
-Assignment: https://www.cs.montana.edu/revelle/csci591/assignments/03/
 
 # Setup
 

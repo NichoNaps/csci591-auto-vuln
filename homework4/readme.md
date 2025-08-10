@@ -3,6 +3,8 @@ This is a data flow analysis tool written in python for the While3addr language.
 - **Integer Sign Analysis**: Determine at each point in the program whether an integer variable is positive, negative, or unknown
 - **Reaching Definition Analysis**: Determine at each point in the program which variable assignments are active (uses subscripts to denote the line number where the assignment occurred).
 
+See `logs/*` for examples of the program in action and `programs/*` for the While3addr programs used.
+
 # Setup
 
 ```sh
